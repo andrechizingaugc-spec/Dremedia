@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, CalendarPlus, Info, Pencil, Video } from "lucide-react";
+import { ArrowRight, CalendarClock, CalendarPlus, ExternalLink, Info, Pencil, Video } from "lucide-react";
 import { BOTS } from "@/lib/bots";
-import { MONTHS } from "@/lib/mock";
+import { MONTHS, type PlanItem } from "@/lib/mock";
 import { monthInfo, startMonth, timeAgo, useData } from "@/lib/store";
 import { BrandTile, Button, Card, Field, Modal, cx, money, num } from "@/components/ui";
 
@@ -20,6 +20,110 @@ function shade(earned: number) {
 function greeting() {
   const h = new Date().getHours();
   return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}
+
+const planKinds: { kind: PlanItem["kind"]; label: string }[] = [
+  { kind: "film", label: "Film today" },
+  { kind: "answer", label: "Answer" },
+  { kind: "waiting", label: "Waiting on a dashboard" },
+  { kind: "posted", label: "Posted" },
+  { kind: "open", label: "Still open" },
+  { kind: "tomorrow", label: "Due tomorrow" },
+];
+
+/** the Connector bot's plan, what needs you now, and deadlines */
+function TodayRow() {
+  const { data } = useData();
+  const { today, inbox, deadlines } = data;
+  const now = inbox.filter((m) => m.level === "now" && !m.done);
+  const due = deadlines.filter((x) => !x.done);
+  return (
+    <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_340px]">
+      <Card className="p-4 md:p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="text-lg font-semibold">Today&apos;s plan</div>
+          <span className="text-xs text-muted">Connector bot · {timeAgo(today.at)}</span>
+        </div>
+        {today.items.length === 0 && !today.summary ? (
+          <p className="text-sm text-muted">
+            Your Connector bot puts what to film, who to answer and what&apos;s waiting here every morning, and how the day went every night.{" "}
+            <Link href="/bots#connector" className="text-brand-text">
+              Set it up
+            </Link>
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {today.summary && <p className="text-sm">{today.summary}</p>}
+            {planKinds.map(({ kind, label }) => {
+              const items = today.items.filter((i) => i.kind === kind);
+              if (!items.length) return null;
+              return (
+                <div key={kind}>
+                  <div className="mb-1 text-xs font-medium text-muted">{label}</div>
+                  <ul className="space-y-1 text-sm">
+                    {items.map((i, n) => (
+                      <li key={n} className="flex items-start gap-2">
+                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ink" />
+                        <span className="min-w-0 flex-1">
+                          {i.text}
+                          {i.by && <span className="ml-1.5 rounded-md bg-side px-1.5 py-0.5 text-xs">by {i.by}</span>}
+                        </span>
+                        {i.url && (
+                          <a href={i.url} target="_blank" rel="noreferrer" className="text-muted hover:text-ink" aria-label="open link">
+                            <ExternalLink size={13} />
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Card>
+      <Card className="p-4">
+        <div className="mb-2 flex items-center justify-between font-semibold">
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#E11D48]" /> Needs you now
+          </span>
+          <Link href="/inbox" className="text-xs font-normal text-muted hover:text-ink">
+            inbox
+          </Link>
+        </div>
+        <div className="space-y-1.5 text-sm">
+          {now.slice(0, 4).map((m) => (
+            <div key={m.id} className="flex items-start gap-2">
+              {m.brand && <BrandTile id={m.brand} size={16} />}
+              <span className="min-w-0 flex-1">
+                <b className="font-medium">{m.who}</b>: {m.what}
+                {m.by && <span className="text-muted"> · {m.by}</span>}
+              </span>
+            </div>
+          ))}
+          {now.length === 0 && <p className="text-muted">nothing urgent.</p>}
+          {now.length > 4 && (
+            <Link href="/inbox" className="text-xs text-brand-text">
+              +{now.length - 4} more
+            </Link>
+          )}
+        </div>
+        <div className="mb-1.5 mt-4 flex items-center gap-2 text-sm font-semibold">
+          <CalendarClock size={14} /> Deadlines
+        </div>
+        <div className="space-y-1 text-sm">
+          {due.slice(0, 4).map((x) => (
+            <div key={x.id} className="flex items-center gap-2">
+              {x.brand && <BrandTile id={x.brand} size={16} />}
+              <span className="min-w-0 flex-1 truncate">{x.what}</span>
+              <span className="shrink-0 text-xs text-muted">{x.when}</span>
+            </div>
+          ))}
+          {due.length === 0 && <p className="text-muted">none.</p>}
+        </div>
+      </Card>
+    </div>
+  );
 }
 
 function DayEditor({ day, onClose }: { day: number; onClose: () => void }) {
@@ -80,8 +184,8 @@ export default function DashboardPage() {
   const now = new Date();
 
   const botRows = [
-    ...BOTS.map((b) => ({ name: b.name, update: bots[b.id].update, at: bots[b.id].updatedAt })),
-    ...bots.custom.map((c) => ({ name: c.name, update: c.update, at: c.updatedAt })),
+    ...BOTS.map((b) => ({ name: b.name, update: bots[b.id].update, at: bots[b.id].updatedAt, href: b.page.href })),
+    ...bots.custom.map((c) => ({ name: c.name, update: c.update, at: c.updatedAt, href: "/bots" })),
   ];
 
   return (
@@ -118,6 +222,8 @@ export default function DashboardPage() {
           </Button>
         </Card>
       )}
+
+      <TodayRow />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_250px]">
         <Card className="p-4 md:p-5">
@@ -229,12 +335,12 @@ export default function DashboardPage() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {botRows.map((b) => (
-            <Link key={b.name} href="/bots" className="rounded-xl border border-line p-3 transition hover:bg-side">
+            <Link key={b.name} href={b.href} className="rounded-xl border border-line p-3 transition hover:bg-side">
               <div className="flex items-center justify-between text-sm">
                 <b>{b.name}</b>
                 <span className="text-xs text-muted">{timeAgo(b.at)}</span>
               </div>
-              <p className={cx("mt-1.5 line-clamp-3 whitespace-pre-line text-[13px]", !b.update && "text-muted")}>{b.update || "no update yet. paste its latest message on the Bots page."}</p>
+              <p className={cx("mt-1.5 line-clamp-3 whitespace-pre-line text-[13px]", !b.update && "text-muted")}>{b.update || "no report yet. set it up on the Bots page."}</p>
             </Link>
           ))}
         </div>

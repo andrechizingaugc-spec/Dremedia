@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowUpRight, ChevronDown, ChevronRight, Plus, RefreshCw, Search, Trash2, UserCog } from "lucide-react";
 import { PLATFORMS, platformName, uid, type Account, type Platform } from "@/lib/mock";
-import { findBrand, useData, useLabel } from "@/lib/store";
+import { findBrand, timeAgo, useData, useLabel } from "@/lib/store";
 import { BrandTile, Button, Card, Field, Modal, NotHooked, PlatformIcon, Toggle, cx } from "@/components/ui";
 
 const filters: ("all" | Platform)[] = ["all", "facebook", "instagram", "youtube", "tiktok"];
@@ -95,6 +95,37 @@ function AccountEditor({ account, onClose, onSaved }: { account?: Account; onClo
         </div>
       </form>
     </Modal>
+  );
+}
+
+/** videos the Posting bot saw live on this account */
+function RecentPosts({ handle, platform }: { handle: string; platform: Platform }) {
+  const { data } = useData();
+  const posts = data.postLog.filter((p) => p.handle.toLowerCase() === handle.toLowerCase() && p.platform === platform);
+  return (
+    <Card className="p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="font-semibold">Recent posts</div>
+        <span className="text-xs text-muted">Posting bot · {timeAgo(data.bots.posting.updatedAt)}</span>
+      </div>
+      {posts.length === 0 ? (
+        <p className="text-sm text-muted">your Posting bot lists this account&apos;s videos here with their views, and keeps the followers up to date.</p>
+      ) : (
+        <div className="divide-y divide-line">
+          {posts.slice(0, 8).map((p) => (
+            <div key={p.id} className="flex items-center gap-3 py-2 text-sm">
+              <span className="min-w-0 flex-1 truncate">{p.caption || p.url}</span>
+              <span className="shrink-0 text-xs text-muted">{[p.views && `${p.views} views`, p.likes && `${p.likes} likes`, p.date].filter(Boolean).join(" · ")}</span>
+              {p.url && (
+                <a href={p.url} target="_blank" rel="noreferrer" className="text-muted hover:text-ink" aria-label="open post">
+                  <ArrowUpRight size={14} />
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -224,6 +255,7 @@ export default function AccountsPage() {
                 </span>
               </div>
             </Card>
+            <RecentPosts handle={a.handle} platform={a.platform} />
             <Card className="p-4">
               <div className="mb-3 font-semibold">Post performance</div>
               <div className="grid grid-cols-2 gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AlertCircle, ArrowRight, Bot, CheckCircle2, ChevronDown, ChevronRight, Clock, Download, Pencil, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { BOTS, allPromptsMarkdown, botById, renderBot, type Missing } from "@/lib/bots";
@@ -20,11 +21,13 @@ function HowItWorks() {
       </button>
       {open && (
         <ol className="list-decimal space-y-1.5 border-t border-line px-4 py-3 pl-9 text-sm text-[#3F3F46]">
+          <li>Add the Claude extension to Chrome (Claude in Chrome) and sign in. The bots work in your own Chrome, in their own tabs.</li>
           <li>Fill in the blanks for each bot below. Brand details (what it is, niche words, Discord server) live on each brand, so they stay the same everywhere.</li>
-          <li>Open a new Claude chat for each bot, in an app where Claude can use its own browser and make routines (scheduled tasks), and paste the bot&apos;s prompt.</li>
-          <li>The bot asks you to sign in to each site. You log in or scan the QR code yourself; the prompts tell it never to type a password.</li>
-          <li>Each bot makes its own routine (like &quot;Daily ideas&quot; at 7am). The Connector bot asks the others for their latest update every morning and night.</li>
-          <li>Paste a bot&apos;s latest message into &quot;Latest update&quot; here to keep it on your dashboard. Change a setting later? Copy the prompt again and paste it into the same chat.</li>
+          <li>Open the Claude side panel in Chrome, start a new chat for each bot, and paste its prompt. The bot makes its own routine (a scheduled task, like &quot;Daily ideas&quot; at 7am).</li>
+          <li>When a site isn&apos;t signed in, the bot asks you. You log in or scan the QR code yourself; the prompts tell it never to type a password.</li>
+          <li>At the end of every run, the bot opens this dashboard&apos;s Bot reports page and saves its results. They land on the right page (ideas on Ideation, formats on Formats, and so on), and the Connector bot reads them to plan your day.</li>
+          <li>Open this dashboard in the same Chrome the bots use: that&apos;s where their reports are saved. To see them on your phone, use Settings → Download backup, then Restore on the phone.</li>
+          <li>Change a setting later? Copy the prompt again and paste it into the same chat.</li>
         </ol>
       )}
     </Card>
@@ -32,6 +35,7 @@ function HowItWorks() {
 }
 
 function MissingList({ missing, onBrand, botId }: { missing: Missing[]; onBrand: (id: string) => void; botId: BuiltInBot }) {
+  const router = useRouter();
   if (!missing.length)
     return (
       <div className="flex items-center gap-2 rounded-xl bg-[#F0FAF3] px-3 py-2 text-sm text-[#2E7D46]">
@@ -47,7 +51,7 @@ function MissingList({ missing, onBrand, botId }: { missing: Missing[]; onBrand:
         {missing.map((m) => (
           <button
             key={m.what}
-            onClick={() => (m.where === "brand" ? onBrand(m.id) : document.getElementById(`${botId}-${m.id}`)?.focus())}
+            onClick={() => (m.where === "brand" ? onBrand(m.id) : m.where === "page" ? router.push(m.id) : document.getElementById(`${botId}-${m.id}`)?.focus())}
             className="rounded-md border border-[#F0D9A8] bg-white px-2 py-0.5 text-[13px] hover:border-[#D9B56A]"
           >
             {m.what}
@@ -94,6 +98,7 @@ function BuiltIn({ id, onBrand }: { id: BuiltInBot; onBrand: (id: string) => voi
   const setBot = (patch: Partial<typeof state>) => update((d) => ({ ...d, bots: { ...d.bots, [id]: { ...d.bots[id], ...patch } } }));
   const setVar = (k: string, v: string) => setBot({ vars: { ...state.vars, [k]: v } });
   const active = data.brands.filter((b) => b.status === "Active");
+  const lastReport = data.reports.find((r) => r.bot === def.name);
   const placeholders = [...def.fields.map((f) => f.key), ...def.computed.map((c) => c.key)];
 
   return (
@@ -143,20 +148,30 @@ function BuiltIn({ id, onBrand }: { id: BuiltInBot; onBrand: (id: string) => voi
           </Card>
         )}
 
-        {id === "accounts" && (
-          <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
+        <Card className="p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm">
-              <b>{data.warmups.length}</b> {data.warmups.length === 1 ? "account" : "accounts"} in warm-up.{" "}
-              <span className="text-muted">Add a new account there to get the exact message to send this bot.</span>
+              Saves its results to <b>{def.page.label}</b>
+              {lastReport ? (
+                <span className="text-muted"> · last report {timeAgo(lastReport.at)}</span>
+              ) : (
+                <span className="text-muted"> · no report yet</span>
+              )}
             </div>
-            <LinkButton href="/warm-up">
-              Warm-up tracker <ArrowRight size={14} />
+            <LinkButton href={def.page.href}>
+              Open {def.page.label} <ArrowRight size={14} />
             </LinkButton>
-          </Card>
-        )}
+          </div>
+          {id === "accounts" && (
+            <p className="mt-2 text-[13px] text-muted">
+              New account? Add it on Warm-up to get the exact message to send this bot. <b className="font-medium text-ink">{data.warmups.length}</b> in warm-up now.
+            </p>
+          )}
+          {def.note && <p className="mt-2 rounded-lg bg-[#FFFBF2] px-3 py-2 text-[13px] text-[#8A5A00]">{def.note}</p>}
+        </Card>
 
         <Card className="p-4">
-          <UpdateBox value={state.update} at={state.updatedAt} hint={def.updateHint} onSave={(v) => setBot({ update: v, updatedAt: v ? new Date().toISOString() : "" })} />
+          <UpdateBox value={state.update} at={state.updatedAt} hint="a note to yourself, or the bot's summary if it couldn't save a report" onSave={(v) => setBot({ update: v, updatedAt: v ? new Date().toISOString() : "" })} />
         </Card>
       </div>
 
@@ -298,7 +313,7 @@ export default function BotsPage() {
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-[-0.01em]">{title}</h1>
-          <p className="mt-1 text-sm text-muted">Your Claude bots. Fill in the blanks, copy each prompt into its own chat, and they run on their own every day.</p>
+          <p className="mt-1 text-sm text-muted">Your team of Claude bots. Each one has one job, runs in your Chrome through the Claude extension, and saves what it finds on this dashboard.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => download(`${(data.profile.workspace || "my").toLowerCase().replace(/\W+/g, "-")}-bots.md`, allPromptsMarkdown(data), "text/markdown")}>

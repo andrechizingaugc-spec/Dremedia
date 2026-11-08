@@ -243,7 +243,7 @@ export default function IdeationPage() {
                   ))}
                 </div>
               </Card>
-              <NotHooked what="the watch list fills itself from the creators you follow (a scraper pulls their newest videos and ranks the outliers). until then, your Ideas bot finds outliers every morning: add the ones you like with Add idea." />
+              <NotHooked what="the creator watch list needs a scraper to fill itself. your Ideas bot already adds the day's best outlier videos here every morning, with the hook, what happens next and why it worked." />
             </>
           )}
           {tab === "Inspiration bank" && saved.length === 0 && <div className="rounded-xl border border-dashed border-line p-5 text-center text-sm text-muted">bookmark videos in the watch list and they collect here.</div>}
@@ -283,11 +283,24 @@ export default function IdeationPage() {
                     {v.src ? (
                       <video src={asset(v.src)} poster={asset(v.poster)} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#3b3b3b] to-[#0d0d0d]">
-                        <Lightbulb size={28} className="text-white/30" />
+                      <div className="absolute inset-0 flex flex-col justify-center gap-2 bg-gradient-to-b from-[#2f2f2f] to-[#0d0d0d] px-3.5 pb-24 pt-12 text-[12.5px] leading-snug text-white/85">
+                        {!v.shows && !v.why && <Lightbulb size={28} className="mx-auto text-white/30" />}
+                        {v.shows && (
+                          <p className="line-clamp-5">
+                            <span className="text-white/50">then: </span>
+                            {v.shows}
+                          </p>
+                        )}
+                        {v.why && (
+                          <p className="line-clamp-3">
+                            <span className="text-white/50">why it worked: </span>
+                            {v.why}
+                          </p>
+                        )}
                       </div>
                     )}
                     <div className="absolute left-2.5 top-2.5 flex gap-1.5 text-[11px]">
+                      {v.brand && <BrandTile id={v.brand} size={20} />}
                       {v.outlier && <span className="rounded-md bg-[#DDF6E2] px-1.5 py-0.5 font-semibold text-[#2E7D46]">{v.outlier}</span>}
                       <span className="rounded-md bg-black/50 px-1.5 py-0.5">#{i + 1}</span>
                     </div>
