@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { Check, Copy, Plug, X } from "lucide-react";
-import type { Platform } from "@/lib/mock";
+import { asset, type Platform } from "@/lib/mock";
 import { colorFor, useBrand } from "@/lib/store";
 
 export function cx(...c: (string | false | null | undefined)[]) {
@@ -80,7 +80,7 @@ export function LogoTile({ src, name, size = 36 }: { src: string; name: string; 
     );
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt="" width={size} height={size} onError={() => setBroken(true)} className="shrink-0 border border-black/5 bg-white object-cover" style={style} />
+    <img src={asset(src)} alt="" width={size} height={size} onError={() => setBroken(true)} className="shrink-0 border border-black/5 bg-white object-cover" style={style} />
   );
 }
 
@@ -94,7 +94,7 @@ const platformFile: Record<Platform, string> = { tiktok: "tiktok.svg", instagram
 
 export function PlatformIcon({ p, size = 16 }: { p: Platform; size?: number }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={`/platforms/${platformFile[p] ?? "tiktok.svg"}`} alt={p} width={size} height={size} className="inline-block shrink-0" style={{ width: size, height: size }} />;
+  return <img src={asset(`/platforms/${platformFile[p] ?? "tiktok.svg"}`)} alt={p} width={size} height={size} className="inline-block shrink-0" style={{ width: size, height: size }} />;
 }
 
 /**

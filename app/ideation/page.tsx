@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Bookmark, BookmarkCheck, ExternalLink, Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
-import { PLATFORMS, platformName, uid, type IdeaVideo, type Platform } from "@/lib/mock";
+import { PLATFORMS, asset, platformName, uid, type IdeaVideo, type Platform } from "@/lib/mock";
 import { colorFor, useData, useLabel } from "@/lib/store";
 import { BrandTile, Button, Card, Field, Modal, NotHooked, PlatformIcon, Tabs, cx, parseCount } from "@/components/ui";
 
@@ -80,7 +80,7 @@ function ManageCreators({ onClose }: { onClose: () => void }) {
       <div className="mb-4 divide-y divide-line rounded-xl border border-line">
         {data.creators.map((c) => (
           <div key={c.name} className="flex items-center gap-3 px-3 py-2 text-sm">
-            <span className="h-8 w-8 shrink-0 rounded-full bg-cover bg-center" style={{ backgroundColor: c.color, backgroundImage: c.pic ? `url(${c.pic})` : undefined }} />
+            <span className="h-8 w-8 shrink-0 rounded-full bg-cover bg-center" style={{ backgroundColor: c.color, backgroundImage: c.pic ? `url(${asset(c.pic)})` : undefined }} />
             <span className="flex-1">
               {c.name} <span className="text-xs text-muted">{c.views} views</span>
             </span>
@@ -232,7 +232,7 @@ export default function IdeationPage() {
                     <div key={c.name} className="flex flex-col items-center gap-0.5 text-xs">
                       <span
                         className="relative flex h-12 w-12 items-center justify-center rounded-full bg-cover bg-center text-sm font-semibold text-white"
-                        style={{ backgroundColor: c.color, backgroundImage: c.pic ? `url(${c.pic})` : undefined }}
+                        style={{ backgroundColor: c.color, backgroundImage: c.pic ? `url(${asset(c.pic)})` : undefined }}
                       >
                         {!c.pic && c.name[0]?.toUpperCase()}
                         <span className="absolute -left-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-ink text-[9px] text-white">{i + 1}</span>
@@ -281,7 +281,7 @@ export default function IdeationPage() {
                 {shown.map((v, i) => (
                   <div key={v.id} className="group relative aspect-[9/14] overflow-hidden rounded-[14px] bg-[#111] text-white">
                     {v.src ? (
-                      <video src={v.src} poster={v.poster} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
+                      <video src={asset(v.src)} poster={asset(v.poster)} autoPlay muted loop playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#3b3b3b] to-[#0d0d0d]">
                         <Lightbulb size={28} className="text-white/30" />

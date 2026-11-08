@@ -17,7 +17,25 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. It deploys to Vercel with no settings.
+Open http://localhost:3000.
+
+## Your website
+
+The site is published straight from this repo with GitHub Pages, at
+**https://andrechizingaugc-spec.github.io/Dremedia/**. Every change pushed to
+`main` republishes it automatically (`.github/workflows/pages.yml`, about 2
+minutes; progress is on the repo's **Actions** tab).
+
+One-time setup (you only do this once):
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. GitHub Pages on a *private* repo needs a paid GitHub plan. On a free plan,
+   make the repo public (**Settings → General → Danger Zone → Change
+   visibility**). Only the code becomes visible; what you type into the
+   dashboard stays in your own browser.
+
+To build the same static site yourself: `npm run build` writes it to `out/`,
+and `npm start` serves that folder.
 
 ## Change anything
 

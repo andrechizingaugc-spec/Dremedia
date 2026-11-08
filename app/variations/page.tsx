@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Layers, Shuffle, Type, Music, X } from "lucide-react";
+import { asset } from "@/lib/mock";
 import { useData, useLabel } from "@/lib/store";
 import { BrandEditor } from "@/components/brand-editor";
 import { BrandTile, Button, Card, LogoTile, NotHooked, cx } from "@/components/ui";
@@ -38,7 +39,7 @@ export default function VariationsPage() {
           <button key={b.id} onClick={() => (setOpen(b.id), setMade(false))} className="overflow-hidden rounded-card border border-line text-left transition hover:shadow-md">
             {b.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={b.logo} alt="" className="aspect-[5/4] w-full object-cover" />
+              <img src={asset(b.logo)} alt="" className="aspect-[5/4] w-full object-cover" />
             ) : (
               <div className="flex aspect-[5/4] items-center justify-center bg-side">
                 <LogoTile src="" name={b.name} size={56} />
