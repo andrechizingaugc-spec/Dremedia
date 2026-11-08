@@ -28,7 +28,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { NAV } from "@/lib/mock";
+import { NAV, asset } from "@/lib/mock";
 import { DataProvider, useData } from "@/lib/store";
 import { cx } from "./ui";
 
@@ -79,7 +79,7 @@ export function Logo() {
   const { data } = useData();
   if (data.profile.logo)
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={data.profile.logo} alt="" className="h-5 w-5 shrink-0 rounded-[5px] object-cover" />;
+    return <img src={asset(data.profile.logo)} alt="" className="h-5 w-5 shrink-0 rounded-[5px] object-cover" />;
   return (
     <svg width="20" height="20" viewBox="-1 -1 60 60" aria-hidden className="shrink-0 text-brand">
       {Array.from({ length: 25 }).map((_, i) => (

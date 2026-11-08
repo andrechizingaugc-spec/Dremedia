@@ -127,6 +127,14 @@ export type Data = {
 
 // ---------------------------------------------------------------- helpers
 
+/**
+ * Where the site lives. On GitHub Pages it's "/<repo name>" (set by the deploy
+ * workflow); locally it's empty. Files in /public must be loaded through
+ * asset() so they work in both places.
+ */
+export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+export const asset = (src: string | undefined) => (src && BASE_PATH && src.startsWith("/") && !src.startsWith("//") && !src.startsWith(BASE_PATH + "/") ? BASE_PATH + src : src || "");
+
 export const uid = (prefix = "") => prefix + Math.random().toString(36).slice(2, 9);
 
 export const slug = (s: string) =>
