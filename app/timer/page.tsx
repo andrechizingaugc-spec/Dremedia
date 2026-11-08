@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GripVertical, Pause, Play, RotateCcw } from "lucide-react";
-import { brands } from "@/lib/mock";
+import { findBrand, useData, useLabel } from "@/lib/store";
 import { BrandTile, Button, Card, cx } from "@/components/ui";
 
 // Fully working: times are kept in this browser (localStorage), so a refresh
@@ -21,9 +21,12 @@ const fmt = (s: number) => {
 };
 
 export default function TimerPage() {
+  const { brands } = useData().data;
+  const title = useLabel("/timer");
   const [times, setTimes] = useState<Times>({});
   const [running, setRunning] = useState<Running>(null);
   const [, tick] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -31,10 +34,15 @@ export default function TimerPage() {
       if (saved.times) setTimes(saved.times);
       if (saved.running) setRunning(saved.running);
     } catch {}
+    setLoaded(true);
   }, []);
   useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify({ times, running }));
-  }, [times, running]);
+    // wait for the saved times to load, or the first save would wipe them
+    if (!loaded) return;
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ times, running }));
+    } catch {}
+  }, [times, running, loaded]);
   useEffect(() => {
     if (!running) return;
     const id = setInterval(() => tick((n) => n + 1), 1000);
@@ -63,7 +71,7 @@ export default function TimerPage() {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-[-0.01em]">Timer</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.01em]">{title}</h1>
         <Button
           onClick={() => {
             setTimes({});
@@ -79,11 +87,12 @@ export default function TimerPage() {
           <div className="text-[15px] text-muted">Today so far</div>
           <div className="text-[44px] font-semibold leading-none tracking-tight">{fmt(total)}</div>
         </div>
-        <div className="text-sm text-muted">{running ? `timing ${running.part} for ${brands.find((b) => b.id === running.brand)?.name}` : "Start a timer on any deal below."}</div>
+        <div className="text-sm text-muted">{running ? `timing ${running.part} for ${findBrand(brands, running.brand).name}` : "Start a timer on any deal below."}</div>
       </Card>
 
       <div className="mb-2 font-semibold">Your deals</div>
       <div className="space-y-2.5">
+        {brands.length === 0 && <div className="rounded-xl border border-dashed border-line p-5 text-center text-sm text-muted">add a brand deal in Settings to time it here.</div>}
         {brands.map((b) => {
           const started = live(b.id, "ideation") + live(b.id, "filming") > 0;
           return (

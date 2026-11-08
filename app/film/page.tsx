@@ -2,14 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Download, Maximize2, ScrollText, Sparkles, UserSquare2, Video } from "lucide-react";
-import { brands } from "@/lib/mock";
+import { useData, useLabel } from "@/lib/store";
 import { BrandTile, Button, Card, NotHooked, cx } from "@/components/ui";
-
-const script = "hook: if you're still doing this by hand, stop.\n\nshow the problem in one line.\n\nshow the app doing it in 3 taps.\n\ncta: link's in my bio.";
 
 type Take = { url: string; at: string; brand: string };
 
 export default function FilmPage() {
+  const { data, update } = useData();
+  const { brands } = data;
+  const script = data.filmScript;
+  const title = useLabel("/film");
   const video = useRef<HTMLVideoElement>(null);
   const rec = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
@@ -17,7 +19,7 @@ export default function FilmPage() {
   const [error, setError] = useState("");
   const [recording, setRecording] = useState(false);
   const [showScript, setShowScript] = useState(false);
-  const [brand, setBrand] = useState(brands[0].id);
+  const [brand, setBrand] = useState(brands[0]?.id ?? "");
   const [takes, setTakes] = useState<Take[]>([]);
   const [lookOnly, setLookOnly] = useState("");
 
@@ -61,12 +63,13 @@ export default function FilmPage() {
 
   return (
     <div>
-      <h1 className="mb-5 text-2xl font-semibold tracking-[-0.01em]">Film</h1>
+      <h1 className="mb-5 text-2xl font-semibold tracking-[-0.01em]">{title}</h1>
       <div className="mb-4 flex items-center justify-center gap-2 text-sm text-muted">
         Filming for
         <label className="relative flex items-center gap-2 rounded-full border border-line py-1.5 pl-1.5 pr-3 font-semibold text-ink">
           <BrandTile id={brand} size={26} />
           <select value={brand} onChange={(e) => setBrand(e.target.value)} className="appearance-none bg-transparent pr-5 outline-none">
+            {brands.length === 0 && <option value="">no brand yet</option>}
             {brands.map((b) => (
               <option key={b.id} value={b.id}>
                 {b.name}
@@ -115,6 +118,12 @@ export default function FilmPage() {
           <div className="mt-3">
             <NotHooked what={lookOnly} />
           </div>
+        )}
+        {showScript && (
+          <label className="mt-3 block">
+            <span className="field-label">Script (shows on the camera, saved for next time)</span>
+            <textarea value={script} onChange={(e) => update((d) => ({ ...d, filmScript: e.target.value }))} className="field min-h-[130px] resize-y" />
+          </label>
         )}
       </div>
 

@@ -2,14 +2,19 @@
 
 import { useState } from "react";
 import { ChevronDown, Copy, KeyRound, Plus, Trash2 } from "lucide-react";
-import { emailCodes, startingEmails } from "@/lib/mock";
+import { useData, useLabel } from "@/lib/store";
 import { Button, Card, NotHooked } from "@/components/ui";
 
-const DOMAIN = "yourdomain.com";
 const rand = () => Math.random().toString(36).slice(2, 8);
 
 export default function EmailsPage() {
-  const [list, setList] = useState(startingEmails);
+  const { data, update } = useData();
+  const title = useLabel("/emails");
+  const list = data.emails;
+  const emailCodes = data.emailCodes;
+  const DOMAIN = data.profile.emailDomain || "yourdomain.com";
+  const prefix = data.profile.emailPrefix || "me";
+  const setList = (fn: (l: typeof list) => typeof list) => update((d) => ({ ...d, emails: fn(d.emails) }));
   const [open, setOpen] = useState<string | null>(null);
   const [copied, setCopied] = useState("");
 
@@ -22,8 +27,8 @@ export default function EmailsPage() {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-[-0.01em]">Emails</h1>
-        <Button variant="primary" onClick={() => setList((l) => [{ address: `alex-${rand()}@${DOMAIN}`, note: "", created: "just now" }, ...l])}>
+        <h1 className="text-2xl font-semibold tracking-[-0.01em]">{title}</h1>
+        <Button variant="primary" onClick={() => setList((l) => [{ address: `${prefix}-${rand()}@${DOMAIN}`, note: "", created: "just now" }, ...l])}>
           <Plus size={16} /> Generate email
         </Button>
       </div>
@@ -40,6 +45,7 @@ export default function EmailsPage() {
             </div>
           </div>
           <div className="space-y-2">
+            {list.length === 0 && <div className="rounded-xl border border-dashed border-line p-4 text-center text-sm text-muted">no emails yet. hit Generate email.</div>}
             {list.map((e) => (
               <div key={e.address} className="rounded-xl border border-line px-3 py-2.5">
                 <div className="flex items-center gap-2">
@@ -84,6 +90,7 @@ export default function EmailsPage() {
             <ChevronDown size={14} className="ml-auto" />
           </div>
           <div className="space-y-2">
+            {emailCodes.length === 0 && <div className="text-sm text-muted">no codes yet.</div>}
             {emailCodes.map((c) => (
               <div key={c.code} className="rounded-xl border border-line p-3">
                 <div className="flex items-center gap-2">

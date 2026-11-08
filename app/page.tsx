@@ -1,6 +1,12 @@
-import { Info, Video } from "lucide-react";
-import { brands, calendar, month, stats, user } from "@/lib/mock";
-import { BrandTile, Card, cx, money } from "@/components/ui";
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowRight, CalendarPlus, Info, Pencil, Video } from "lucide-react";
+import { BOTS } from "@/lib/bots";
+import { MONTHS } from "@/lib/mock";
+import { monthInfo, startMonth, timeAgo, useData } from "@/lib/store";
+import { BrandTile, Button, Card, Field, Modal, cx, money, num } from "@/components/ui";
 
 const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -11,31 +17,83 @@ function shade(earned: number) {
   return "bg-[#B9EDC4] border-[#8FDCA0]";
 }
 
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}
+
+function DayEditor({ day, onClose }: { day: number; onClose: () => void }) {
+  const { data, update } = useData();
+  const cur = data.money.days[day - 1];
+  const [videos, setVideos] = useState(String(cur.videos));
+  const [earned, setEarned] = useState(String(cur.earned));
+  const save = () => {
+    update((d) => ({ ...d, money: { ...d.money, days: d.money.days.map((x, i) => (i === day - 1 ? { videos: num(videos), earned: num(earned) } : x)) } }));
+    onClose();
+  };
+  return (
+    <Modal title={`${MONTHS[data.money.month]} ${day}`} onClose={onClose}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          save();
+        }}
+        className="grid grid-cols-2 gap-3"
+      >
+        <Field label="Videos posted">
+          <input autoFocus className="field" inputMode="numeric" value={videos} onChange={(e) => setVideos(e.target.value)} />
+        </Field>
+        <Field label="Earned ($)">
+          <input className="field" inputMode="decimal" value={earned} onChange={(e) => setEarned(e.target.value)} />
+        </Field>
+        <div className="col-span-2 mt-2 flex justify-end gap-2">
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" type="submit">
+            Save
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 export default function DashboardPage() {
-  const total = calendar.reduce((s, d) => s + d.earned, 0);
-  const pct = Math.min(100, Math.round((total / month.goal) * 100));
+  const { data, update } = useData();
+  const { money: m, brands, stats, profile, bots } = data;
+  const info = monthInfo(m);
+  const [editing, setEditing] = useState<number | null>(null);
+
+  const total = m.days.reduce((s, d) => s + d.earned, 0);
+  const pct = m.goal > 0 ? Math.min(100, Math.round((total / m.goal) * 100)) : 0;
   const top = [...brands].sort((a, b) => b.earned - a.earned);
-  const max = top[0].earned;
-  const today = 31;
-  const todayEarned = calendar[today - 1].earned;
-  const totalVideos = calendar.reduce((s, d) => s + d.videos, 0);
-  const best = calendar.reduce((a, d) => (d.earned > a.earned ? d : a));
+  const max = Math.max(1, ...top.map((b) => b.earned));
+  const todayEarned = info.today ? m.days[info.today - 1]?.earned ?? 0 : 0;
+  const totalVideos = m.days.reduce((s, d) => s + d.videos, 0);
+  const bestIndex = m.days.reduce((bi, d, i, a) => (d.earned > a[bi].earned ? i : bi), 0);
   // weeks run mon to sun, so the first one is short
   const weeks: number[] = [];
-  calendar.forEach((d) => {
-    const w = Math.floor((d.day - 1 + month.firstWeekday) / 7);
+  m.days.forEach((d, i) => {
+    const w = Math.floor((i + info.firstWeekday) / 7);
     weeks[w] = (weeks[w] ?? 0) + d.earned;
   });
-  const bestWeek = Math.max(...weeks);
+  const bestWeek = Math.max(0, ...weeks.map((w) => w ?? 0));
+  const now = new Date();
+
+  const botRows = [
+    ...BOTS.map((b) => ({ name: b.name, update: bots[b.id].update, at: bots[b.id].updatedAt })),
+    ...bots.custom.map((c) => ({ name: c.name, update: c.update, at: c.updatedAt })),
+  ];
 
   return (
     <div>
       <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-[32px] font-semibold tracking-tight">
-            Good evening, <span className="text-brand">{user.first}</span>
+          <h1 className="text-[28px] font-semibold tracking-tight md:text-[32px]">
+            {greeting()}, <span className="text-brand">{profile.first}</span>
           </h1>
-          <p className="mt-1 text-[15px] text-muted">Here&apos;s how your {month.name} is looking.</p>
+          <p className="mt-1 text-[15px] text-muted">
+            Here&apos;s how your {info.name} {info.isCurrent ? "is" : "was"} looking.
+          </p>
         </div>
         <div className="flex gap-3">
           <Card className="px-4 py-2.5">
@@ -43,17 +101,32 @@ export default function DashboardPage() {
             <div className="text-lg font-semibold">{stats.streak} days</div>
           </Card>
           <Card className="px-4 py-2.5">
-            <div className="text-[13px] text-muted">Today so far</div>
+            <div className="text-[13px] text-muted">{info.isCurrent ? "Today so far" : `${info.short} ${info.today || ""}`}</div>
             <div className="text-lg font-semibold">{money(todayEarned)}</div>
           </Card>
         </div>
       </div>
 
+      {!info.isCurrent && (
+        <Card className="mb-4 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <span className="text-sm">
+            This calendar is still on <b>{info.name} {m.year}</b>. Start {MONTHS[now.getMonth()]} with a clean calendar?{" "}
+            <span className="text-muted">({info.name} is kept in your backup.)</span>
+          </span>
+          <Button variant="primary" onClick={() => update((d) => startMonth(d))}>
+            <CalendarPlus size={15} /> Start {MONTHS[now.getMonth()]}
+          </Button>
+        </Card>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-[1fr_250px]">
         <Card className="p-4 md:p-5">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-lg font-semibold">
-              Money calendar <Info size={14} className="text-muted" />
+              Money calendar
+              <span title="click a day to change its videos and earnings" className="text-muted">
+                <Info size={14} />
+              </span>
             </div>
             <div className="text-lg font-semibold">{money(total)}</div>
           </div>
@@ -63,35 +136,36 @@ export default function DashboardPage() {
                 {d}
               </div>
             ))}
-            {Array.from({ length: month.firstWeekday }).map((_, i) => (
+            {Array.from({ length: info.firstWeekday }).map((_, i) => (
               <div key={"pad" + i} />
             ))}
-            {calendar.map((d) => (
-              <div
-                key={d.day}
+            {m.days.map((d, i) => (
+              <button
+                key={i}
+                onClick={() => setEditing(i + 1)}
+                title="edit this day"
                 className={cx(
-                  "flex aspect-square flex-col items-center justify-center rounded-lg border text-center",
+                  "group relative flex aspect-square flex-col items-center justify-center rounded-lg border text-center transition hover:brightness-95",
                   shade(d.earned),
-                  d.day === today && "ring-1 ring-brand",
+                  i + 1 === info.today && "ring-1 ring-brand",
                 )}
               >
+                <Pencil size={10} className="absolute right-1.5 top-1.5 hidden text-muted group-hover:block" />
                 <div className="hidden items-center gap-1 text-[11px] text-muted sm:flex">
                   <Video size={11} /> {d.videos}
                 </div>
-                <div className="text-base font-semibold md:text-lg">{d.day}</div>
+                <div className="text-base font-semibold md:text-lg">{i + 1}</div>
                 <div className="hidden text-[11px] text-muted sm:block">{money(d.earned)}</div>
-              </div>
+              </button>
             ))}
           </div>
         </Card>
 
         <div className="space-y-4">
           <Card className="p-4">
-            <div className="flex items-center gap-1.5 font-semibold">
-              {month.name} goal <Info size={13} className="text-muted" />
-            </div>
+            <div className="flex items-center gap-1.5 font-semibold">{info.name} goal</div>
             <div className="mt-2 text-sm">
-              <b>{pct}%</b> <span className="text-muted">of {money(month.goal)}</span>
+              <b>{pct}%</b> <span className="text-muted">of {money(m.goal)}</span>
             </div>
             <div className="mt-2 h-2 rounded-full bg-[#ECECEC]">
               <div className="h-2 rounded-full bg-brand" style={{ width: pct + "%" }} />
@@ -102,9 +176,9 @@ export default function DashboardPage() {
             {[
               ["Views today", stats.viewsToday],
               ["Posts today", stats.postsToday],
-              ["Avg / video", money(Math.round(total / totalVideos))],
+              ["Avg / video", money(totalVideos ? total / totalVideos : 0)],
               ["This month", money(total)],
-              [`Best day · Oct ${best.day}`, money(best.earned)],
+              [`Best day · ${info.short} ${bestIndex + 1}`, money(m.days[bestIndex]?.earned ?? 0)],
               ["Best week", money(bestWeek)],
             ].map(([l, v]) => (
               <div key={String(l)}>
@@ -115,14 +189,24 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="p-4">
-            <div className="mb-3 font-semibold">By campaign</div>
+            <div className="mb-3 flex items-center justify-between font-semibold">
+              By campaign
+              <Link href="/campaigns" className="text-xs font-normal text-muted hover:text-ink">
+                all
+              </Link>
+            </div>
             <div className="space-y-3">
+              {top.length === 0 && (
+                <Link href="/settings#brands" className="text-sm text-brand-text">
+                  add your first brand deal
+                </Link>
+              )}
               {top.map((b) => (
                 <div key={b.id}>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
+                    <span className="flex min-w-0 items-center gap-2">
                       <BrandTile id={b.id} size={20} />
-                      {b.name}
+                      <span className="truncate">{b.name}</span>
                     </span>
                     <span>{money(b.earned)}</span>
                   </div>
@@ -135,6 +219,28 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      <Card className="mt-4 p-4 md:p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="text-lg font-semibold">From your bots</div>
+          <Link href="/bots" className="flex items-center gap-1 text-sm text-muted hover:text-ink">
+            Bots <ArrowRight size={14} />
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {botRows.map((b) => (
+            <Link key={b.name} href="/bots" className="rounded-xl border border-line p-3 transition hover:bg-side">
+              <div className="flex items-center justify-between text-sm">
+                <b>{b.name}</b>
+                <span className="text-xs text-muted">{timeAgo(b.at)}</span>
+              </div>
+              <p className={cx("mt-1.5 line-clamp-3 whitespace-pre-line text-[13px]", !b.update && "text-muted")}>{b.update || "no update yet. paste its latest message on the Bots page."}</p>
+            </Link>
+          ))}
+        </div>
+      </Card>
+
+      {editing && <DayEditor day={editing} onClose={() => setEditing(null)} />}
     </div>
   );
 }

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Layers, Shuffle, Type, Music, X } from "lucide-react";
-import { brands, variationRenders } from "@/lib/mock";
-import { BrandTile, Button, Card, NotHooked, cx } from "@/components/ui";
+import { useData, useLabel } from "@/lib/store";
+import { BrandEditor } from "@/components/brand-editor";
+import { BrandTile, Button, Card, LogoTile, NotHooked, cx } from "@/components/ui";
 
 const kinds = [
   { id: "hook", label: "Hook swap", icon: Shuffle, about: "same video, a different first 3 seconds" },
@@ -12,6 +13,11 @@ const kinds = [
 ];
 
 export default function VariationsPage() {
+  const { data } = useData();
+  const { brands } = data;
+  const variationRenders = data.renders;
+  const title = useLabel("/variations");
+  const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [kind, setKind] = useState("hook");
   const [count, setCount] = useState(5);
@@ -21,15 +27,23 @@ export default function VariationsPage() {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-[-0.01em]">Variations</h1>
-        <Button variant="primary">New brand</Button>
+        <h1 className="text-2xl font-semibold tracking-[-0.01em]">{title}</h1>
+        <Button variant="primary" onClick={() => setAdding(true)}>
+          New brand
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {brands.map((b) => (
           <button key={b.id} onClick={() => (setOpen(b.id), setMade(false))} className="overflow-hidden rounded-card border border-line text-left transition hover:shadow-md">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={b.logo} alt="" className="aspect-[5/4] w-full object-cover" />
+            {b.logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={b.logo} alt="" className="aspect-[5/4] w-full object-cover" />
+            ) : (
+              <div className="flex aspect-[5/4] items-center justify-center bg-side">
+                <LogoTile src="" name={b.name} size={56} />
+              </div>
+            )}
             <div className="px-3 py-2.5 text-[15px] font-medium">{b.name}</div>
           </button>
         ))}
@@ -44,6 +58,7 @@ export default function VariationsPage() {
       <Card className="mt-6 p-4">
         <div className="mb-3 text-lg font-semibold">Recent renders</div>
         <div className="divide-y divide-line">
+          {variationRenders.length === 0 && <div className="py-2.5 text-sm text-muted">nothing rendered yet.</div>}
           {variationRenders.map((r) => (
             <div key={r.id} className="flex items-center gap-3 py-2.5 text-sm">
               <BrandTile id={r.brand} size={26} />
@@ -57,7 +72,7 @@ export default function VariationsPage() {
       {brand && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={() => setOpen(null)}>
           <Card className="w-full max-w-md">
-            <div className="p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="p-5" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
               <div className="mb-4 flex items-center gap-3">
                 <BrandTile id={brand.id} />
                 <div className="flex-1">
@@ -86,7 +101,7 @@ export default function VariationsPage() {
               </div>
               <div className="my-4 flex items-center justify-between text-sm">
                 How many
-                <input type="range" min={2} max={10} value={count} onChange={(e) => setCount(+e.target.value)} className="mx-3 flex-1 accent-[#00BDAB]" />
+                <input type="range" min={2} max={10} value={count} onChange={(e) => setCount(+e.target.value)} className="mx-3 flex-1 accent-brand" />
                 <b>{count}</b>
               </div>
               <Button variant="primary" className="w-full" onClick={() => setMade(true)}>
@@ -101,6 +116,7 @@ export default function VariationsPage() {
           </Card>
         </div>
       )}
+      {adding && <BrandEditor onClose={() => setAdding(false)} />}
     </div>
   );
 }

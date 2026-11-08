@@ -2,7 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* accent colour (Settings > Profile changes these live) */
+:root {
+  --brand: 0 189 171;
+  --brand-hover: 0 166 150;
+  --brand-text: 0 153 139;
+  --brand-wash: 216 250 245;
+  --brand-fg: 255 255 255;
+}
+
 html, body { height: 100%; }
 body { @apply bg-page text-ink antialiased; letter-spacing: -0.011em; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
+
+/* shared form look for the settings and edit forms. in the components layer
+   so width utilities (w-28, flex-1) on the same element still win */
+@layer components {
+  .field { @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20; }
+  .field-label { @apply mb-1 block text-[13px] text-muted; }
+}
