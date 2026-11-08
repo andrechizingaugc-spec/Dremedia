@@ -52,7 +52,13 @@ export type NavItem = { label: string; hidden: boolean };
 export type Creator = { name: string; views: string; videos: number; color: string; pic?: string };
 export type IdeaVideo = {
   id: string;
+  /** the hook: first line or words on screen */
   caption: string;
+  /** what the video shows after the hook (from the Ideas bot) */
+  shows?: string;
+  /** why it worked, in one line (from the Ideas bot) */
+  why?: string;
+  addedAt?: string;
   creator: string;
   platform: Platform;
   views: string;
@@ -87,6 +93,52 @@ export type WarmAccount = {
   stopped: boolean;
 };
 
+/** a viral format the Formats bot found */
+export type FormatIdea = {
+  id: string;
+  name: string;
+  structure: string;
+  why: string;
+  /** brand ids (or names the dashboard doesn't know yet) */
+  brands: string[];
+  examples: { url: string; views: string }[];
+  effort: "low" | "medium" | "high";
+  platform: Platform | "";
+  status: "new" | "try" | "filmed";
+  addedAt: string;
+};
+
+/** one way to reuse one of your videos, from the Repurpose bot */
+export type RepurposeIdea = {
+  id: string;
+  sourceUrl: string;
+  sourceTitle: string;
+  sourceViews: string;
+  type: string;
+  into: string;
+  hook: string;
+  platform: Platform | "";
+  account: string;
+  brand: string;
+  why: string;
+  done: boolean;
+  addedAt: string;
+};
+
+/** a message that needs you, from the Inbox bot */
+export type InboxItem = { id: string; level: "now" | "today" | "fyi"; who: string; what: string; by: string; url: string; brand: string; done: boolean; addedAt: string };
+export type Deadline = { id: string; brand: string; what: string; when: string; done: boolean; addedAt: string };
+
+/** the Connector bot's morning plan or night wrap */
+export type PlanItem = { kind: "film" | "answer" | "waiting" | "posted" | "open" | "tomorrow"; text: string; url: string; by: string };
+export type TodayPlan = { at: string; summary: string; items: PlanItem[] };
+
+/** a video the Posting bot saw live on one of your accounts */
+export type PostLog = { id: string; handle: string; platform: Platform; url: string; caption: string; views: string; likes: string; comments: string; date: string };
+
+/** every report a bot saved on the Bot reports page */
+export type ReportLog = { id: string; bot: string; at: string; summary: string; added: number };
+
 export type BotState = {
   vars: Record<string, string>;
   /** your own version of the prompt. empty uses the built-in one */
@@ -96,11 +148,12 @@ export type BotState = {
   updatedAt: string;
 };
 export type CustomBot = { id: string; name: string; routine: string; schedule: string; prompt: string; update: string; updatedAt: string };
-export type Bots = { ideas: BotState; inbox: BotState; accounts: BotState; connector: BotState; custom: CustomBot[] };
-export type BuiltInBot = Exclude<keyof Bots, "custom">;
+export const BOT_IDS = ["ideas", "formats", "repurpose", "inbox", "accounts", "posting", "connector"] as const;
+export type BuiltInBot = (typeof BOT_IDS)[number];
+export type Bots = Record<BuiltInBot, BotState> & { custom: CustomBot[] };
 
 export type Data = {
-  version: 1;
+  version: number;
   profile: Profile;
   money: Money;
   pastMonths: Money[];
@@ -122,6 +175,13 @@ export type Data = {
   renders: VariationRender[];
   warmPlan: WarmStep[];
   warmups: WarmAccount[];
+  formats: FormatIdea[];
+  repurpose: RepurposeIdea[];
+  inbox: InboxItem[];
+  deadlines: Deadline[];
+  today: TodayPlan;
+  postLog: PostLog[];
+  reports: ReportLog[];
   bots: Bots;
 };
 
@@ -181,19 +241,23 @@ export const NAV: NavKey[] = [
   { key: "/", label: "Dashboard", group: "top" },
   { key: "/campaigns", label: "Campaigns", group: "top" },
   { key: "/bots", label: "Bots", group: "top" },
+  { key: "/inbox", label: "Inbox", group: "top" },
   { key: "#workspace", label: "Workspace", group: "heading" },
   { key: "#create", label: "Create", group: "heading" },
   { key: "/ideation", label: "Ideation", group: "create" },
+  { key: "/formats", label: "Formats", group: "create" },
   { key: "/film", label: "Film", group: "create" },
   { key: "/editing", label: "Editing", group: "create" },
   { key: "/scheduler", label: "Scheduler", group: "create" },
   { key: "/variations", label: "Variations", group: "create" },
+  { key: "/repurpose", label: "Repurpose", group: "create" },
   { key: "#tools", label: "Tools", group: "heading" },
   { key: "/accounts", label: "Accounts", group: "tools" },
   { key: "/transcribe", label: "Transcribe", group: "tools" },
   { key: "/emails", label: "Emails", group: "tools" },
   { key: "/warm-up", label: "Warm-up", group: "tools" },
   { key: "/timer", label: "Timer", group: "tools" },
+  { key: "/report", label: "Bot reports", group: "tools" },
   { key: "/settings", label: "Settings", group: "top" },
 ];
 
@@ -201,47 +265,50 @@ const defaultNav = () => Object.fromEntries(NAV.map((n) => [n.key, { label: n.la
 
 // ---------------------------------------------------------------- bots
 
+const bot = (vars: Record<string, string>): BotState => ({ vars, template: "", update: "", updatedAt: "" });
+
+export const DEFAULT_CONNECTOR_BOTS = "Ideas, Formats, Repurpose, Inbox, Posting, Accounts";
+
 export const defaultBots = (): Bots => ({
-  ideas: {
-    vars: { time: "7am", scroll: "10", days: "14", outlier: "3", pick: "10" },
-    template: "",
-    update: "",
-    updatedAt: "",
-  },
-  inbox: {
-    vars: {
-      apps: "Discord DMs and my campaign servers, Gmail, Instagram DMs",
-      who: "my campaign managers, my editor, brands",
-      every: "30 minutes",
-      from: "9am",
-      to: "9pm",
-    },
-    template: "",
-    update: "",
-    updatedAt: "",
-  },
-  accounts: {
-    vars: { time: "12pm", minutes: "15", likes: "5", follows: "2", days: "7" },
-    template: "",
-    update: "",
-    updatedAt: "",
-  },
-  connector: {
-    vars: {
-      bots: "Ideas, Inbox, Posting, Accounts",
-      calendar: "Google Calendar",
-      planner: "my content calendar in Notion",
-      dashboards: "each brand's creator dashboard, my payouts page",
-      morning: "8am",
-      night: "8pm",
-      ideas: "3",
-    },
-    template: "",
-    update: "",
-    updatedAt: "",
-  },
+  ideas: bot({ time: "7am", scroll: "10", days: "14", outlier: "3", pick: "10" }),
+  formats: bot({ schedule: "every Monday and Thursday at 9am", platforms: "TikTok, Instagram Reels, YouTube Shorts", scroll: "10", days: "14", accounts: "3", outlier: "3", pick: "8" }),
+  repurpose: bot({ schedule: "every Sunday at 6pm", days: "30", top: "5", outlier: "2", types: REPURPOSE_TYPES.map((t) => `${t.name.toLowerCase()} (${t.about})`).join("; ") }),
+  inbox: bot({
+    apps: "Discord DMs and my campaign servers, Gmail, Instagram DMs",
+    who: "my campaign managers, my editor, brands",
+    every: "30 minutes",
+    from: "9am",
+    to: "9pm",
+  }),
+  accounts: bot({ time: "12pm", minutes: "15", likes: "5", follows: "2", days: "7" }),
+  posting: bot({ schedule: "every day at 7pm", days: "7" }),
+  connector: bot({
+    bots: DEFAULT_CONNECTOR_BOTS,
+    calendar: "Google Calendar",
+    planner: "my content calendar in Notion",
+    dashboards: "each brand's creator dashboard, my payouts page",
+    morning: "8am",
+    night: "8pm",
+    ideas: "3",
+  }),
   custom: [],
 });
+
+/** the ways to reuse a video. the Repurpose bot picks from these */
+export const REPURPOSE_TYPES = [
+  { name: "Hook swap", about: "same video, a new first 3 seconds", best: "good watch time but a weak start" },
+  { name: "Cut into shorts", about: "split a longer video into 2 to 4 short ones, each with its own hook", best: "videos over 40 seconds" },
+  { name: "Cross-post", about: "post it on another platform or account, with that platform's captions and sound", best: "anything that beat the account's average" },
+  { name: "New caption style", about: "new on-screen text, font or placement", best: "videos where the message got lost" },
+  { name: "Trending sound", about: "the same edit under a sound that's trending now", best: "music-only or silent videos" },
+  { name: "Green screen reaction", about: "react to your own video with a new take", best: "videos with lots of comments" },
+  { name: "Stitch or duet", about: "stitch or duet your own video to answer a comment", best: "videos with questions in the comments" },
+  { name: "Photo carousel", about: "turn the key frames and text into a swipeable carousel", best: "list and tips videos" },
+  { name: "New voiceover", about: "same footage, a new voiceover with a different angle", best: "b-roll heavy videos" },
+  { name: "Re-shoot", about: "film the same script again in a new setting or outfit", best: "your top 3 videos ever" },
+  { name: "Different brand", about: "keep the format, point it at another brand deal", best: "formats that work for any product" },
+  { name: "Compilation", about: "stitch your best moments into one best-of video", best: "accounts with 10+ videos" },
+];
 
 // ---------------------------------------------------------------- sample data
 
@@ -267,16 +334,16 @@ function samplePosts(): Post[] {
 
 export function makeSample(): Data {
   return {
-    version: 1,
+    version: 2,
     profile: {
       workspace: "Dremedia",
       logo: "",
       color: "#00BDAB",
-      first: "Alex",
-      handle: "@alexmakesugc",
-      initials: "AL",
+      first: "Dremedia",
+      handle: "@dremedia",
+      initials: "DR",
       emailDomain: "yourdomain.com",
-      emailPrefix: "alex",
+      emailPrefix: "dremedia",
       timezone: "New York",
       footer: "sample numbers. change anything in Settings. parts marked \"look only\" are yours to hook up.",
     },
@@ -328,12 +395,12 @@ export function makeSample(): Data {
       { brand: "candle", n: 8 },
     ],
     accounts: [
-      { id: "a1", brand: "liftoff", handle: "@alexflies", platform: "tiktok", followers: "12.4K", views: "1.2M", likes: "88K", comments: "1.9K", engagement: "7.4%", scheduler: true },
-      { id: "a2", brand: "liftoff", handle: "@alexflies", platform: "instagram", followers: "6.1K", views: "430K", likes: "31K", comments: "640", engagement: "7.3%", scheduler: true },
-      { id: "a3", brand: "turbo", handle: "@alexedits", platform: "tiktok", followers: "3.3K", views: "210K", likes: "12K", comments: "310", engagement: "5.8%", scheduler: false },
-      { id: "a4", brand: "candle", handle: "@alexfocus", platform: "instagram", followers: "2.8K", views: "160K", likes: "9.1K", comments: "220", engagement: "5.8%", scheduler: true },
-      { id: "a5", brand: "pumpfun", handle: "@alexcoins", platform: "tiktok", followers: "1.9K", views: "98K", likes: "5.2K", comments: "140", engagement: "5.4%", scheduler: false },
-      { id: "a6", brand: "composio", handle: "@alexbuilds", platform: "youtube", followers: "940", views: "51K", likes: "2.3K", comments: "60", engagement: "4.6%", scheduler: false },
+      { id: "a1", brand: "liftoff", handle: "@dremedia.flies", platform: "tiktok", followers: "12.4K", views: "1.2M", likes: "88K", comments: "1.9K", engagement: "7.4%", scheduler: true },
+      { id: "a2", brand: "liftoff", handle: "@dremedia.flies", platform: "instagram", followers: "6.1K", views: "430K", likes: "31K", comments: "640", engagement: "7.3%", scheduler: true },
+      { id: "a3", brand: "turbo", handle: "@dremedia.edits", platform: "tiktok", followers: "3.3K", views: "210K", likes: "12K", comments: "310", engagement: "5.8%", scheduler: false },
+      { id: "a4", brand: "candle", handle: "@dremedia.focus", platform: "instagram", followers: "2.8K", views: "160K", likes: "9.1K", comments: "220", engagement: "5.8%", scheduler: true },
+      { id: "a5", brand: "pumpfun", handle: "@dremedia.coins", platform: "tiktok", followers: "1.9K", views: "98K", likes: "5.2K", comments: "140", engagement: "5.4%", scheduler: false },
+      { id: "a6", brand: "composio", handle: "@dremedia.builds", platform: "youtube", followers: "940", views: "51K", likes: "2.3K", comments: "60", engagement: "4.6%", scheduler: false },
     ],
     transcripts: [
       {
@@ -352,14 +419,14 @@ export function makeSample(): Data {
       },
     ],
     emails: [
-      { address: "alex-6m7jrp@yourdomain.com", note: "Instagram. Liftoff", created: "2d ago" },
-      { address: "alex-jasxuj@yourdomain.com", note: "TikTok. Turbo", created: "9d ago" },
-      { address: "alex-i35x4k@yourdomain.com", note: "TikTok. Pumpfun", created: "13d ago" },
+      { address: "dremedia-6m7jrp@yourdomain.com", note: "Instagram. Liftoff", created: "2d ago" },
+      { address: "dremedia-jasxuj@yourdomain.com", note: "TikTok. Turbo", created: "9d ago" },
+      { address: "dremedia-i35x4k@yourdomain.com", note: "TikTok. Pumpfun", created: "13d ago" },
     ],
     emailCodes: [
-      { platform: "Instagram", ago: "2m ago", code: "873410", to: "alex-6m7jrp@yourdomain.com" },
-      { platform: "TikTok", ago: "1h ago", code: "321368", to: "alex-bnbipe@yourdomain.com" },
-      { platform: "TikTok", ago: "3d ago", code: "314744", to: "alex-4p2hix@yourdomain.com" },
+      { platform: "Instagram", ago: "2m ago", code: "873410", to: "dremedia-6m7jrp@yourdomain.com" },
+      { platform: "TikTok", ago: "1h ago", code: "321368", to: "dremedia-bnbipe@yourdomain.com" },
+      { platform: "TikTok", ago: "3d ago", code: "314744", to: "dremedia-4p2hix@yourdomain.com" },
     ],
     renders: [
       { id: "r1", brand: "liftoff", title: "hook swap x5", status: "Ready", count: 5 },
@@ -376,6 +443,57 @@ export function makeSample(): Data {
     warmups: [
       { id: "w1", handle: "@yourname.study", platform: "tiktok", brand: "candle", niche: "study hacks, flashcards", name: "", bio: "", link: "", days: 2, last: "", stopped: false },
     ],
+    formats: [
+      {
+        id: "f1",
+        name: "POV: you finally…",
+        structure: "hook: \"pov: you finally ___\" on screen over a frustrated shot\nmiddle: the product fixes it in one cut\nend: relieved reaction with the result on screen",
+        why: "a relatable pain in the first second and the payoff in under 5",
+        brands: ["candle", "liftoff"],
+        examples: [],
+        effort: "low",
+        platform: "tiktok",
+        status: "try",
+        addedAt: "",
+      },
+      {
+        id: "f2",
+        name: "3 things I wish I knew",
+        structure: "hook: \"3 things I wish I knew before ___\"\nmiddle: three quick tips, the product is tip 2 or 3\nend: \"save this for later\"",
+        why: "a list keeps people watching to the end, and saves push reach",
+        brands: ["turbo", "composio"],
+        examples: [],
+        effort: "low",
+        platform: "instagram",
+        status: "new",
+        addedAt: "",
+      },
+      {
+        id: "f3",
+        name: "Green screen reaction",
+        structure: "hook: react to a viral post about the problem\nmiddle: show how you handle it with the product\nend: ask viewers what they'd do",
+        why: "borrows a proven video's attention, and the question drives comments",
+        brands: ["pumpfun"],
+        examples: [],
+        effort: "medium",
+        platform: "tiktok",
+        status: "new",
+        addedAt: "",
+      },
+    ],
+    repurpose: [
+      { id: "r1", sourceUrl: "", sourceTitle: "pov: you finally learned to fly", sourceViews: "84K", type: "Hook swap", into: "same video, open on the landing shot instead of the takeoff", hook: "i was terrified of this 2 weeks ago", platform: "tiktok", account: "@dremedia.flies", brand: "liftoff", why: "the landing is the most rewatched part", done: false, addedAt: "" },
+      { id: "r2", sourceUrl: "", sourceTitle: "pov: you finally learned to fly", sourceViews: "84K", type: "Cross-post", into: "the same cut on Instagram Reels, with Reels captions", hook: "pov: you finally learned to fly", platform: "instagram", account: "@dremedia.flies", brand: "liftoff", why: "it already beat the TikTok account's average 3x", done: false, addedAt: "" },
+    ],
+    inbox: [
+      { id: "i1", level: "now", who: "Sam (Liftoff campaign manager)", what: "revision on video 3: show the app in the first 2 seconds", by: "today 5pm", url: "", brand: "liftoff", done: false, addedAt: "" },
+      { id: "i2", level: "today", who: "Riley (editor)", what: "which music to use on the Candle batch", by: "tonight", url: "", brand: "candle", done: false, addedAt: "" },
+      { id: "i3", level: "fyi", who: "Turbo server", what: "new brief: the 'edit on your phone' angle, $5 bonus per video over 50K", by: "", url: "", brand: "turbo", done: false, addedAt: "" },
+    ],
+    deadlines: [{ id: "d1", brand: "liftoff", what: "video 3 revision", when: "today 5pm", done: false, addedAt: "" }],
+    today: { at: "", summary: "", items: [] },
+    postLog: [],
+    reports: [],
     bots: defaultBots(),
   };
 }
@@ -405,5 +523,12 @@ export function makeEmpty(keep: Data): Data {
     emailCodes: [],
     renders: [],
     warmups: [],
+    formats: [],
+    repurpose: [],
+    inbox: [],
+    deadlines: [],
+    today: { at: "", summary: "", items: [] },
+    postLog: [],
+    reports: [],
   };
 }

@@ -7,6 +7,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
+  BOT_IDS,
+  DEFAULT_CONNECTOR_BOTS,
   MONTHS,
   NAV,
   blankBrand,
@@ -61,7 +63,7 @@ export function normalize(input: unknown): Data {
   if (isObj(input.nav)) for (const n of NAV) if (isObj(input.nav[n.key])) d.nav[n.key] = { ...base.nav[n.key], ...(input.nav[n.key] as object) };
   const bots = defaultBots();
   const ib = isObj(input.bots) ? input.bots : {};
-  for (const id of ["ideas", "inbox", "accounts", "connector"] as const) {
+  for (const id of BOT_IDS) {
     const saved = isObj(ib[id]) ? (ib[id] as Record<string, unknown>) : {};
     bots[id] = { ...bots[id], ...saved, vars: { ...bots[id].vars, ...(isObj(saved.vars) ? (saved.vars as Record<string, string>) : {}) } };
   }
@@ -69,8 +71,32 @@ export function normalize(input: unknown): Data {
   d.bots = bots;
   d.brands = d.brands.filter(isObj).map((b) => ({ ...blankBrand(), ...b }));
   d.money = fixMonth(d.money);
-  d.version = 1;
+  migrate(d, input);
+  d.version = 2;
   return d;
+}
+
+/** brings data saved by an older version of the dashboard up to date */
+function migrate(d: Data, input: Record<string, unknown>) {
+  const from = typeof input.version === "number" ? input.version : 1;
+  if (from < 2) {
+    // the sample name was Alex: it's Dremedia now (only where it was never changed)
+    const p = d.profile;
+    if (p.first === "Alex") p.first = "Dremedia";
+    if (p.handle === "@alexmakesugc") p.handle = "@dremedia";
+    if (p.initials === "AL") p.initials = "DR";
+    if (p.emailPrefix === "alex") p.emailPrefix = "dremedia";
+    const handles: Record<string, string> = { "@alexflies": "@dremedia.flies", "@alexedits": "@dremedia.edits", "@alexfocus": "@dremedia.focus", "@alexcoins": "@dremedia.coins", "@alexbuilds": "@dremedia.builds" };
+    d.accounts = d.accounts.map((a) => (handles[a.handle] ? { ...a, handle: handles[a.handle] } : a));
+    const mail = (s: string) => (s.startsWith("alex-") ? "dremedia-" + s.slice(5) : s);
+    d.emails = d.emails.map((e) => ({ ...e, address: mail(e.address) }));
+    d.emailCodes = d.emailCodes.map((c) => ({ ...c, to: mail(c.to) }));
+    if (d.bots.connector.vars.bots === "Ideas, Inbox, Posting, Accounts") d.bots.connector.vars.bots = DEFAULT_CONNECTOR_BOTS;
+    // the new lists only get sample content if the sample brands are still there
+    if (!d.brands.some((b) => b.id === "liftoff")) {
+      for (const k of ["formats", "repurpose", "inbox", "deadlines"] as const) if (input[k] === undefined) d[k] = [];
+    }
+  }
 }
 
 /** keeps the day list the right length for the month */
