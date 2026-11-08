@@ -26,7 +26,7 @@ The site is published straight from this repo with GitHub Pages, at
 `main` republishes it automatically (`.github/workflows/pages.yml`, about 2
 minutes; progress is on the repo's **Actions** tab).
 
-One-time setup, already needed only once:
+One-time setup (you only do this once):
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 2. GitHub Pages on a *private* repo needs a paid GitHub plan. On a free plan,
