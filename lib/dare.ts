@@ -658,3 +658,76 @@ export function variant(c: PlanCard, d: number) {
   const dl = dollars(d + alt * 100);
   return { letter: "ABC"[hi], hook: cap(fill(c.hooks[hi], swap, m, dl)), body: c.body.map((b) => fill(b, swap, m, dl)), swap };
 }
+/** all 48 of thecal.mp3's reels (Oct 30 – Nov 10, SA time), views as of Nov 10 */
+export const THECAL_ALL: [code: string, views: number, postedAt: string][] = [
+  ["DfIVPIVja6h", 21500, "2026-10-30T21:27"],
+  ["DfIwMF2DYx7", 2483, "2026-10-31T01:22"],
+  ["DfKbYV8iNEh", 3809, "2026-10-31T16:59"],
+  ["DfK41F8DSKH", 19000, "2026-10-31T21:16"],
+  ["DfLU6-FlBRZ", 4706, "2026-11-01T01:22"],
+  ["DfLzsxZDQXI", 7361, "2026-11-01T05:51"],
+  ["DfMxuuNCZsp", 551, "2026-11-01T14:53"],
+  ["DfNQhDID4Pa", 1971, "2026-11-01T19:22"],
+  ["DfNxFSbATW5", 566, "2026-11-02T00:06"],
+  ["DfOku9-jQCB", 5783, "2026-11-02T07:38"],
+  ["DfPfzzRDbDz", 4853, "2026-11-02T16:14"],
+  ["DfP4E9cAPYS", 4898, "2026-11-02T19:46"],
+  ["DfQRWd5kmDf", 41100, "2026-11-02T23:27"],
+  ["DfQo7AciDXj", 4332, "2026-11-03T02:53"],
+  ["DfReOR7DmhP", 2195, "2026-11-03T10:39"],
+  ["DfSFpUwk4ST", 3057, "2026-11-03T16:23"],
+  ["DfSewKcCYJa", 94900, "2026-11-03T20:02"],
+  ["DfS2Q1_Cn4b", 23200, "2026-11-03T23:28"],
+  ["DfTM7ULD469", 2889, "2026-11-04T02:46"],
+  ["DfUrABDiKvk", 5672, "2026-11-04T16:28"],
+  ["DfVBtQ2km0T", 5837, "2026-11-04T19:46"],
+  ["DfVa9jcFQ3K", 2719, "2026-11-04T23:27"],
+  ["DfVxQLGgvMI", 2789, "2026-11-05T02:42"],
+  ["DfWOV6-lGNL", 2704, "2026-11-05T06:56"],
+  ["DfXGOXimRV5", 2770, "2026-11-05T15:04"],
+  ["DfXk3PlDw2R", 2953, "2026-11-05T19:32"],
+  ["DfYCeMPARYT", 5654, "2026-11-05T23:51"],
+  ["DfY_Bogkvfq", 5433, "2026-11-06T08:40"],
+  ["DfZr_5VASqM", 12100, "2026-11-06T15:13"],
+  ["DfaIt-1jsbl", 43700, "2026-11-06T19:24"],
+  ["DfameulkV70", 4435, "2026-11-06T23:44"],
+  ["DfbFmc7jZK6", 7363, "2026-11-07T04:16"],
+  ["Dfbdt-ODAMZ", 3021, "2026-11-07T07:47"],
+  ["DfcOAM8Dqvs", 31800, "2026-11-07T14:49"],
+  ["DfcvJ_4jOBB", 2410, "2026-11-07T19:38"],
+  ["DfdJTgGE255", 8365, "2026-11-07T23:27"],
+  ["DfdrjpcGeXv", 862, "2026-11-08T04:26"],
+  ["DfeI9DNDTBG", 1327, "2026-11-08T08:43"],
+  ["Dfe3bMgiDVC", 1626, "2026-11-08T15:29"],
+  ["DffR3GOilHg", 2726, "2026-11-08T19:20"],
+  ["DffvfR0Gekk", 7511, "2026-11-08T23:39"],
+  ["DfgOgW1DlSC", 2778, "2026-11-09T04:10"],
+  ["DfgqMRnD2LX", 75200, "2026-11-09T08:12"],
+  ["DfhaD1mHNgS", 2691, "2026-11-09T15:10"],
+  ["Dfh1thRmdsI", 2388, "2026-11-09T19:12"],
+  ["DfixPb8JTiL", 4134, "2026-11-10T03:52"],
+  ["DfjRNTopyJe", 2467, "2026-11-10T08:31"],
+  ["DfkFlhdBUWo", 105, "2026-11-10T16:09"],
+];
+
+// ---------------------------------------------------------------- pay + stats
+
+/** Dare pays nothing under 500 views, then the base plus $1.50 per 1,000 views, up to $500 a video */
+export const DARE_CPM = 1.5;
+export const DARE_MAX = 500;
+export const DARE_UNLOCK = 500;
+export function payFor(views: number) {
+  if (!(views >= DARE_UNLOCK)) return 0;
+  return Math.min(DARE_MAX, DARE_BASE_PAY + (views / 1000) * DARE_CPM);
+}
+
+export function median(xs: number[]) {
+  if (!xs.length) return 0;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+/** every card that can appear on a day (the 7 + the extras), for labels */
+export const ALL_CARDS: PlanCard[] = [...MANDATORY, ...EASY, ...EXTRAS];
+export const cardById = (id: string) => ALL_CARDS.find((c) => c.id === id);

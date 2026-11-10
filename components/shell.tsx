@@ -271,9 +271,15 @@ function Frame({ children }: { children: ReactNode }) {
   const current = nav.all.find((i) => isActive(path, i.href)) ?? { href: path, label: data.profile.workspace, icon: Home };
   const CurrentIcon = current.icon;
 
+  // the Dare 210 pages are a website of their own: no sidebar, their own titles
+  const standalone = path.startsWith("/dare");
+
   useEffect(() => {
+    if (standalone) return;
     document.title = `${current.label} · ${data.profile.workspace || "Dashboard"}`;
-  }, [current.label, data.profile.workspace]);
+  }, [current.label, data.profile.workspace, standalone]);
+
+  if (standalone) return <>{children}</>;
 
   return (
     <div className="flex h-[100dvh]">

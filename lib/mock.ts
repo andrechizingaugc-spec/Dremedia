@@ -118,6 +118,8 @@ export type DarePlan = {
   starred: string[];
   /** videos you pasted in yourself */
   mine: { id: string; url: string; note: string; family: string; addedAt: string }[];
+  /** "day-cardId" -> the views and post link you logged for that video */
+  results: Record<string, { views: number; url: string }>;
 };
 
 /** one way to reuse one of your videos, from the Repurpose bot */
@@ -509,7 +511,7 @@ export function makeSample(): Data {
     postLog: [],
     reports: [],
     bots: defaultBots(),
-    dare: { start: "2026-11-11", done: {}, starred: [], mine: [] },
+    dare: { start: "2026-11-11", done: {}, starred: [], mine: [], results: {} },
   };
 }
 

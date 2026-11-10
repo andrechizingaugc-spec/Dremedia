@@ -109,24 +109,27 @@ Good to know:
   each account in its own Chrome profile, so its reports land in that profile's
   copy of the dashboard; if Warm-up doesn't move, paste its daily line there.
 
-## Dare 210
+## Dare 210 (its own website)
 
-**Create → Dare 210** is a playbook for the Dare campaign on Bounty: 7 videos a
-day for 30 days, using Dare's easiest formats. Every video plays right on the
-page (TikTok, Instagram, YouTube and Dare's own example videos), so there are
-no links to click through.
+**https://andrechizingaugc-spec.github.io/Dremedia/dare/** is a standalone
+website for the Dare campaign on Bounty: 7 videos a day for 30 days using
+Dare's easiest formats. It has its own header and pages (no dashboard sidebar),
+and every video plays right on the page: TikTok, Instagram, YouTube and Dare's
+own example videos.
 
-| Tab | What's on it |
+| Page | What's on it |
 | --- | --- |
-| **Today** | The day's 7 videos. Each card plays Dare's example and a viral version side by side, with the hook, the step-by-step script, the Dare format to submit under, and a tick box. Day 1 has Dare's 3 mandatory assignments. Change the start date at the top. |
-| **Dare formats** | All 23 formats on Dare's Bounty campaign with Dare's example videos, the brief, Dare's script and a shot-by-shot breakdown. Filter to easy or no-talking. |
-| **Library** | A DarkUGC-style library: Dare's examples, thecal.mp3's reposts and the top videos from Dare's competitors (Viewmax, Higgsfield, OpenArt, Krea, Composio, Lovable…), with views, search, filters by format type, and a star to save one. |
-| **My videos** | Paste any TikTok, Instagram, YouTube Short or DarkUGC link and it plays here, with your note. |
+| **Today** (`/dare/`) | The day's 7 videos. Each card plays Dare's example and a viral version side by side, with the hook, the step-by-step script, the Dare format to submit under and a tick box. Once ticked, log the views and the post link (your post then plays on the card). Day 1 has Dare's 3 mandatory assignments. |
+| **Formats** (`/dare/formats/`) | All 23 formats on Dare's Bounty campaign with Dare's example videos, briefs, scripts and shot-by-shot notes. Filter to easy or no-talking. |
+| **Library** (`/dare/library/`) | DarkUGC-style: Dare's examples, thecal.mp3's reposts and top competitor videos, with views, search, format-type filters, sorting and stars. |
+| **Analytics** (`/dare/analytics/`) | Your posts per day, views, estimated pay ($25 base after 500 views + $1.50 per 1K, max $500 a video), best formats and top videos; what's getting views across Dare's competitors; and thecal.mp3's 48 reels. Every chart has a table view. |
+| **My videos** (`/dare/mine/`) | Paste any TikTok, Instagram, YouTube Short or DarkUGC link and it plays there, with a note. |
 
-Ticks, stars and your videos are saved with the rest of your dashboard (and in
-backups). The formats, scripts and library live in `lib/dare.ts`; the player
-that turns a link into a playable video is `components/video.tsx`, and the
-**Formats** page uses it too.
+Ticks, logged views, stars and your videos are saved with the rest of your
+dashboard (and in backups). The site asks search engines not to index it.
+The formats, plan and library live in `lib/dare.ts`; the pages in `app/dare/`;
+the player that turns a link into a playable video is `components/video.tsx`
+(the **Formats** page uses it too); the charts are `components/dare/charts.tsx`.
 
 ## What's still look-only
 
@@ -145,4 +148,5 @@ generated emails. Each note says what it needs.
 - `components/shell.tsx`: sidebar, search (⌘K / Ctrl+K), page names
 - `components/brand-editor.tsx`: the add/edit brand form used everywhere
 - `components/video.tsx`: plays TikTok, Instagram, YouTube and Bounty (Cloudflare Stream) videos from a pasted link
-- `lib/dare.ts`: the Dare formats, the 7-a-day plan and the video library on the Dare 210 page
+- `lib/dare.ts`: the Dare formats, the 7-a-day plan, the video library and thecal.mp3's reels for the Dare 210 site
+- `app/dare/`, `components/dare/`: the Dare 210 website (pages, its header/nav, cards, charts)
