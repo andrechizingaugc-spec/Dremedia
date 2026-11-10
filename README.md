@@ -112,9 +112,10 @@ Good to know:
 ## The Dremedia UGC site (its own website)
 
 **https://andrechizingaugc-spec.github.io/Dremedia/ugc/** is a standalone
-website in the style of DarkUGC, under the Dremedia name and logo. It finds the
-UGC that's going viral, shows why each video works, and runs the 7-videos-a-day
-campaign plan. Every video plays right on the page (TikTok, Instagram, YouTube
+website in the style of DarkUGC, under the Dremedia name and logo. It only shows
+Dare's formats and the OpenArt-style AI money videos they copy (OpenArt,
+Higgsfield, Krea, Viewmax, Creao, Composio, Lovable and similar), each tagged
+with the Dare format to film it as, and runs the 7-videos-a-day plan. Every video plays right on the page (TikTok, Instagram, YouTube
 and the campaign's own example videos).
 
 Colours come from the logo (charcoal, white and silver). The switch in the top
@@ -127,7 +128,7 @@ flashes the wrong colours.
 | --- | --- |
 | **Discover** (`/ugc/`) | Hero with this week's #1 format, a ranked row of this week's top formats, and the library: Trending (views per day), For you (videos that fit the campaign) and New tabs; 7 days / 30 days / 90 days / this year / all time; sort by views per day, views, newest or engagement; search; niche and platform filters; bookmark, download and open on every card. |
 | **Going viral** (`/ugc/viral/`) | This week, this month, the last 90 days or this year: top videos, ranked formats, hook types, brands and creators with totals, medians and change against the period before, the fastest-growing videos, and what it means for your next video. |
-| **Video pages** (`/ugc/video/<id>/`) | Analytics for one video (views, likes, engagement, views per day, × its format's median, × the creator's typical views, DarkUGC rank, growth) and its script: hook, structure scene by scene, fill-in-the-blank template, why it works, production notes, remix ideas, the campaign format to film it as, and more like it. |
+| **Video pages** (`/ugc/video/<id>/`) | Watch on TikTok or Instagram, its DarkUGC page, find more like it live on TikTok and Instagram, five steps to copy it for Dare (script with the app swapped for Dare, filming, caption, submit on Bounty), and analytics for the video (views, likes, engagement, views per day, × its format's median, × the creator's typical views, DarkUGC rank, growth) and its script: hook, structure scene by scene, fill-in-the-blank template, why it works, production notes, remix ideas, the campaign format to film it as, and more like it. |
 | **Scripts** (`/ugc/scripts/`) | Proven scripts from viral videos (filter by hook type), the campaign's 23 formats with example videos, briefs and shot lists, and a playbook for every UGC format. |
 | **Plan** (`/ugc/plan/`) | The day's 7 videos: the campaign example and a viral version side by side, hook, step-by-step script, format to submit under, a tick box, then views and post link. Day 1 has the 3 mandatory assignments. |
 | **Analytics** (`/ugc/analytics/`) | Your posts, views and estimated pay ($25 base after 500 views + $1.50 per 1K, max $500 a video), best scripts and top videos; what's working across the library; thecal.mp3's 48 reels. Every chart has a table view. |

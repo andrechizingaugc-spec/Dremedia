@@ -2,7 +2,7 @@
 // copied from DarkUGC (darkugc.com) on Nov 10, 2026. Views are as DarkUGC last
 // recorded them. Refresh this file to update the site (see README).
 
-import { LIBRARY } from "./dare";
+import { LIBRARY, formatById } from "./dare";
 
 export const SNAPSHOT_DATE = "2026-11-10";
 
@@ -73,206 +73,166 @@ const F = {
   course: "3JnRJdsslDQGmOE9HUZTTWUfzFn",
   gta: "3JVsuk3CE0Veo6vBIqh1FTbCjEX",
   astra: "3J750ItQJfeBUEft8WyIVYpKETN",
+  astraUgc: "3JVwlnzzuMrEkVRXRzBzCAtDs4T",
+  caveman: "3JQnXL3GeeGXW2MiZUpoi0rhVQx",
+  yter: "3IT7MuxFVhiNWcTjqZbfx6YQo5b",
+  everyDay: "3JFebOGTDmX19WvGAfwGKIYa76v",
+  twoWeeks: "3LiRejDGdD2NYXhDvY0P4GXqVYX",
 };
 
-// Every video was checked to play as an embed on Nov 10. Left out because they don't
+// Only Dare formats and the OpenArt-style AI money videos they copy. Every video was checked
+// to play as an embed on Nov 10. Left out because they don't
 // play inside other sites (removed, or the creator turned embedding off):
+// ig-DcDFqwFh2SP, tt-7701855649935658262, tt-7692511838684106017, tt-7687685525435665665, tt-7687284035197914399, tt-7695083323709771040, ig-DbN6cEhuWn9, ig-DeTEKp1NHLl,
 // tt-7652877383795625247, tt-7654402510861405453, tt-7676089691975732502, tt-7686531408206056717, ig-DfS3bz2J7_t, ig-DdFKV7oSmQY
 const ROWS: Row[] = [
-  // ---- going viral this week
-  ["ig-Dfa_L-WJ_HI", "Alarmy", "ailenmornings", "1.6M", "63K", 4, "2026-11-07", "App challenge struggle", "health-fitness", "WTH is my boyfriend's alarm", 62],
-  ["ig-DfYT3wZRrP8", "Alarmy", "ailenmornings", "1.4M", "97K", 6.8, "2026-11-06", "App challenge struggle", "health-fitness", "WHAT is my boyfriend's alarm", 45],
-  ["ig-Dfc-9e7I_g9", "PushClock", "autumn.pushclock", "983K", "7.8K", 0.8, "2026-11-07", "App challenge struggle", "health-fitness", "My bf changed my alarm so now I have to do THIS", 16],
-  ["ig-Dfdjg0btnjC", "RecentFollow", "maggie.girltea", "879K", "22K", 2.6, "2026-11-08", "Text + cooking & chores", "social", "Having to force yourself to stop liking the only guy you didn't have to force yourself to like", 7],
-  ["ig-DfQlYgrxlvr", "PushClock", "autumn.pushclock", "478K", "3.7K", 0.8, "2026-11-03", "App challenge struggle", "health-fitness", "Send this to a heavy sleeper", 14],
-  ["ig-DfYipP6BoJV", "Cantina", "cartermcbride0", "446K", "28K", 6.4, "2026-11-06", "Acted sketch", "creative-tools", "What my little cousins do when they see me instead of saying hello", 10],
-  ["tt-7704804246125890847", "TouchTunes", "tifffhunter", "425K", "6.5K", 1.6, "2026-11-05", "Dance, lip-sync & pose", "entertainment", "$10 in the TouchTunes is always worth it", 33],
-  ["ig-DfY_N9vxe0G", "Suno", "oliviainthekitchen_", "408K", "4.9K", 1.2, "2026-11-06", "Text-message song", "creative-tools", "POV your new church group turns out to be a CULT", 61],
-  ["tt-7703747828882885901", "Summary AI", "kathrine.works", "405K", "22K", 5.8, "2026-11-03", "Acted sketch", "productivity", "Sending the summary transcript to a lawyer for sure", 38],
-  ["tt-7704482268085046558", "Closure", "haileyshealing", "321K", "61K", 19.2, "2026-11-05", "Text + daily moment", "health-fitness", "How long does it take your nervous system to heal after you go no contact?", 0],
-  ["tt-7705740820720160022", "EQUALS", "ilovemusicandfun5", "318K", "2.5K", 0.8, "2026-11-08", "Dance, lip-sync & pose", "social", "When he asks for my Insta instead of my Equals", 0],
-  // ---- this month
-  ["ig-Dec88-WS8n_", "Astra AI", "ivy_learns", "41M", "1.6M", 4, "2026-10-13", "Screen demo", "education", "All medical students, ATTENTION", 26],
-  ["ig-DeXpzHhuiSe", "Cantina", "aicreatormaddy", "7.7M", "302K", 3.9, "2026-10-11", "Reacts to the app", "creative-tools", "\"I GOTTA GO\"", 27],
-  ["ig-DefwT7iPWZ-", "Alarmy", "ailenmornings", "7.7M", "523K", 6.9, "2026-10-15", "App challenge struggle", "health-fitness", "WTH is my boyfriend's alarm", 50],
-  ["tt-7695383090243390727", "Kapi Cam", "irisday01", "6.9M", "38K", 0.6, "2026-10-11", "Montage", "creative-tools", "Konnichiwa (Kapi Cam photo montage)", 21],
-  ["ig-DedE-aeuIWB", "Alarmy", "ailenmornings", "5.9M", "408K", 6.9, "2026-10-14", "App challenge struggle", "health-fitness", "Please, please, please.", 43],
-  ["ig-DedzSAMET7j", "Focustown", "studyingwkristen", "5.9M", "171K", 2.9, "2026-10-14", "Explainer + screen", "productivity", "If you have an exam coming up that you have to study for, just pick a random flight.", 46],
-  ["ig-DeX1ofwuO57", "NursifyAI", "kyleenursingstudent", "4.6M", "465K", 10.2, "2026-10-11", "Dance, lip-sync & pose", "education", "I swear I know all the other stuff", 0],
-  ["tt-7698412054129970454", "Peekie", "investigatewithmia", "4.1M", "59K", 1.7, "2026-10-19", "Reacts to the app", "entertainment", "My gf's new obsession is a game where you stalk a guy's phone", 18],
-  ["tt-7696006452212665622", "Replit", "kai.clm444", "3.7M", "397K", 12.5, "2026-10-13", "Reacts to the app", "developer-tools", "My sister is actually nuts, why is this her wedding invitation", 25],
-  ["ig-Der5UrozwcW", "radcam", "jay.radcam", "3.6M", "113K", 3.1, "2026-10-19", "Screen demo", "creative-tools", "Don't tell your friends about this camera app", 15],
-  ["tt-7695580335483981087", "Higgsfield", "theraguler", "2.9M", "787K", 33.4, "2026-10-12", "Dance, lip-sync & pose", "creative-tools", "Ts is having a stroke bro", 30],
-  ["ig-De2eoeHhkaK", "Suno", "oliviainthekitchen_", "2.8M", "26K", 1, "2026-10-23", "Text-message song", "creative-tools", "I see both sides but the texts are still wild", 38],
-  ["ig-Dea8jkGAkok", "Focustown", "studyingwkristen", "2.7M", "67K", 2.4, "2026-10-13", "Explainer + screen", "productivity", "Try this out if you have a test to study for!", 36],
-  ["ig-De1P68AvppG", "Suno", "jadablue999", "2.6M", "34K", 1.3, "2026-10-23", "Text-message song", "creative-tools", "This is standard practice so idk if I can defend her but the text was wild", 41],
-  ["tt-7695801498768330006", "Peekie", "investigatewithmia", "2.5M", "31K", 1.3, "2026-10-12", "Screen demo", "entertainment", "True crime girls you're gonna love this", 19],
-  ["ig-DeY6Al7x2wl", "Tenmin", "study.with.wallakpu", "2.5M", "217K", 8.7, "2026-10-12", "App talks back", "education", "How do you say ice cream in Chinese?", 49],
-  ["ig-DewiJ6kNZaq", "ReciBites", "sayantika.cooks", "2.4M", "12K", 0.5, "2026-10-21", "Screen demo", "food-drink", "WHEN DID THIS COME OUT?!", 18],
-  ["tt-7699143069198847246", "Suno", "mimi.jams", "2.4M", "219K", 10.2, "2026-10-21", "Text-message song", "creative-tools", "This class mom is crazy!", 44],
-  ["tt-7698651560292732182", "RecentFollow", "kia.girlhacks", "2.4M", "250K", 11, "2026-10-20", "Text + daily moment", "social", "Really pissed off a man last night at the bar", 0],
-  ["ig-DeksB4KKOIx", "Closure", "elliee.clo", "1.3M", "130K", 10.2, "2026-10-16", "Text story → screen proof", "health-fitness", "guys I can confirm the October theory is 100% real", 0],
-  // ---- biggest of the year
-  ["tt-7634506571065740566", "EQUALS", "jerrylovesmusic", "70M", "1.4M", 2.1, "2026-04-30", "Text + daily moment", "social", "Wdym someone made an app combining IG and Spotify", 9],
-  ["ig-DYpDsrKxYbn", "Cantina", "aicreatormaddy", "70M", "3.3M", 4.9, "2026-05-22", "AI message reaction", "creative-tools", "What do I even do?", 20],
-  ["tt-7652221887036149022", "Retro", "paiige.memories", "59M", "713K", 1.6, "2026-06-17", "Reacts to the app", "social", "You NEED to see this", 22],
-  ["ig-DX21bVJsJyV", "Natural Write", "studywitharyana", "58M", "825K", 1.4, "2026-05-03", "Reacts to the app", "productivity", "Bro... professors are evolving...", 8],
-  ["tt-7627173579687300374", "BeautyCam", "kiaraleigh._", "58M", "793K", 1.6, "2026-04-10", "Screen demo", "creative-tools", "Girls you need this camera app!!!", 17],
-  ["tt-7631353205917551894", "EQUALS", "diegoluvsmusic", "56M", "970K", 1.8, "2026-04-21", "Reacts to the app", "social", "Why do they do this", 8],
-  ["tt-7654568537519869197", "Kalshi", "jonerfatcat", "55M", "159K", 0.3, "2026-06-23", "Explainer + screen", "finance", "Ronaldo's funeral happens today? Or does he finally score?", 42],
-  ["tt-7692520314470731038", "Kalshi", "amir8nouri", "53M", "159K", 0.3, "2026-10-03", "Explainer + screen", "finance", "Subway, Target, Jersey Mike's, Papa Gino's?", 19],
-  ["ig-DXer4lUEzcz", "Parakeet AI", "careerwithrithi", "52M", "595K", 1.1, "2026-04-23", "Secret AI helper", "productivity", "AI job interview is crazy", 0],
-  ["tt-7628018302043950343", "EQUALS", "itspeachtime_", "52M", "974K", 2, "2026-04-12", "Dance, lip-sync & pose", "social", "Your phone is dry because you haven't downloaded Equals", 13],
-  ["tt-7631664107971824918", "EQUALS", "mysteriusmusiclover", "47M", "1.2M", 2.7, "2026-04-22", "Text + daily moment", "social", "With my Equals bestie", 6],
-  ["tt-7620877520291826977", "EQUALS", "vibewithcintia", "43M", "443K", 1.1, "2026-03-24", "Text + daily moment", "social", "Best app to meet new people", 5],
-  ["tt-7648786304137743623", "Retro", "bs.memories", "42M", "384K", 1.3, "2026-06-07", "Explainer + screen", "social", "Anyone ready for summer yet?", 27],
-  ["tt-7605393487021853965", "Summary AI", "girlatworkk", "40M", "735K", 1.9, "2026-02-11", "Acted sketch", "productivity", "pov: work-life balance", 19],
-  ["tt-7636545088935562526", "status", "juni.yoyo", "39M", "438K", 1.2, "2026-05-05", "Dance, lip-sync & pose", "entertainment", "LOL app is called Status btw", 10],
-  ["ig-DdmzsXziRAi", "Alarmy", "wakeupcallie", "34M", "2M", 5.9, "2026-09-22", "App challenge struggle", "health-fitness", "WHAT is my Husband's alarm", 31],
-  ["tt-7690142460353301773", "Kapi Cam", "maioney5", "32M", "1.1M", 3.6, "2026-09-27", "Screen demo", "creative-tools", "low quality photos are always the best", 16],
-  ["tt-7689259792774352142", "Kalshi", "itsbrandotv_", "30M", "60K", 0.2, "2026-09-25", "Explainer + screen", "finance", "Green Bay Packers versus the Falcons.", 0],
-  ["tt-7673958134955642144", "Wizz", "travellifewithluna", "19M", "323K", 1.7, "2026-08-14", "Dance, lip-sync & pose", "social", "Flirty friendship never hurt anyone", 0],
-  ["tt-7689439027698715918", "Kapi Cam", "maioney5", "14M", "181K", 1.4, "2026-09-25", "Input → AI result", "creative-tools", "Before / After", 11],
-  ["tt-7681866992361508110", "Suno", "adrii.jamz", "11M", "644K", 6.6, "2026-09-05", "Text-message song", "creative-tools", "Just wait till you hear my husband's response to this", 79],
-  ["tt-7676513776748842272", "Suno", "dani.evans8", "9.9M", "421K", 4.4, "2026-08-21", "Text-message song", "creative-tools", "I'll turn the crazy texts into songs", 41],
-  ["tt-7674992698679364877", "Hello Nancy", "girltalkwithmadds", "8.5M", "519K", 6.4, "2026-08-17", "Text + daily moment", "health-fitness", "Bringing the fruits into our marriage was such a good idea", 7],
-  ["tt-7676324506633391373", "Cupie", "couplecallswithju", "8.3M", "991K", 11.9, "2026-08-21", "Text + get ready", "relationships", "hot take: long distance isn't the problem. having the exact same call every night is", 0],
-  ["tt-7691536981939014943", "Cantina", "shellyyy0707", "7.8M", "844K", 13, "2026-10-01", "Reacts to the app", "creative-tools", "wtf is THAT", 10],
-  ["tt-7677195826837327124", "Kapi Cam", "soujiinnn", "6.9M", "73K", 1.2, "2026-08-23", "Screen demo", "creative-tools", "New camera app to try", 17],
-  ["tt-7690929617070263573", "Kapi Cam", "siimipie", "6.6M", "502K", 8.2, "2026-09-29", "Screen demo", "creative-tools", "App name: kapicam", 19],
-  ["tt-7685037655188327711", "Cantina", "techwithliv7", "6.5M", "681K", 15.8, "2026-09-13", "Acted sketch", "creative-tools", "Why did his hand never move", 19],
-  // ---- relationships, fitness, productivity (the niches closest to Andre's campaigns)
-  ["tt-7683908557669960981", "Tethered", "sevi.ldr", "4.6M", "975K", 31.1, "2026-09-10", "Lock screen reveal", "relationships", "Lowkey just craving a BIG hug from my baby right now", 20],
-  ["tt-7677347847687130382", "Lovora", "love_with_aria", "4.1M", "187K", 6, "2026-08-23", "Lock screen reveal", "relationships", "POV: You're in a long distance relationship", 12],
-  ["tt-7682125908718652694", "Lovora", "lovewithhenry", "4.1M", "290K", 8.8, "2026-09-05", "Lock screen reveal", "relationships", "Pov: you reached a flow state but forgot ur gf", 14],
-  ["tt-7675960632419601695", "Tethered", "bella.longdistance", "3.7M", "619K", 22.3, "2026-08-20", "Lock screen reveal", "relationships", "\"You okay?\" No. I miss my bf.", 11],
-  ["tt-7674042462184279309", "Hunch", "kylies.dating", "2.9M", "4K", 0.1, "2026-08-15", "Text + daily moment", "relationships", "And that's the truth of dating apps now", 0],
-  ["ig-DchfDqVvGYD", "Wayk", "alexism.wakeup", "4.5M", "82K", 1.8, "2026-08-27", "App challenge struggle", "health-fitness", "My mornings just got worse", 16],
-  ["tt-7692866211423472910", "Stompers", "jocelynwalking", "4.2M", "342K", 12.3, "2026-10-04", "Text story → screen proof", "health-fitness", "I'm way too competitive for this", 10],
-  ["ig-DcjTPInpa60", "Stompers", "walkingwithkat", "3.6M", "88K", 2.5, "2026-08-27", "Text story → screen proof", "health-fitness", "No bc I'm checking Stompers every 10 min now", 9],
-  ["ig-Db95HPBCSWi", "Focustown", "allie.studycorner", "4.7M", "314K", 6.7, "2026-08-13", "Explainer + screen", "productivity", "If you don't feel like reading, start by picking a random flight.", 47],
-  ["tt-7685188590225378580", "Minutes AI", "malerie.frances", "4.4M", "168K", 3.8, "2026-09-14", "Explainer + screen", "productivity", "Managers, what do we think of this?", 0],
-  ["tt-7675561907138383135", "Poke", "hkproductive", "3.3M", "621K", 18.6, "2026-08-19", "Tips & lessons", "productivity", "Phrases to calm a man down during an argument", 0],
-  ["ig-DcEokHDRxbU", "Natural Write", "ay_.studies", "3.1M", "171K", 5.5, "2026-08-15", "Problem → app answer", "productivity", "POV: you have an essay to submit in 5 mins", 40],
-  ["ig-DcuCrIRxSOk", "Forfeit", "susiequetie49", "2.4M", "84K", 3.6, "2026-08-31", "Explainer + screen", "productivity", "Swear I've never woken up this consistently until Forfeit", 21],
-  // ---- AI money-making apps: the videos the campaign formats copy
-  ["ig-DeiGVtUhKKm", "Krea AI", "sarahreal.ai", "4M", "118K", 3.1, "2026-10-15", "Explainer + screen", "creative-tools", "Watch this. (reacts to a viral AI short, then shows how)", 0, F.reaction],
+  // ---- OpenArt: the brand Dare's formats are copied from
+  ["ig-DbGJMKPgOTB", "OpenArt", "stee.ugc", "1.1M", "25K", 2.5, "2026-07-22", "Explainer + screen", "creative-tools", "If I lost everything and had 28 days to get a BMW M4, this is exactly what I'd do", 0, F.bmw],
+  ["ig-DcDBMVdtEtK", "OpenArt", "steeslovable", "774K", "16K", 2.2, "2026-08-15", "Screen demo", "creative-tools", "Claude + Shorts = $478/day (the same edit thecal.mp3 reposts)", 0, F.claude],
+  ["ig-DcRJ2CUx1ho", "OpenArt", "openart_withfandy", "772K", "858", 0.1, "2026-08-20", "Explainer + screen", "creative-tools", "Cast yourself in a music video with OpenArt Director", 0, F.astraUgc],
+  ["ig-DbHOqJlPhH3", "OpenArt", "stee.ugc", "607K", "7K", 1.4, "2026-07-22", "Explainer + screen", "creative-tools", "How to get a Porsche 911 in 28 days", 0, F.porsche],
+  ["ig-DZ7t4PKqZP7", "OpenArt", "mia.maldinii", "605K", "1.7K", 0.3, "2026-06-23", "Explainer + screen", "creative-tools", "I made a short film from ONE sentence", 0, F.astraUgc],
+  ["ig-Dd647h2tNO9", "OpenArt", "mussy0.2", "595K", "3", 0.1, "2026-09-30", "Explainer + screen", "creative-tools", "You're not editing the film anymore. You're directing it.", 54, F.astraUgc],
+  ["tt-7700271190992112916", "OpenArt", "sekiro.invo", "541K", "30K", 8.7, "2026-10-24", "Explainer + screen", "creative-tools", "Nah, he's actually onto something. (Laziest way to make $1k a day)", 72, F.claude],
+  ["tt-7697805981333638407", "OpenArt", "meerhustles", "483K", "31K", 8.6, "2026-10-18", "Explainer + screen", "creative-tools", "The AI influencer + OpenArt method is crazy", 37, F.astraUgc],
+  ["ig-DblkKFfxM8N", "OpenArt", "crysxmp4", "438K", "16K", 4.6, "2026-08-03", "Explainer + screen", "creative-tools", "OpenArt is printing rn", 0],
+  ["ig-DcRvDUABquv", "OpenArt", "steeslovable", "384K", "4.1K", 1.3, "2026-08-20", "Screen demo", "creative-tools", "OpenArt is the method", 0, F.claude],
+  ["tt-7700917980300872982", "OpenArt", "davestestingai", "375K", "3.6K", 1.3, "2026-10-26", "Explainer + screen", "creative-tools", "Start an explainer YouTube channel with OpenArt", 88, F.claude],
+  ["ig-DcXaSpwMpSB", "OpenArt", "steeslovable", "368K", "6.5K", 2.1, "2026-08-23", "Screen demo", "creative-tools", "OpenArt is printing right now", 0, F.claude],
+  ["ig-DaZe6TDg7UJ", "OpenArt", "steeslovable", "344K", "3.7K", 1.2, "2026-07-05", "Explainer + screen", "creative-tools", "OpenArt is printing for me right now", 0, F.claude],
+  ["ig-Db2AhQzs0Sw", "OpenArt", "stee.ugc", "333K", "5K", 1.7, "2026-08-10", "Explainer + screen", "creative-tools", "OpenArt is printing right now", 0, F.bmw],
+  ["ig-DabwRVzAiZD", "OpenArt", "steeslovable", "326K", "2.3K", 0.8, "2026-07-06", "Explainer + screen", "creative-tools", "OpenArt has been printing for me", 0, F.claude],
+  ["ig-DccRzt7gR33", "OpenArt", "steeslovable", "307K", "3.5K", 1.2, "2026-08-24", "Screen demo", "creative-tools", "OpenArt is the method", 0, F.claude],
+  ["ig-DbGwJogM61c", "OpenArt", "stee.ugc", "305K", "2.9K", 1.2, "2026-07-22", "Explainer + screen", "creative-tools", "OpenArt has been printing recently", 0, F.bmw],
+  ["ig-DbTBbc7Juu2", "OpenArt", "kevinjoam.ai", "301K", "2.8K", 1.2, "2026-07-27", "Explainer + screen", "creative-tools", "OpenArt can do what???", 0, F.astra],
+  ["ig-DcfSA-IAOaP", "OpenArt", "steeslovable", "300K", "4.5K", 1.6, "2026-08-26", "Screen demo", "creative-tools", "OpenArt is the method", 0, F.claude],
+  ["tt-7693403434975825182", "OpenArt", "laddy.ai", "237K", "12K", 11.1, "2026-10-06", "Explainer + screen", "creative-tools", "The influencer OpenArt method is cooking", 43, F.astraUgc],
+  ["ig-Da__imCMKcJ", "OpenArt", "stee.ugc", "235K", "7K", 3.1, "2026-07-20", "Explainer + screen", "creative-tools", "Laziest way to get a BMW M4", 0, F.ifHad],
+  ["tt-7699231376385543445", "OpenArt", "nik1hustles", "178K", "12K", 10.2, "2026-10-21", "Explainer + screen", "creative-tools", "Stop scrolling and start creating", 79, F.claude],
+  ["tt-7703623744102599966", "OpenArt", "crysxmp4", "151K", "9.9K", 12.3, "2026-11-02", "Explainer + screen", "creative-tools", "OpenArt is printing rn (YouTube monetization)", 79, F.claude],
+  ["ig-DeAHd5Wt6V2", "OpenArt", "agat.vibedirects", "141K", "1.1K", 1.5, "2026-10-02", "Screen demo", "creative-tools", "OpenArt has changed the game", 0, F.astraUgc],
+  ["tt-7701091417401117974", "OpenArt", "davestestingai", "104K", "1.5K", 2.8, "2026-10-26", "Explainer + screen", "creative-tools", "Start an explainer YouTube channel with OpenArt (take 2)", 86, F.claude],
+  ["ig-Dd9RZBHNOIJ", "OpenArt", "agat.vibedirects", "62K", "444", 1.4, "2026-10-01", "Screen demo", "creative-tools", "OpenArt is a game changer", 0, F.astraUgc],
+  // ---- Higgsfield: the same AI money methods
+  ["tt-7685210787333426453", "Higgsfield", "ai.withsam.mp4", "1.9M", "108K", 9.2, "2026-09-14", "Acted sketch", "creative-tools", "How much is your tuition? (prof pulls out $10k mid lecture)", 91, F.colouring],
+  ["tt-7676994096912731400", "Higgsfield", "anastasia_createsai", "1.7M", "96K", 9.7, "2026-08-22", "Explainer + screen", "creative-tools", "Stop being broke: the AI method (Russian)", 72],
+  ["tt-7689635610138529045", "Higgsfield", "createwfemi", "1.7M", "102K", 8.7, "2026-09-26", "Acted sketch", "creative-tools", "Show me your screen time", 97],
+  ["tt-7695632773318462738", "Higgsfield", "mustimakesmoney", "1.3M", "68K", 7.5, "2026-10-12", "Screen demo", "creative-tools", "Roblox? 15 minutes for research. (Day 9 of testing random side hustles)", 45, F.bmw],
+  ["tt-7691849577044938004", "Higgsfield", "createwfemi", "1.2M", "42K", 5, "2026-10-01", "Explainer + screen", "creative-tools", "His screen time wasn't even that bad", 72],
+  ["tt-7694513931749985550", "Higgsfield", "kareemscales", "1.1M", "58K", 5.9, "2026-10-09", "AI character animation", "creative-tools", "Mom really kicked me out (AI cartoon)", 45, F.reaction],
+  ["tt-7680443928482532615", "Higgsfield", "lgn_creates", "917K", "35K", 5.6, "2026-09-01", "Explainer + screen", "creative-tools", "Actually watch this", 61],
+  ["tt-7688554553918246152", "Higgsfield", "anastasiakras.tech", "815K", "48K", 8.7, "2026-09-23", "Explainer + screen", "creative-tools", "This method (Russian)", 45],
+  ["tt-7682980205157158158", "Higgsfield", "kaleb.hustlez", "663K", "38K", 12.4, "2026-09-08", "Explainer + screen", "creative-tools", "Comment Claude if you want a simpler version", 67, F.claude],
+  ["tt-7683742312052067598", "Higgsfield", "buildwithsylass", "645K", "33K", 11.6, "2026-09-10", "Explainer + screen", "creative-tools", "Tutorial for everyone with limited brain cells", 34, F.caveman],
+  ["tt-7690988809088929042", "Higgsfield", "techwithcole3", "640K", "23K", 6.3, "2026-09-29", "Explainer + screen", "creative-tools", "This is actual sauce", 54],
+  ["tt-7691761334534278430", "Higgsfield", "productivejack", "596K", "30K", 7.2, "2026-10-01", "Explainer + screen", "creative-tools", "I should have gatekept this", 50, F.deleting],
+  ["tt-7596014335281941776", "Higgsfield", "migs.visuals", "477K", "23K", 6.8, "2026-01-16", "Acted sketch", "creative-tools", "This is NOT just a filter (Kling motion control)", 18, F.astra],
+  ["tt-7686317427944148238", "Higgsfield", "buildwithsylass", "467K", "20K", 8.3, "2026-09-17", "Explainer + screen", "creative-tools", "Hopefully y'all understand it now", 42, F.caveman],
+  ["tt-7684717055014194462", "Higgsfield", "garrett_hustles", "434K", "19K", 7.8, "2026-09-12", "Acted sketch", "creative-tools", "Teach really called bro out like that", 96],
+  ["tt-7596865856852790542", "Higgsfield", "aibyjoe", "3.9M", "116K", 5.7, "2026-01-19", "Screen demo", "creative-tools", "Kling motion control demo (comment AI for the setup)", 18, F.astra],
+  ["ig-DTwKrV3kXl-", "Higgsfield", "justdval", "1.8M", "109K", 8, "2026-01-21", "Tips & lessons", "creative-tools", "This effect is called…", 83, F.astra],
+  // ---- other AI money-method apps
+  ["ig-DeiGVtUhKKm", "Krea AI", "sarahreal.ai", "4M", "118K", 3.1, "2026-10-15", "Explainer + screen", "creative-tools", "You just watched that entire video, didn't you?", 0, F.reaction],
+  ["ig-DbfZeekzWiK", "Krea AI", "simran.tech_", "2M", "31K", 3.6, "2026-08-01", "Explainer + screen", "creative-tools", "Part time job ✗ Coloring books ✓", 0, F.colouring],
+  ["ig-DbhyF20Tvtb", "Krea AI", "simran.tech_", "1.4M", "18K", 3.1, "2026-08-02", "Explainer + screen", "creative-tools", "Don't take that part-time job, do this instead", 0, F.yapping],
+  ["ig-DbimRXNyaSu", "Krea AI", "tonskiuses.krea", "268K", "8.5K", 4.9, "2026-08-02", "Explainer + screen", "creative-tools", "Why don't they teach this??", 0, F.reaction],
   ["ig-DbEgH7sBVbK", "Viewmax", "robsmethods", "2.2M", "41K", 3.3, "2026-07-21", "Reacts to the app", "creative-tools", "Can someone tell me why they never teach this in school?", 0, F.reaction],
   ["tt-7667726002885250318", "Viewmax", "stacy.game.s", "1.1M", "49K", 4.4, "2026-07-28", "Reacts to the app", "creative-tools", "What!? This is generational advice", 0, F.reaction],
   ["tt-7664485023390731533", "Viewmax", "its_nephy9", "1M", "58K", 6.1, "2026-07-20", "Reacts to the app", "creative-tools", "Like why isn't this taught in schools?", 0, F.reaction],
   ["tt-7669262048466947335", "Viewmax", "jennycreatescontent", "699K", "20K", 3.1, "2026-08-02", "Reacts to the app", "creative-tools", "20 minutes a day and posting consistently is all you need", 0, F.reaction],
   ["tt-7671815142773951757", "Viewmax", "michelle26_mp4", "616K", "19K", 3.7, "2026-08-09", "Reacts to the app", "creative-tools", "What??", 0, F.reaction],
-  ["ig-DbimRXNyaSu", "Krea AI", "tonskiuses.krea", "268K", "8.5K", 4.9, "2026-08-02", "Explainer + screen", "creative-tools", "Why don't they teach this??", 0, F.reaction],
-  ["ig-DaRM2_7CiNa", "Composio", "mubs.io", "6.8M", "277K", 4.1, "2026-07-01", "Explainer + screen", "developer-tools", "Is it possible to become a millionaire by begging millionaires for $1?", 0, F.thousand],
-  ["tt-7681110285658213652", "Composio", "alessio.hackss", "4.4M", "218K", 5, "2026-09-03", "Storytime & rant", "developer-tools", "I emailed over 5 million people and asked them each for $1", 0, F.thousand],
-  ["tt-7531053771871292727", "Lovable", "noah.lousiana", "2.9M", "117K", 5.1, "2025-07-25", "Explainer + screen", "developer-tools", "I could code Call of Duty in 60 seconds with AI", 30, F.speedrun],
-  ["tt-7681522595824422165", "Composio", "alessio.hackss", "2.8M", "175K", 6.2, "2026-09-04", "Storytime & rant", "developer-tools", "I emailed over 10 million people and asked them each for $1", 0, F.thousand],
-  ["tt-7679452206931741972", "Composio", "alessio.hackss", "1.7M", "74K", 4.3, "2026-08-29", "Explainer + screen", "developer-tools", "Why would you get a job when you can just ask every millionaire for a dollar?", 0, F.thousand],
+  ["tt-7665444149352500493", "Viewmax", "michelle26_mp4", "605K", "19K", 4.2, "2026-07-22", "Reacts to the app", "creative-tools", "Best advice I have heard all year", 0, F.reaction],
   ["ig-DSLtgSBChjd", "Viewmax", "joellmp4", "597K", "25K", 4.7, "2025-12-13", "Explainer + screen", "creative-tools", "Day 2 of testing unethical ways to make money online", 0, F.thousand],
-  ["ig-DbGJMKPgOTB", "OpenArt", "stee.ugc", "1.1M", "25K", 2.5, "2026-07-22", "Explainer + screen", "creative-tools", "If I lost everything and had 28 days to get a BMW M4, this is exactly what I'd do", 0, F.bmw],
-  ["ig-DbHOqJlPhH3", "OpenArt", "stee.ugc", "607K", "7K", 1.4, "2026-07-22", "Explainer + screen", "creative-tools", "How to get a Porsche 911 in 28 days", 0, F.porsche],
-  ["ig-Da__imCMKcJ", "OpenArt", "stee.ugc", "235K", "7K", 3.1, "2026-07-20", "Explainer + screen", "creative-tools", "Laziest way to get a BMW M4", 0, F.ifHad],
-  ["tt-7540348249459297558", "Faircado", "thea.faircad0thrifts", "6.8M", "420K", 6.2, "2025-08-19", "Text story → screen proof", "shopping", "I could KISS the Vinted employee that showed me this hack", 0, F.marry],
-  ["ig-DdTK3nbRYxH", "Jobsuit", "amit.bhatiaaa", "2M", "40K", 2, "2026-09-15", "Reacts to the app", "business", "Girl, I'm sorry, but this girl deleted her video", 0, F.deleting],
-  ["ig-DbKZS_ViycF", "Creao AI", "ashleyautomatesit", "537K", "17K", 4.1, "2026-07-24", "Screen demo", "creative-tools", "The Pinterest girlies are gatekeeping this side hustle", 0, F.deleting],
+  ["tt-7666062010949422350", "Viewmax", "its_nephy9", "590K", "38K", 6.8, "2026-07-24", "Reacts to the app", "creative-tools", "Class is in session", 0, F.reaction],
+  ["ig-Dba2WDXug_V", "Viewmax", "robsmethods", "383K", "5.6K", 2.2, "2026-07-30", "Reacts to the app", "creative-tools", "This is crazy sauce.. enjoy the money", 0, F.reaction],
   ["ig-Da9dDfqC3a2", "Creao AI", "ashleyautomatesit", "3.4M", "104K", 3.4, "2026-07-19", "Screen demo", "creative-tools", "\"My 9-5 is enough, I don't need a side income\"", 0, F.yapping],
   ["ig-DZQq5b8y5-X", "Creao AI", "ashleyautomatesit", "2.7M", "59K", 2.6, "2026-06-06", "Screen demo", "creative-tools", "World Cup + YouTube Shorts = $$$", 0, F.claude],
-  ["tt-7596865856852790542", "Higgsfield", "aibyjoe", "3.9M", "116K", 5.7, "2026-01-19", "Screen demo", "creative-tools", "Kling motion control demo (comment AI for the setup)", 18],
-  ["ig-DcDBMVdtEtK", "OpenArt", "steeslovable", "774K", "16K", 2.2, "2026-08-15", "Screen demo", "creative-tools", "Claude + Shorts = $478/day (the same edit thecal.mp3 reposts)", 0, F.claude],
-  ["ig-DZyhPXrxhWZ", "Medeo AI", "mmjasonyellow", "365K", "3.4K", 1, "2026-06-20", "Screen demo", "creative-tools", "Easy money with the World Cup", 25],
+  ["ig-DbKZS_ViycF", "Creao AI", "ashleyautomatesit", "537K", "17K", 4.1, "2026-07-24", "Screen demo", "creative-tools", "The Pinterest girlies are gatekeeping this side hustle", 0, F.deleting],
+  ["tt-7664083396104064269", "Creao AI", "ashleyautomatesit", "438K", "42K", 17.1, "2026-07-19", "Screen demo", "creative-tools", "Stop settling when you can be making bank this way", 20, F.yapping],
+  ["ig-DZYgpRQzYct", "Creao AI", "code.with.harry", "190K", "3K", 2.5, "2026-06-09", "Screen demo", "creative-tools", "Getting your bags in the next month", 23, F.yapping],
+  ["tt-7648406042191154462", "Creao AI", "ashleyautomatesit", "189K", "9.8K", 9.4, "2026-06-06", "Screen demo", "creative-tools", "Lock in, the World Cup is here", 22, F.claude],
+  ["ig-DaQs0ukP8S_", "Creao AI", "ashleyautomatesit", "178K", "4.8K", 4.2, "2026-07-01", "Screen demo", "creative-tools", "Such an underrated side hustle", 0, F.yapping],
   ["ig-DbXL3cuCdFj", "Creao AI", "ashleyautomatesit", "104K", "2K", 3.8, "2026-07-29", "Screen demo", "creative-tools", "This is how you can make coloring books and make money from it", 0, F.colouring],
+  ["ig-DeLjjIziY9e", "Creao AI", "ashleyautomatesit", "78K", "2.1K", 4.2, "2026-10-07", "Screen demo", "creative-tools", "This method is INSANE", 0, F.yapping],
+  ["ig-DZyhPXrxhWZ", "Medeo AI", "mmjasonyellow", "365K", "3.4K", 1, "2026-06-20", "Screen demo", "creative-tools", "Easy money with the World Cup", 25, F.claude],
+  ["ig-DYctY2izoWA", "Medeo AI", "createwkiana", "241K", "11K", 7.4, "2026-05-17", "Explainer + screen", "creative-tools", "Yeah… this method is unmatched", 45, F.claude],
+  ["ig-DYYZ18rJrfd", "Halo AI", "aaronpranks", "3.4M", "0", 3.2, "2026-05-16", "Explainer + screen", "creative-tools", "I DM'd 1 million people and asked them each for $1", 0, F.thousand],
+  ["tt-7651988301447974158", "Cantina", "techwithemmaaa", "2.2M", "184K", 13.6, "2026-06-16", "Explainer + screen", "creative-tools", "My most embarrassing side hustle is the one that pays my bills", 31, F.yter],
+  ["ig-Da1GwuEyZ-k", "Cantina", "itsroxc.tech", "795K", "17K", 2.1, "2026-07-15", "Explainer + screen", "creative-tools", "Use chat to make your rent money in less than 10 mins", 16, F.thousand],
+  ["ig-DbKEnvXMJQf", "Vidrush", "jaisidehustles", "188K", "0", 3, "2026-07-24", "Explainer + screen", "creative-tools", "Do not get that part-time job. Do this instead.", 0, F.yapping],
+  ["ig-Dab9lQ6shKK", "Tesana AI", "aiwithwendie", "140K", "0", 2.4, "2026-07-06", "Screen demo", "creative-tools", "Website that makes you money while you sleep", 0, F.yapping],
+  ["ig-DbjxL8FD8v_", "Meshy", "djspodcast", "66K", "0", 0.1, "2026-08-03", "Explainer + screen", "creative-tools", "I'm deleting this video in 24 hours, so watch the whole thing now", 0, F.deleting],
+  ["ig-Dcoeq9vBt2q", "Viblo", "ethanhustlez", "198K", "0", 1.8, "2026-08-29", "Explainer + screen", "creative-tools", "In real life, if you lock in on the content: GTA 6", 0, F.gta],
+  ["ig-Db9i1wtsGfG", "Polsia", "braison_polsia", "1.7M", "57K", 3.4, "2026-08-13", "Reacts to the app", "business", "New method just leaked", 0, F.reaction],
+  ["ig-DfDE4NsDxKZ", "Polsia", "braison_polsia", "65K", "988", 1.5, "2026-10-28", "Tips & lessons", "business", "Watching AI models from the future do my work for me", 47, F.astra],
+  // ---- AI money methods with code and automations
+  ["ig-DaRM2_7CiNa", "Composio", "mubs.io", "6.8M", "277K", 4.1, "2026-07-01", "Explainer + screen", "developer-tools", "Is it possible to become a millionaire by begging millionaires for $1?", 0, F.thousand],
+  ["tt-7681110285658213652", "Composio", "alessio.hackss", "4.4M", "218K", 5, "2026-09-03", "Storytime & rant", "developer-tools", "I emailed over 5 million people and asked them each for $1", 0, F.thousand],
+  ["tt-7681522595824422165", "Composio", "alessio.hackss", "2.8M", "175K", 6.2, "2026-09-04", "Storytime & rant", "developer-tools", "I emailed over 10 million people and asked them each for $1", 0, F.thousand],
+  ["ig-DYiTasnBIXb", "Composio", "victor2up_", "2.6M", "93K", 3.6, "2026-05-19", "Acted sketch", "developer-tools", "This is a 1 million dollar engineer…", 0, F.speedrun],
+  ["tt-7651826898703600904", "Composio", "walidsadvice", "2M", "117K", 5.9, "2026-06-16", "Explainer + screen", "developer-tools", "Someone just built GTA 6 in 10 hours using Claude", 0, F.gta],
+  ["tt-7679452206931741972", "Composio", "alessio.hackss", "1.7M", "74K", 4.3, "2026-08-29", "Explainer + screen", "developer-tools", "Why would you get a job when you can just ask every millionaire for a dollar?", 0, F.thousand],
+  ["tt-7684856725291142421", "Composio", "alessio.hackss", "1.6M", "79K", 5.1, "2026-09-13", "Storytime & rant", "developer-tools", "What was bro thinking (emailing millionaires for $1)", 0, F.thousand],
+  ["tt-7672924693388725537", "Composio", "tor.hacks", "1.1M", "37K", 3.4, "2026-08-11", "Explainer + screen", "developer-tools", "I did NOT expect this… (asking millionaires for $1)", 0, F.thousand],
+  ["tt-7669513090530086146", "Composio", "raycomposes", "1M", "40K", 3.8, "2026-08-02", "Storytime & rant", "developer-tools", "Might be the new method (DMing for $1)", 0, F.thousand],
   ["tt-7631036581805067533", "Lovable", "s1lentsimulation", "6.9M", "566K", 11.2, "2026-04-21", "Explainer + screen", "developer-tools", "If you're a 17-year-old smart kid, you can literally call every local business", 64, F.coldCall],
   ["tt-7633075751037734158", "Lovable", "gozie.okenu", "5.2M", "477K", 10.7, "2026-04-26", "Acted sketch", "developer-tools", "If you're a 17-year-old smart kid (acted sketch)", 63, F.coldCall],
   ["tt-7640552797901032734", "Lovable", "crys.lovable", "3.5M", "351K", 15.5, "2026-05-16", "Explainer + screen", "developer-tools", "If you're a 17-year-old smart kid…", 59, F.maps],
+  ["tt-7531053771871292727", "Lovable", "noah.lousiana", "2.9M", "117K", 5.1, "2025-07-25", "Explainer + screen", "developer-tools", "I could code Call of Duty in 60 seconds with AI", 30, F.speedrun],
   ["tt-7622154780714044702", "Lovable", "manu.codes", "2M", "139K", 8.7, "2026-03-28", "Screen demo", "developer-tools", "Charged them 1.3k while driving", 28, F.coldCall],
   ["tt-7638671621657513230", "Lovable", "crys.lovable", "1.7M", "151K", 12.9, "2026-05-11", "Screen demo", "developer-tools", "You can literally call every local business", 54, F.maps],
+  ["tt-7658710270184852766", "Lovable", "crys.lovable", "1.4M", "113K", 13.4, "2026-07-04", "Explainer + screen", "developer-tools", "Lovable is printing right now", 49, F.coldCall],
+  ["tt-7658020148762266911", "Lovable", "crys.lovable", "1.3M", "201K", 24.9, "2026-07-02", "Explainer + screen", "developer-tools", "Lovable is printing right now (websites for local businesses)", 49, F.coldCall],
+  ["tt-7693330436902161695", "cto.new", "susanvibecodes", "830K", "35K", 11, "2026-10-05", "Explainer + screen", "developer-tools", "Please don't make me say I told you so", 51, F.speedrun],
+  ["ig-DekmeDXRkyH", "SiteJourney", "sitesbykass", "569K", "12K", 2.4, "2026-10-16", "Screen demo", "developer-tools", "Building websites for small businesses is printing rn", 0, F.coldCall],
+  ["ig-DepvD4yRTbM", "SiteJourney", "sitesbykass", "512K", "11K", 2.2, "2026-10-18", "Screen demo", "developer-tools", "Building websites is the method", 0, F.coldCall],
+  ["ig-DeXvFdTRn3k", "SiteJourney", "sitesbykass", "336K", "8.3K", 2.6, "2026-10-11", "Screen demo", "developer-tools", "Building websites is the method", 0, F.maps],
+  ["ig-DeNYcOPxE-B", "SiteJourney", "sitesbykass", "350K", "5.6K", 1.7, "2026-10-07", "Screen demo", "developer-tools", "Building websites is the printing method", 0, F.coldCall],
+  // ---- the original videos some of the formats copy shot for shot
+  ["tt-7540348249459297558", "Faircado", "thea.faircad0thrifts", "6.8M", "420K", 6.2, "2025-08-19", "Text story → screen proof", "shopping", "I could KISS the Vinted employee that showed me this hack", 0, F.marry],
   ["tt-7655724103906675999", "BeFreed", "learning.withmatt", "5.1M", "390K", 7.8, "2026-06-26", "Tips & lessons", "education", "What psychology says about purple lovers", 0, F.tier],
   ["tt-7652519299520744734", "BeFreed", "learningwliam", "4.9M", "346K", 7.2, "2026-06-18", "Tips & lessons", "education", "S-tier hobbies for blue lovers", 0, F.tier],
   ["ig-DZEiY8aJOiz", "Dupe.com", "findsbyzachary", "2.7M", "38K", 1.4, "2026-06-02", "Reacts to the app", "shopping", "This girl better go into hiding, she just exposed the whole industry", 0, F.course],
-  ["tt-7651826898703600904", "Composio", "walidsadvice", "2M", "117K", 5.9, "2026-06-16", "Explainer + screen", "developer-tools", "Someone just built GTA 6 in 10 hours using Claude", 0, F.gta],
-  ["ig-DbfZeekzWiK", "Krea AI", "simran.tech_", "2M", "31K", 3.6, "2026-08-01", "Explainer + screen", "creative-tools", "Part time job ✗ Coloring books ✓", 0, F.colouring],
-  ["ig-DTwKrV3kXl-", "Higgsfield", "justdval", "1.8M", "109K", 8, "2026-01-21", "Tips & lessons", "creative-tools", "This effect is called…", 83, F.astra],
-  ["tt-7700271190992112916", "OpenArt", "sekiro.invo", "541K", "30K", 8.7, "2026-10-24", "Explainer + screen", "creative-tools", "OpenArt is printing with this (green screen)", 72],
-  ["tt-7697805981333638407", "OpenArt", "meerhustles", "483K", "31K", 8.6, "2026-10-18", "Explainer + screen", "creative-tools", "The AI influencer + OpenArt method is crazy", 37],
-  ["ig-DYctY2izoWA", "Medeo AI", "createwkiana", "241K", "11K", 7.4, "2026-05-17", "Explainer + screen", "creative-tools", "Yeah… this method is unmatched", 45],
-  ["ig-DYiTasnBIXb", "Composio", "victor2up_", "2.6M", "93K", 3.6, "2026-05-19", "Acted sketch", "developer-tools", "This is a 1 million dollar engineer…", 0],
-  ["tt-7685210787333426453", "Higgsfield", "ai.withsam.mp4", "1.9M", "108K", 9.2, "2026-09-14", "Acted sketch", "creative-tools", "Bro just pulled out $10k mid lecture", 91],
-  ["tt-7689635610138529045", "Higgsfield", "createwfemi", "1.7M", "102K", 8.7, "2026-09-26", "Acted sketch", "creative-tools", "Show me your screen time", 97],
+  ["ig-DdTK3nbRYxH", "Jobsuit", "amit.bhatiaaa", "2M", "40K", 2, "2026-09-15", "Reacts to the app", "business", "Girl, I'm sorry, but this girl deleted her video", 0, F.deleting],
 ];
 
 // full breakdowns from DarkUGC's video analysis
 const D: Record<string, Detail> = {
-  "ig-Dec88-WS8n_": {
-    summary: "A creator demos an interactive 3D anatomy app on a tablet: exploded skeleton, muscles, lungs and heart.",
-    hookType: "Shock", techniques: ["Face to camera", "Text overlay", "Movement"],
-    scenes: ["On camera holding a tablet: the skeleton explodes apart, she reacts in shock.", "Over-the-shoulder: the muscle system explodes, single muscles highlighted.", "Rotating and zooming into the 3D lungs.", "Close-up rotating the 3D heart."],
-    why: "Visually arresting 3D graphics plus a hook that calls out one high-intent audience (medical students) drives instant engagement.",
-    template: "All [target audience], ATTENTION! Check out this [feature] on [App Name].",
-    pain: "Memorising anatomy from 2D textbooks is hard.", benefit: "Take apart detailed 3D anatomy from any angle.",
-    pace: "medium", voice: "No voice", music: "Dramatic strings building into an energetic beat",
-    ranks: [{ scope: "Screen demo", rank: 2, of: 1713 }, { scope: "Education", rank: 2, of: 6792 }, { scope: "Library", rank: 22, of: 24752 }],
-    creatorTypical: "350K", followers: "26K", perDayAvg: "2.1M", perDayLately: "71K",
-    remix: ["Voiceover quiz questions over the 3D heart.", "Textbook diagram vs the 3D model side by side.", "A student prepping for an anatomy exam with the app."],
+  "tt-7695632773318462738": {
+    summary: "Day 9 of testing random side hustles: a spinner lands on Roblox, he researches for 15 minutes, then shows how AI builds the whole game.",
+    hookType: "Challenge", techniques: ["Face to camera", "Text overlay", "Movement", "Direct address"],
+    scenes: ["A spinner on the laptop lands on Roblox; he starts a 15-minute research timer.", "Proof: a 3-week-old Roblox game with 20,000 players and what it earns.", "Tutorial: connect the AI plugin inside ChatGPT and generate the game.", "Assemble it in Roblox Studio, check the rules, add ways to earn.", "Follow for part two to see the results."],
+    why: "A serialized 'Day X' challenge with a big income proof hooks aspirational viewers straight into a simple AI workflow.",
+    template: "Day [X] of testing random side hustles. [Spinner picks the hustle]. In [time limit] of research: this [example] makes [amount]. Here's how to do it with [App]: 1. [step] 2. [step] 3. publish and earn. Follow for part two!",
+    pain: "Building and selling something from scratch feels slow and complicated.", benefit: "AI generates the ideas, scripts and art in minutes.",
+    pace: "fast", voice: "On camera", music: "Upbeat electronic",
+    ranks: [{ scope: "Screen demo", rank: 206, of: 1713 }, { scope: "Higgsfield", rank: 16, of: 113 }, { scope: "Library", rank: 2899, of: 24752 }],
+    creatorTypical: "–", followers: "1.5K", perDayAvg: "253K", perDayLately: "137K",
+    remix: ["Same spinner, but the hustle is AI kids' videos for YouTube.", "Day X: a faceless YouTube channel made only with AI video.", "Day X: AI ads for a local business, then cold call them."],
   },
-  "ig-DdmzsXziRAi": {
-    summary: "A woman frantically solves alarm-app missions on her husband's ringing phone to turn off a loud alarm.",
-    hookType: "POV", techniques: ["Face to camera", "Text overlay", "Sound effect", "Humor"],
-    scenes: ["Reacts to the absurdly loud alarm in bed and reaches for the phone.", "Completes a typing challenge while commenting on the noise.", "The app makes her chant motivational words on beat.", "The app wants a photo of a pillow: she scans it, the alarm stops, she tosses the phone."],
-    why: "Shows the product's features organically through real, chaotic reactions to near-impossible missions.",
-    template: "WHAT is my [partner/roommate]'s alarm [show the extreme mission UI while frantically completing tasks]",
-    pain: "An alarm that refuses to turn off.", benefit: "Forces you fully awake with multi-step missions.",
-    pace: "fast", voice: "On camera", music: "Chaotic alarm melody and electronic vocal",
-    ranks: [{ scope: "App challenge struggle", rank: 3, of: 336 }, { scope: "Health & Fitness", rank: 3, of: 2791 }, { scope: "Library", rank: 32, of: 24752 }],
-    creatorTypical: "60K", followers: "1.9K", perDayAvg: "912K", perDayLately: "11K",
-    remix: ["A roommate walking in trying to shut it off.", "A parent dismissing a teenager's maths-mission alarm.", "A speedrun: beat every mission in under 30 seconds."],
+  "tt-7700271190992112916": {
+    summary: "He green-screens over a 'how much time you have in a day' clip, then shows how to make monetizable kids' animation videos with AI.",
+    hookType: "Bold claim", techniques: ["Face to camera", "Text overlay", "Reaction"],
+    scenes: ["'Nah, he's actually onto something' over a clip cutting up the hours in a day.", "Find a kids' YouTube channel pulling millions of views; screenshot its style.", "Open the AI video tool, pick a style, upload the screenshots, generate.", "Payout screenshots, then his own results.", "Comment 'AI' for the prompt."],
+    why: "A green-screen reaction hook, step-by-step proof on screen and a comment-for-the-prompt CTA that drives comments.",
+    template: "Nah, he's actually onto something. [Clip: you only have 3 free hours a day]. Go to YouTube, find [a kids' channel with millions of views]. Go to [App], paste your prompt, upload the screenshots, let it generate. Post two a day. Comment [keyword] for the prompt!",
+    pain: "Only a few free hours a day to build a side income.", benefit: "Monetizable animated videos up to 5 minutes long in minutes.",
+    pace: "medium", voice: "Creator + app", music: "Subtle ambient beat",
+    ranks: [{ scope: "OpenArt", rank: 7, of: 123 }, { scope: "Explainer + screen", rank: 780, of: 3747 }, { scope: "Library", rank: 6650, of: 24752 }],
+    creatorTypical: "–", followers: "215", perDayAvg: "41K", perDayLately: "8",
+    remix: ["React to a finance clip, then show the AI kids' video method.", "Bedtime-story animations from scratch.", "Side by side: editing by hand vs one AI prompt."],
   },
-  "tt-7690142460353301773": {
-    summary: "Shows how to get low-quality vintage photos with a Nokia filter in a camera app.",
-    hookType: "Bold claim", techniques: ["Text overlay", "Trending sound"],
-    scenes: ["Montage of aesthetic lo-fi photos with the hook text.", "Screen recording: open the app, pick the Nokia filter.", "The resulting retro selfie clip."],
-    why: "Rides the Y2K / digicam trend and shows a one-tap fix by screen recording.",
-    template: "[Aesthetic photos] low quality photos are always the best. Open [App]! Select [Filter]. [Show results].",
-    pain: "Wanting a vintage look without an old camera.", benefit: "Retro lo-fi photos in one tap.",
-    pace: "fast", voice: "No voice", music: "Upbeat pop",
-    ranks: [{ scope: "Screen demo", rank: 4, of: 1713 }, { scope: "Creative Tools", rank: 4, of: 1891 }, { scope: "Library", rank: 38, of: 24752 }],
-    creatorTypical: "3.1M", followers: "7.4K", perDayAvg: "1M", perDayLately: "16",
-    remix: ["Before/after: a modern photo turned lo-fi.", "Test several retro filters in a row.", "Night-time flash photos with the app."],
-  },
-  "ig-Dfa_L-WJ_HI": {
-    summary: "A woman wakes up to her boyfriend's alarm app and has to complete missions to turn it off.",
-    hookType: "Problem", techniques: ["Face to camera", "Text overlay", "Movement"],
-    scenes: ["In bed, annoyed by the loud alarm.", "Types a tongue-twister mission.", "A voice mission: 'wakey wakey let's get ready' on beat.", "Walks to the bathroom to photograph the toilet to dismiss it."],
-    why: "Relatable frustration plus curiosity about extreme alarm tasks shows the app off naturally.",
-    template: "WTH is my [partner/roommate]'s alarm [complete the morning alarm missions on camera]",
-    pain: "Normal alarms get snoozed.", benefit: "Forces you out of bed with interactive challenges.",
-    pace: "medium", voice: "On camera", music: "Electronic alarm melody",
-    ranks: [{ scope: "App challenge struggle", rank: 55, of: 336 }, { scope: "Library", rank: 2382, of: 24752 }],
-    creatorTypical: "597K", followers: "3.8K", perDayAvg: "1.6M", perDayLately: "",
-    remix: ["Waking up for an early flight with the missions.", "A roommate reacting to someone doing squats for an alarm.", "Testing each mission difficulty as a heavy sleeper."],
-  },
-  "tt-7676324506633391373": {
-    summary: "A creator brushes her hair while a text overlay shares a hot take on long-distance calls.",
-    hookType: "Bold claim", techniques: ["Text overlay", "Movement"],
-    scenes: ["Puts on a hoodie and brushes her hair while the hot take sits on screen."],
-    why: "A bold contrarian take provokes instant curiosity and agreement from the exact audience.",
-    template: "hot take: [common problem] isn't the problem. [specific recurring issue] is",
-    pain: "Boring, repetitive nightly calls.", benefit: "Variety and connection on couple calls.",
-    pace: "medium", voice: "No voice", music: "Upbeat pop instrumental",
-    ranks: [{ scope: "Text + get ready", rank: 5, of: 677 }, { scope: "Relationships", rank: 15, of: 2385 }, { scope: "Library", rank: 318, of: 24752 }],
-    creatorTypical: "–", followers: "567", perDayAvg: "127K", perDayLately: "2.3K",
-    remix: ["The repetitive call vs a fun interactive call.", "Pair the text with reactions on FaceTime.", "List 3 questions to ask instead of 'how was your day'."],
-  },
-  "ig-DedzSAMET7j": {
-    summary: "A student studies for as long as a random flight takes to land, inside a virtual study-world app.",
-    hookType: "Curiosity gap", techniques: ["Face to camera", "Text overlay", "Direct address", "Movement"],
-    scenes: ["Introduces the flight-tracker method to set the study length.", "Tablet view: opens the app, picks the airport and a 25-minute ticket.", "The virtual plane fills with other people studying; she locks in."],
-    why: "Pairs a viral study gimmick with a cute gamified app, so the demo never feels like an ad.",
-    template: "If you have [upcoming task], just pick a random [flight/train]. They finish in [time], that's how long I'll work. For this I use [App]…",
-    pain: "No motivation or structure before an exam.", benefit: "Gamified focus sessions with real people worldwide.",
-    pace: "medium", voice: "Voiceover", music: "Chill lo-fi",
-    ranks: [{ scope: "Explainer + screen", rank: 57, of: 3747 }, { scope: "Productivity", rank: 23, of: 1691 }, { scope: "Library", rank: 500, of: 24752 }],
-    creatorTypical: "228K", followers: "25K", perDayAvg: "2.3M", perDayLately: "",
-    remix: ["Pick a random train instead of a flight.", "A 50-minute flight challenge with a friend.", "Before/after of your virtual room after a 4-hour flight."],
+  "tt-7685210787333426453": {
+    summary: "A professor pulls out $10k in a lecture and teaches an AI colouring-book side hustle; then the creator tests it himself.",
+    hookType: "Shock", techniques: ["Text overlay", "Pattern interrupt", "Controversy"],
+    scenes: ["Professor holds $10k and asks a student how much his tuition is.", "He shows a colouring book on Amazon selling 22,000 copies and does the maths.", "Screenshot it, connect the AI plugin in ChatGPT, ask for a kids' colouring book, publish on Amazon KDP.", "The creator tests it on his laptop and shows the pages.", "Comment 'AI' for the prompt."],
+    why: "A dramatic classroom moment hooks people, and a real-time test makes the method feel proven and drives comments.",
+    template: "How much is your [cost]? I can give you [amount], or teach you to make that every month with [App]. Find [a best-selling product], screenshot it, prompt [App], publish. Let's test it… Comment [keyword] for the prompt.",
+    pain: "Making products by hand takes skill, time and money.", benefit: "AI makes the colouring-book pages; Amazon prints and ships.",
+    pace: "medium", voice: "Creator + app", music: "Lo-fi electronic",
+    ranks: [{ scope: "Higgsfield", rank: 7, of: 113 }, { scope: "Acted sketch", rank: 101, of: 917 }, { scope: "Library", rank: 2036, of: 24752 }],
+    creatorTypical: "–", followers: "1.2K", perDayAvg: "55K", perDayLately: "13K",
+    remix: ["A boss teaching an intern the same method.", "Split screen: student following the lecture live.", "Same skit, but the product is AI planners or flashcards."],
   },
   "ig-DbGJMKPgOTB": {
     summary: "A side-hustle tutorial: turn Airbnb listing photos into AI video walkthroughs and sell them to the owners.",
@@ -348,13 +308,23 @@ const D: Record<string, Detail> = {
   },
 };
 
+/** the Dare format a video copies, when the row doesn't say */
+function guessFormat(hook: string, format: string) {
+  const h = hook.toLowerCase();
+  if (/prof|teach|lecture|tuition/.test(h)) return F.colouring;
+  if (/gatekeep|gate keep|deleting/.test(h)) return F.deleting;
+  if (format === "Reacts to the app") return F.reaction;
+  if (format === "Screen demo") return F.yapping;
+  return F.claude;
+}
+
 export const VIDEOS: UgcVideo[] = (() => {
   const seen = new Set<string>();
   const out: UgcVideo[] = [];
   for (const [id, brand, creator, views, likes, er, posted, format, category, hook, dur, copyAs] of ROWS) {
     if (seen.has(id)) continue;
     seen.add(id);
-    out.push({ id, platform: id.startsWith("tt-") ? "TikTok" : "Instagram", brand, creator, views: n(views), likes: n(likes), er, posted, format, category, hook, dur: dur || 0, copyAs, detail: D[id] });
+    out.push({ id, platform: id.startsWith("tt-") ? "TikTok" : "Instagram", brand, creator, views: n(views), likes: n(likes), er, posted, format, category, hook, dur: dur || 0, copyAs: copyAs || guessFormat(hook, format), detail: D[id] });
   }
   return out;
 })();
@@ -362,182 +332,21 @@ export const VIDEOS: UgcVideo[] = (() => {
 export const videoById = (id: string) => VIDEOS.find((v) => v.id === id);
 export const clipOf = (v: UgcVideo) => (v.platform === "TikTok" ? { kind: "tiktok" as const, id: v.id.slice(3) } : { kind: "instagram" as const, id: v.id.slice(3) });
 
-// ---------------------------------------------------------------- trends by period (DarkUGC, Nov 10 2026)
+// trends are worked out from the library itself, so they always match the videos on the site
+export const FORMATS = Array.from(new Set(VIDEOS.map((v) => v.format))).sort();
+export const BRANDS = Array.from(new Set(VIDEOS.map((v) => v.brand))).sort();
 
-export type Group = { name: string; videos: number; prev?: number; total: string; median: string; change?: string };
-export type Period = {
-  key: "week" | "month" | "quarter" | "year";
-  label: string;
-  days: number;
-  since: string;
-  videos: number;
-  prevVideos: number;
-  formats: Group[];
-  hooks: Group[];
-  brands: Group[];
-  creators: { handle: string; videos: number; total: string }[];
+export const median = (xs: number[]) => {
+  if (!xs.length) return 0;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
-export const PERIODS: Period[] = [
-  {
-    key: "week", label: "This week", days: 7, since: "2026-11-04", videos: 96, prevVideos: 172,
-    formats: [
-      { name: "App challenge struggle", videos: 14, prev: 12, total: "6M", median: "207K" },
-      { name: "Text-message song", videos: 11, prev: 15, total: "1.8M", median: "143K" },
-      { name: "Text + daily moment", videos: 12, prev: 22, total: "1.6M", median: "108K" },
-      { name: "Dance, lip-sync & pose", videos: 8, prev: 11, total: "1.4M", median: "127K" },
-      { name: "Text + cooking & chores", videos: 4, prev: 7, total: "1.1M", median: "72K" },
-      { name: "Explainer + screen", videos: 10, prev: 22, total: "906K", median: "72K" },
-      { name: "Lock screen reveal", videos: 7, prev: 12, total: "577K", median: "90K" },
-      { name: "App talks back", videos: 5, prev: 16, total: "576K", median: "75K" },
-    ],
-    hooks: [
-      { name: "Curiosity gap", videos: 31, prev: 65, total: "4.9M", median: "87K" },
-      { name: "Problem", videos: 11, prev: 20, total: "3.7M", median: "127K" },
-      { name: "POV", videos: 16, prev: 16, total: "2.6M", median: "101K" },
-      { name: "Relatable", videos: 5, prev: 11, total: "1.5M", median: "70K" },
-      { name: "Story", videos: 12, prev: 15, total: "1.5M", median: "91K" },
-      { name: "Bold claim", videos: 8, prev: 18, total: "692K", median: "72K" },
-      { name: "Question", videos: 4, prev: 8, total: "534K", median: "77K" },
-      { name: "Reaction", videos: 4, prev: 4, total: "441K", median: "88K" },
-    ],
-    brands: [
-      { name: "Alarmy", videos: 5, prev: 3, total: "3.5M", median: "192K" },
-      { name: "PushClock", videos: 7, prev: 7, total: "2.2M", median: "221K" },
-      { name: "Suno", videos: 11, prev: 15, total: "1.8M", median: "143K" },
-      { name: "RecentFollow", videos: 5, prev: 7, total: "1.2M", median: "79K" },
-      { name: "Hello Nancy", videos: 6, prev: 7, total: "872K", median: "108K" },
-      { name: "Tethered", videos: 7, prev: 11, total: "526K", median: "76K" },
-      { name: "EQUALS", videos: 3, prev: 10, total: "465K", median: "83K" },
-      { name: "Ladder", videos: 4, prev: 0, total: "457K", median: "111K" },
-    ],
-    creators: [
-      { handle: "ailenmornings", videos: 4, total: "3.3M" },
-      { handle: "autumn.pushclock", videos: 7, total: "2.2M" },
-      { handle: "maggie.girltea", videos: 1, total: "879K" },
-      { handle: "selflovewithmaddixoxo", videos: 6, total: "872K" },
-      { handle: "oliviainthekitchen_", videos: 4, total: "820K" },
-      { handle: "jadablue999", videos: 3, total: "629K" },
-    ],
-  },
-  {
-    key: "month", label: "This month", days: 30, since: "2026-10-11", videos: 1118, prevVideos: 2720,
-    formats: [
-      { name: "Screen demo", videos: 92, prev: 182, total: "81M", median: "181K", change: "-13%" },
-      { name: "Explainer + screen", videos: 185, prev: 512, total: "48M", median: "126K", change: "-31%" },
-      { name: "App talks back", videos: 107, prev: 276, total: "29M", median: "119K", change: "-42%" },
-      { name: "Text + daily moment", videos: 127, prev: 303, total: "28M", median: "120K", change: "-33%" },
-      { name: "App challenge struggle", videos: 43, prev: 36, total: "27M", median: "185K", change: "+1%" },
-      { name: "Reacts to the app", videos: 45, prev: 130, total: "19M", median: "133K", change: "-33%" },
-      { name: "Text-message song", videos: 59, prev: 114, total: "18M", median: "92K", change: "-44%" },
-      { name: "Lock screen reveal", videos: 90, prev: 200, total: "17M", median: "112K", change: "-44%" },
-      { name: "Text story → screen proof", videos: 45, prev: 91, total: "11M", median: "130K", change: "-44%" },
-      { name: "Dance, lip-sync & pose", videos: 53, prev: 110, total: "11M", median: "121K", change: "-23%" },
-      { name: "Text + cooking & chores", videos: 40, prev: 131, total: "9.9M", median: "97K", change: "-69%" },
-      { name: "Acted sketch", videos: 34, prev: 77, total: "9.4M", median: "132K", change: "-40%" },
-    ],
-    hooks: [
-      { name: "Curiosity gap", videos: 364, prev: 650, total: "92M", median: "115K", change: "-31%" },
-      { name: "Shock", videos: 73, prev: 252, total: "62M", median: "152K", change: "-31%" },
-      { name: "POV", videos: 125, prev: 455, total: "40M", median: "146K", change: "-30%" },
-      { name: "Problem", videos: 115, prev: 194, total: "38M", median: "126K", change: "-21%" },
-      { name: "Story", videos: 94, prev: 174, total: "23M", median: "115K", change: "-39%" },
-      { name: "Bold claim", videos: 109, prev: 374, total: "23M", median: "132K", change: "-38%" },
-      { name: "Question", videos: 67, prev: 206, total: "19M", median: "119K", change: "-51%" },
-      { name: "Reaction", videos: 44, prev: 76, total: "14M", median: "117K", change: "-20%" },
-      { name: "Relatable", videos: 54, prev: 102, total: "12M", median: "139K", change: "-8%" },
-      { name: "List", videos: 24, prev: 93, total: "3.3M", median: "109K", change: "-29%" },
-    ],
-    brands: [
-      { name: "Astra AI", videos: 18, prev: 106, total: "48M", median: "149K" },
-      { name: "Suno", videos: 63, prev: 118, total: "22M", median: "93K" },
-      { name: "Alarmy", videos: 17, prev: 11, total: "21M", median: "328K" },
-      { name: "Pingo AI", videos: 50, prev: 112, total: "13M", median: "93K" },
-      { name: "RecentFollow", videos: 52, prev: 73, total: "12M", median: "99K" },
-      { name: "Focustown", videos: 13, prev: 6, total: "12M", median: "228K" },
-      { name: "Tethered", videos: 60, prev: 123, total: "11M", median: "105K" },
-      { name: "Tenmin", videos: 25, prev: 38, total: "9.8M", median: "194K" },
-    ],
-    creators: [
-      { handle: "ivy_learns", videos: 2, total: "41M" },
-      { handle: "ailenmornings", videos: 11, total: "19M" },
-      { handle: "studyingwkristen", videos: 12, total: "11M" },
-      { handle: "investigatewithmia", videos: 5, total: "7.2M" },
-      { handle: "oliviainthekitchen_", videos: 23, total: "6.1M" },
-      { handle: "victoria.blessed70", videos: 16, total: "5.8M" },
-    ],
-  },
-  {
-    key: "quarter", label: "Last 90 days", days: 90, since: "2026-08-13", videos: 6523, prevVideos: 7212,
-    formats: [
-      { name: "Explainer + screen", videos: 1144, prev: 1082, total: "558M", median: "166K" },
-      { name: "Screen demo", videos: 488, prev: 550, total: "341M", median: "196K" },
-      { name: "Text + daily moment", videos: 792, prev: 785, total: "339M", median: "174K" },
-      { name: "App talks back", videos: 629, prev: 914, total: "310M", median: "199K" },
-      { name: "Text + cooking & chores", videos: 280, prev: 262, total: "205M", median: "292K" },
-      { name: "Reacts to the app", videos: 294, prev: 316, total: "193M", median: "168K" },
-      { name: "Lock screen reveal", videos: 414, prev: 342, total: "178M", median: "199K" },
-      { name: "Tips & lessons", videos: 404, prev: 534, total: "132M", median: "152K" },
-    ],
-    hooks: [
-      { name: "Curiosity gap", videos: 1674, prev: 1892, total: "707M", median: "152K" },
-      { name: "POV", videos: 1006, prev: 1075, total: "578M", median: "205K" },
-      { name: "Bold claim", videos: 821, prev: 865, total: "460M", median: "204K" },
-      { name: "Shock", videos: 569, prev: 624, total: "386M", median: "203K" },
-      { name: "Question", videos: 454, prev: 529, total: "263M", median: "206K" },
-      { name: "Problem", videos: 554, prev: 722, total: "236M", median: "170K" },
-      { name: "Story", videos: 410, prev: 361, total: "192M", median: "187K" },
-      { name: "Relatable", videos: 249, prev: 245, total: "118M", median: "169K" },
-    ],
-    brands: [
-      { name: "FollowSpy", videos: 311, prev: 298, total: "276M", median: "402K" },
-      { name: "Kalshi", videos: 40, prev: 20, total: "162M", median: "158K" },
-      { name: "Suno", videos: 216, prev: 58, total: "115M", median: "165K" },
-      { name: "Pingo AI", videos: 221, prev: 199, total: "102M", median: "206K" },
-      { name: "Astra AI", videos: 152, prev: 79, total: "96M", median: "186K" },
-      { name: "Airlearn", videos: 185, prev: 425, total: "94M", median: "280K" },
-      { name: "Tethered", videos: 221, prev: 124, total: "86M", median: "160K" },
-      { name: "Kapi Cam", videos: 16, prev: 7, total: "82M", median: "2M" },
-    ],
-    creators: [
-      { handle: "lily.girltea", videos: 37, total: "90M" },
-      { handle: "amir8nouri", videos: 2, total: "73M" },
-      { handle: "maioney5", videos: 6, total: "51M" },
-      { handle: "investigatewithmia", videos: 22, total: "47M" },
-      { handle: "growthwithharper", videos: 30, total: "43M" },
-      { handle: "ivy_learns", videos: 5, total: "43M" },
-    ],
-  },
-  {
-    key: "year", label: "This year", days: 365, since: "2025-11-10", videos: 20436, prevVideos: 3947,
-    formats: [
-      { name: "Explainer + screen", videos: 3185, prev: 482, total: "2B", median: "183K", change: "-39%" },
-      { name: "Text + daily moment", videos: 2469, prev: 549, total: "1.9B", median: "227K", change: "-23%" },
-      { name: "App talks back", videos: 2294, prev: 253, total: "1.4B", median: "228K", change: "-47%" },
-      { name: "Dance, lip-sync & pose", videos: 1157, prev: 295, total: "1.4B", median: "196K", change: "-36%" },
-      { name: "Reacts to the app", videos: 867, prev: 222, total: "1.1B", median: "236K", change: "-48%" },
-      { name: "Screen demo", videos: 1364, prev: 317, total: "984M", median: "194K", change: "-52%" },
-      { name: "Text story → screen proof", videos: 1005, prev: 388, total: "747M", median: "252K", change: "-22%" },
-      { name: "Text + cooking & chores", videos: 759, prev: 10, total: "691M", median: "420K", change: "+83%" },
-      { name: "Acted sketch", videos: 740, prev: 163, total: "685M", median: "261K", change: "-33%" },
-      { name: "Lock screen reveal", videos: 979, prev: 264, total: "545M", median: "264K", change: "-44%" },
-      { name: "Tips & lessons", videos: 1268, prev: 132, total: "486M", median: "181K", change: "-6%" },
-      { name: "App challenge struggle", videos: 334, prev: 1, total: "474M", median: "278K", change: "-30%" },
-    ],
-    hooks: [],
-    brands: [],
-    creators: [],
-  },
-];
-
-/** median views for a format over the last year, to say how far a video beat its format */
+/** median views for a format family in the library, to say how far a video beat its format */
 export function formatMedian(format: string) {
-  const g = PERIODS[3].formats.find((f) => f.name === format) ?? PERIODS[2].formats.find((f) => f.name === format);
-  return g ? n(g.median) : 0;
+  return median(VIDEOS.filter((v) => v.format === format).map((v) => v.views));
 }
-
-export const CATEGORIES = Array.from(new Set(VIDEOS.map((v) => v.category))).sort();
-export const FORMATS = Array.from(new Set(VIDEOS.map((v) => v.format))).sort();
 
 // ---------------------------------------------------------------- thecal.mp3: same campaign, one edit reposted
 
@@ -545,7 +354,7 @@ export const FORMATS = Array.from(new Set(VIDEOS.map((v) => v.format))).sort();
 export const THECAL_VIDEOS: UgcVideo[] = LIBRARY.filter((v) => v.source === "thecal.mp3").map((v) => ({
   id: "ig-" + v.clip.id,
   platform: "Instagram" as const,
-  brand: "Campaign",
+  brand: "Dare",
   creator: v.creator,
   views: v.views,
   likes: 0,
@@ -694,3 +503,68 @@ export const PLAYBOOKS: Record<string, Playbook> = {
 };
 
 export const playbookFor = (format: string): Playbook => PLAYBOOKS[format] ?? PLAYBOOKS["Explainer + screen"];
+
+// ---------------------------------------------------------------- what's going viral, by period
+
+
+export type PeriodKey = "week" | "month" | "quarter" | "year" | "all";
+export const PERIODS: { key: PeriodKey; label: string; days: number }[] = [
+  { key: "week", label: "This week", days: 7 },
+  { key: "month", label: "This month", days: 30 },
+  { key: "quarter", label: "Last 90 days", days: 90 },
+  { key: "year", label: "This year", days: 365 },
+  { key: "all", label: "All time", days: 0 },
+];
+
+export type Group = { name: string; id?: string; videos: number; prev: number; total: number; median: number; top: UgcVideo };
+
+/** posted in the window that ends where this one starts (for "vs before") */
+const postedBefore = (v: UgcVideo, days: number) => days > 0 && !postedWithin(v, days) && postedWithin(v, days * 2);
+
+export const dareTitle = (v: UgcVideo) => (v.copyAs ? formatById(v.copyAs)?.title ?? "Dare format" : "Dare format");
+
+function groupBy(now: UgcVideo[], before: UgcVideo[], key: (v: UgcVideo) => string, id?: (v: UgcVideo) => string): Group[] {
+  const m = new Map<string, UgcVideo[]>();
+  for (const v of now) m.set(key(v), [...(m.get(key(v)) || []), v]);
+  return [...m.entries()]
+    .map(([name, vs]) => {
+      const sorted = [...vs].sort((a, b) => b.views - a.views);
+      return {
+        name,
+        id: id ? id(sorted[0]) : undefined,
+        videos: vs.length,
+        prev: before.filter((v) => key(v) === name).length,
+        total: vs.reduce((s, v) => s + v.views, 0),
+        median: median(vs.map((v) => v.views)),
+        top: sorted[0],
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+}
+
+export function periodStats(days: number) {
+  const now = ALL_VIDEOS.filter((v) => postedWithin(v, days));
+  const before = ALL_VIDEOS.filter((v) => postedBefore(v, days));
+  return {
+    videos: now.length,
+    prevVideos: before.length,
+    views: now.reduce((s, v) => s + v.views, 0),
+    top: [...now].sort((a, b) => b.views - a.views),
+    fastest: [...now].sort((a, b) => perDay(b) - perDay(a)),
+    dareFormats: groupBy(now, before, dareTitle, (v) => v.copyAs ?? ""),
+    brands: groupBy(now, before, (v) => v.brand),
+    creators: groupBy(now, before, (v) => v.creator),
+    families: groupBy(now, before, (v) => v.format),
+  };
+}
+
+// ---------------------------------------------------------------- turn a video into a Dare script
+
+/** swap the other app's name and the template blanks for Dare */
+export function toDare(text: string, brand: string) {
+  let t = text;
+  for (const name of [brand, brand.split(" ")[0], "OpenArt", "openart.ai/direct", "Higgsfield", "Krea", "Viewmax", "Creao", "Lovable", "Composio"]) {
+    if (name.length > 2) t = t.replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), "Dare");
+  }
+  return t.replace(/\[(app name|app|tool|ai tool|brand url|brand|ai video tool|plugin)\]/gi, "Dare").replace(/Dare(\s+Dare)+/g, "Dare");
+}
