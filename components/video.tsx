@@ -114,7 +114,7 @@ export function VideoPlayer({ clip, title, creator, className, showOpen = true }
       </div>
       {showOpen && (
         <a href={openUrl(clip, creator)} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted hover:text-ink">
-          {platformLabel[clip.kind]} <ExternalLink size={10} />
+          {clip.kind === "stream" ? "Open video" : `Not playing? Open on ${platformLabel[clip.kind]}`} <ExternalLink size={10} />
         </a>
       )}
     </div>

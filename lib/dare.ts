@@ -281,7 +281,8 @@ const M = 1e6;
 
 type Row = [clip: Clip, brand: string, creator: string, views: number, hook: string, family: Family, posted: string, formatId?: string];
 
-// top videos from Dare's direct competitors and the viral hooks the formats copy (DarkUGC, Nov 10 2026)
+// top videos from Dare's direct competitors and the viral hooks the formats copy (DarkUGC, Nov 10 2026).
+// Every one was checked to play as an embed on Nov 10; ones whose creators removed them or turned off embedding were left out.
 const DARKUGC: Row[] = [
   [ig("DeiGVtUhKKm"), "Krea AI", "sarahreal.ai", 4 * M, "Watch this. (reacts to a viral AI short, then shows how)", "Reaction", "2026-10-15", "3LiThdONgd3Xfxg0whJAV480n0V"],
   [ig("DbEgH7sBVbK"), "Viewmax", "robsmethods", 2.2 * M, "Can someone tell me why they never teach this in school?", "Reaction", "2026-07-21"],
@@ -290,27 +291,22 @@ const DARKUGC: Row[] = [
   [tt("7669262048466947335"), "Viewmax", "jennycreatescontent", 699 * K, "20 minutes a day and posting consistently is all you need", "Reaction", "2026-08-02"],
   [tt("7671815142773951757"), "Viewmax", "michelle26_mp4", 616 * K, "What??", "Reaction", "2026-08-09"],
   [ig("DbimRXNyaSu"), "Krea AI", "tonskiuses.krea", 268 * K, "Why don't they teach this??", "Reaction", "2026-08-02"],
-  [ig("Dcrw9G-RFy-"), "Viewmax", "gageviews", 255 * K, "What the hell is he saying?", "Reaction", "2026-08-31"],
   [ig("DaRM2_7CiNa"), "Composio", "mubs.io", 6.8 * M, "Is it possible to become a millionaire by begging millionaires for $1?", "Money challenge", "2026-07-01", "3LiTJTApU7IeDfqz1iSdqu3KuOO"],
   [tt("7681110285658213652"), "Composio", "alessio.hackss", 4.4 * M, "I emailed over 5 million people and asked them each for $1", "Money challenge", "2026-09-03"],
   [tt("7531053771871292727"), "Lovable", "noah.lousiana", 2.9 * M, "I could code Call of Duty in 60 seconds with AI", "Money challenge", "2025-07-25", "3IkI5LsWMRQlBm18DIn7tqXs77u"],
   [tt("7681522595824422165"), "Composio", "alessio.hackss", 2.8 * M, "I emailed over 10 million people and asked them each for $1", "Money challenge", "2026-09-04"],
-  [tt("7667518598524472608"), "Composio", "tor.hacks", 2.1 * M, "If every millionaire in the world gave you $1…", "Money challenge", "2026-07-28"],
   [tt("7679452206931741972"), "Composio", "alessio.hackss", 1.7 * M, "Why would you get a job when you can just ask every millionaire for a dollar?", "Money challenge", "2026-08-29"],
   [ig("DSLtgSBChjd"), "Viewmax", "joellmp4", 597 * K, "Day 2 of testing unethical ways to make money online", "Money challenge", "2025-12-13"],
   [ig("DbGJMKPgOTB"), "OpenArt", "stee.ugc", 1.1 * M, "If I lost everything and had 28 days to get a BMW M4, this is exactly what I'd do", "Dream purchase", "2026-07-22", "3LiSOOf6cMQxcAuou9lFJCmVUJe"],
   [ig("DbHOqJlPhH3"), "OpenArt", "stee.ugc", 607 * K, "How to get a Porsche 911 in 28 days", "Dream purchase", "2026-07-22", "3JQbDnoWNNCCTH6NsQRk2cMiz21"],
   [ig("Da__imCMKcJ"), "OpenArt", "stee.ugc", 235 * K, "Laziest way to get a BMW M4", "Dream purchase", "2026-07-20", "3JVu1aVFA4pRfup0C4zTMddVPZH"],
-  [tt("7566372734100606238"), "Gratitude Plus", "hope.gratitudes", 13 * M, "I could literally KISS the therapist that showed me this", "Gatekeep", "2025-10-28", "3K9twrlq7tDwnqGx7A6OsGcf3mb"],
   [tt("7540348249459297558"), "Faircado", "thea.faircad0thrifts", 6.8 * M, "I could KISS the Vinted employee that showed me this hack", "Gatekeep", "2025-08-19", "3K9twrlq7tDwnqGx7A6OsGcf3mb"],
-  [tt("7646542832165047583"), "Niche", "winniezhu", 4 * M, "Gatekeeping? In this economy? Absolutely not", "Gatekeep", "2026-06-01", "3LiSvEdklCWFRqspx6qHKd4qpRN"],
   [ig("DdTK3nbRYxH"), "Jobsuit", "amit.bhatiaaa", 2 * M, "Girl, I'm sorry, but this girl deleted her video…", "Gatekeep", "2026-09-15", "3LiSvEdklCWFRqspx6qHKd4qpRN"],
   [ig("DbKZS_ViycF"), "Creao AI", "ashleyautomatesit", 537 * K, "The Pinterest girlies are gatekeeping this side hustle", "Gatekeep", "2026-07-24"],
   [ig("Da9dDfqC3a2"), "Creao AI", "ashleyautomatesit", 3.4 * M, "\"My 9-5 is enough, I don't need a side income\"", "No-talking demo", "2026-07-19", "3IT7Zn0BVo7CntQMzf3Hj24s8GG"],
   [ig("DZQq5b8y5-X"), "Creao AI", "ashleyautomatesit", 2.7 * M, "World Cup + YouTube Shorts = $$$", "No-talking demo", "2026-06-06", "3J17698hAY546xIuHd88D75n7KR"],
   [tt("7596865856852790542"), "Higgsfield", "aibyjoe", 3.9 * M, "Kling motion control demo (comment AI for the setup)", "No-talking demo", "2026-01-19"],
-  [ig("DcDBMVdtEtK"), "OpenArt", "steeslovable", 774 * K, "OpenArt has been printing", "No-talking demo", "2026-08-15"],
-  [tt("7624723538427006238"), "Lovable", "stevenislovable", 674 * K, "Making a doctor's salary without speaking", "No-talking demo", "2026-04-04", "3IT7Zn0BVo7CntQMzf3Hj24s8GG"],
+  [ig("DcDBMVdtEtK"), "OpenArt", "steeslovable", 774 * K, "Claude + Shorts = $478/day (the same edit thecal.mp3 reposts)", "No-talking demo", "2026-08-15", "3J17698hAY546xIuHd88D75n7KR"],
   [ig("DZyhPXrxhWZ"), "Medeo AI", "mmjasonyellow", 365 * K, "Easy money with the World Cup", "No-talking demo", "2026-06-20"],
   [ig("DbXL3cuCdFj"), "Creao AI", "ashleyautomatesit", 104 * K, "This is how you can make coloring books and make money from it", "No-talking demo", "2026-07-29", "3JnPehFTBvPa2NWS23lz31FuYaD"],
   [tt("7631036581805067533"), "Lovable", "s1lentsimulation", 6.9 * M, "If you're a 17-year-old smart kid, you can literally call every local business", "Local business", "2026-04-21", "3JQaG0E8QltxKxMEld0P9EYRz6n"],
@@ -321,17 +317,12 @@ const DARKUGC: Row[] = [
   [tt("7655724103906675999"), "BeFreed", "learning.withmatt", 5.1 * M, "What psychology says about purple lovers", "Tier list", "2026-06-26", "3LiT9Ld1NXEkc0ceEOIByhV5j8R"],
   [tt("7652519299520744734"), "BeFreed", "learningwliam", 4.9 * M, "S-tier hobbies for blue lovers", "Tier list", "2026-06-18", "3LiT9Ld1NXEkc0ceEOIByhV5j8R"],
   [ig("DZEiY8aJOiz"), "Dupe.com", "findsbyzachary", 2.7 * M, "This girl better go into hiding, she just exposed the whole industry", "Course / guru", "2026-06-02", "3JnRJdsslDQGmOE9HUZTTWUfzFn"],
-  [tt("7632719160442752288"), "Phia", "monicasstreetfits", 931 * K, "I just watched a 2 hour documentary about how they're finessing us", "Course / guru", "2026-04-25", "3JnRJdsslDQGmOE9HUZTTWUfzFn"],
   [tt("7651826898703600904"), "Composio", "walidsadvice", 2 * M, "Someone just built GTA 6 in 10 hours using Claude", "Talking explainer", "2026-06-16", "3JVsuk3CE0Veo6vBIqh1FTbCjEX"],
-  [ig("DbfZeekzWiK"), "Krea AI", "simran.tech_", 2 * M, "Comment AI for the link: Krea makes it so easy", "Talking explainer", "2026-08-01"],
+  [ig("DbfZeekzWiK"), "Krea AI", "simran.tech_", 2 * M, "Part time job ✗ Coloring books ✓", "Talking explainer", "2026-08-01", "3JnPehFTBvPa2NWS23lz31FuYaD"],
   [ig("DTwKrV3kXl-"), "Higgsfield", "justdval", 1.8 * M, "This effect is called…", "Talking explainer", "2026-01-21", "3J750ItQJfeBUEft8WyIVYpKETN"],
-  [ig("DcDJCr-BudQ"), "Viewmax", "evanmissedtheboat", 1.5 * M, "You're going to be the first millionaire in your family", "Talking explainer", "2026-08-15", "3K9twrlq7tDwnqGx7A6OsGcf3mb"],
-  [ig("DdxY1omsH61"), "Higgsfield", "tech.with.tori", 1.5 * M, "Chat GPT…", "Talking explainer", "2026-09-27", "3JQnXL3GeeGXW2MiZUpoi0rhVQx"],
   [tt("7700271190992112916"), "OpenArt", "sekiro.invo", 541 * K, "OpenArt is printing with this (green screen)", "Talking explainer", "2026-10-24"],
   [tt("7697805981333638407"), "OpenArt", "meerhustles", 483 * K, "The AI influencer + OpenArt method is crazy", "Talking explainer", "2026-10-18"],
   [ig("DYctY2izoWA"), "Medeo AI", "createwkiana", 241 * K, "Yeah… this method is unmatched", "Talking explainer", "2026-05-17"],
-  [tt("7678677336337730823"), "Higgsfield", "methodswithdylan", 4.3 * M, "How much is your tuition?", "Classroom sketch", "2026-08-27"],
-  [tt("7689268419199274292"), "Higgsfield", "larpingwgio", 3.5 * M, "Why were you late to class?", "Classroom sketch", "2026-09-25"],
   [ig("DYiTasnBIXb"), "Composio", "victor2up_", 2.6 * M, "This is a 1 million dollar engineer…", "Classroom sketch", "2026-05-19"],
   [tt("7685210787333426453"), "Higgsfield", "ai.withsam.mp4", 1.9 * M, "Bro just pulled out $10k mid lecture", "Classroom sketch", "2026-09-14"],
   [tt("7689635610138529045"), "Higgsfield", "createwfemi", 1.7 * M, "Show me your screen time", "Classroom sketch", "2026-09-26"],
@@ -350,7 +341,6 @@ const THECAL: [code: string, views: number, posted: string, caption: string][] =
   ["DfZr_5VASqM", 12.1 * K, "2026-11-06", "a repost of the same edit"],
   ["DfdJTgGE255", 8365, "2026-11-07", "a repost of the same edit"],
   ["DfjRNTopyJe", 2467, "2026-11-10", "a typical repost"],
-  ["Dfe3bMgiDVC", 1626, "2026-11-08", "a typical repost"],
 ];
 
 export const LIBRARY: LibVideo[] = [
@@ -592,7 +582,7 @@ export const EXTRAS: PlanCard[] = [
     name: "Deleting this in 24 hours",
     tag: "Talking · sincere tone",
     formatId: "3LiSvEdklCWFRqspx6qHKd4qpRN",
-    extra: tt("7566372734100606238"),
+    extra: tt("7540348249459297558"),
     hooks: ["I'm gonna delete this video in 24 hours, because everyone's gonna copy me.", "I could marry the person who showed me this.", "Gatekeeping this? In this economy? Absolutely not."],
     setup: "Talking head, calm and sincere. Don't oversell; the brief says the tone is what makes it work. Then screen-record Dare.",
     body: [
