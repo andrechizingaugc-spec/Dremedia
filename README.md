@@ -109,6 +109,25 @@ Good to know:
   each account in its own Chrome profile, so its reports land in that profile's
   copy of the dashboard; if Warm-up doesn't move, paste its daily line there.
 
+## Dare 210
+
+**Create → Dare 210** is a playbook for the Dare campaign on Bounty: 7 videos a
+day for 30 days, using Dare's easiest formats. Every video plays right on the
+page (TikTok, Instagram, YouTube and Dare's own example videos), so there are
+no links to click through.
+
+| Tab | What's on it |
+| --- | --- |
+| **Today** | The day's 7 videos. Each card plays Dare's example and a viral version side by side, with the hook, the step-by-step script, the Dare format to submit under, and a tick box. Day 1 has Dare's 3 mandatory assignments. Change the start date at the top. |
+| **Dare formats** | All 23 formats on Dare's Bounty campaign with Dare's example videos, the brief, Dare's script and a shot-by-shot breakdown. Filter to easy or no-talking. |
+| **Library** | A DarkUGC-style library: Dare's examples, thecal.mp3's reposts and the top videos from Dare's competitors (Viewmax, Higgsfield, OpenArt, Krea, Composio, Lovable…), with views, search, filters by format type, and a star to save one. |
+| **My videos** | Paste any TikTok, Instagram, YouTube Short or DarkUGC link and it plays here, with your note. |
+
+Ticks, stars and your videos are saved with the rest of your dashboard (and in
+backups). The formats, scripts and library live in `lib/dare.ts`; the player
+that turns a link into a playable video is `components/video.tsx`, and the
+**Formats** page uses it too.
+
 ## What's still look-only
 
 Purple "look only" notes mark parts that need their own hookup: the watch-list
@@ -125,3 +144,5 @@ generated emails. Each note says what it needs.
 - `lib/color.ts`: turns your accent colour into the theme
 - `components/shell.tsx`: sidebar, search (⌘K / Ctrl+K), page names
 - `components/brand-editor.tsx`: the add/edit brand form used everywhere
+- `components/video.tsx`: plays TikTok, Instagram, YouTube and Bounty (Cloudflare Stream) videos from a pasted link
+- `lib/dare.ts`: the Dare formats, the 7-a-day plan and the video library on the Dare 210 page

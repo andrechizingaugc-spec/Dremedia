@@ -108,6 +108,18 @@ export type FormatIdea = {
   addedAt: string;
 };
 
+/** the Dare page: the 210-video plan and the videos you added */
+export type DarePlan = {
+  /** first day of the 30-day plan, YYYY-MM-DD */
+  start: string;
+  /** "day-cardId" -> posted */
+  done: Record<string, boolean>;
+  /** library videos you starred */
+  starred: string[];
+  /** videos you pasted in yourself */
+  mine: { id: string; url: string; note: string; family: string; addedAt: string }[];
+};
+
 /** one way to reuse one of your videos, from the Repurpose bot */
 export type RepurposeIdea = {
   id: string;
@@ -183,6 +195,7 @@ export type Data = {
   postLog: PostLog[];
   reports: ReportLog[];
   bots: Bots;
+  dare: DarePlan;
 };
 
 // ---------------------------------------------------------------- helpers
@@ -251,6 +264,7 @@ export const NAV: NavKey[] = [
   { key: "/scheduler", label: "Scheduler", group: "create" },
   { key: "/variations", label: "Variations", group: "create" },
   { key: "/repurpose", label: "Repurpose", group: "create" },
+  { key: "/dare", label: "Dare 210", group: "create" },
   { key: "#tools", label: "Tools", group: "heading" },
   { key: "/accounts", label: "Accounts", group: "tools" },
   { key: "/transcribe", label: "Transcribe", group: "tools" },
@@ -495,6 +509,7 @@ export function makeSample(): Data {
     postLog: [],
     reports: [],
     bots: defaultBots(),
+    dare: { start: "2026-11-11", done: {}, starred: [], mine: [] },
   };
 }
 
