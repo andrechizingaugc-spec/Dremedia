@@ -6,7 +6,7 @@ import { Bookmark, Check, Copy, Download, ExternalLink, Eye, Heart } from "lucid
 import { useData } from "@/lib/store";
 import { cx } from "@/components/ui";
 import { VideoPlayer, openUrl } from "@/components/video";
-import { clipOf, fitsCampaign, perDay, type UgcVideo } from "@/lib/ugc";
+import { clipOf, dareTitle, perDay, type UgcVideo } from "@/lib/ugc";
 
 /** 1.6M, 879K, 12.4K, 950 */
 export const fmt = (n: number) => (n >= 1e9 ? +(n / 1e9).toFixed(1) + "B" : n >= 1e6 ? +(n / 1e6).toFixed(1) + "M" : n >= 1e4 ? Math.round(n / 1e3) + "K" : n >= 1e3 ? +(n / 1e3).toFixed(1) + "K" : String(Math.round(n)));
@@ -153,13 +153,12 @@ export function VideoCard({ v, rank, showRate }: { v: UgcVideo; rank?: number; s
         </div>
         <p className="mt-1.5 line-clamp-2 text-[14px] leading-snug">{v.hook}</p>
         <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2.5">
-          <Tag>{v.format}</Tag>
-          {v.copyAs && <Tag strong>Fits your campaign</Tag>}
+          <Tag strong>Dare: {dareTitle(v)}</Tag>
         </div>
         <div className="mt-2.5 flex items-center gap-2 border-t border-dm-line pt-2.5 text-[13px]">
           <Link href={`/ugc/video/${v.id}`} className="min-w-0 truncate font-medium hover:underline">
-            <span className="sm:hidden">Script →</span>
-            <span className="hidden sm:inline">Analytics & script →</span>
+            <span className="sm:hidden">Copy it →</span>
+            <span className="hidden sm:inline">Analytics & copy it →</span>
           </Link>
           <span className="ml-auto flex shrink-0 items-center gap-1">
             {dl && (
@@ -198,4 +197,24 @@ export function VideoGrid({ items, step = 16, rate, ranked }: { items: UgcVideo[
   );
 }
 
-export { fitsCampaign };
+
+// ---------------------------------------------------------------- live search on the apps themselves
+
+export const tiktokSearch = (q: string) => `https://www.tiktok.com/search/video?q=${encodeURIComponent(q)}`;
+export const instagramSearch = (q: string) => `https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(q)}`;
+export const darkugcPage = (id: string) => `https://darkugc.com/video/${id}`;
+
+/** buttons that run the same search live on TikTok and Instagram, for videos newer than the library */
+export function LiveSearch({ q, label = "Search it live", className }: { q: string; label?: string; className?: string }) {
+  return (
+    <div className={cx("flex flex-wrap items-center gap-2", className)}>
+      <span className="text-[13px] text-dm-muted">{label}:</span>
+      <a href={tiktokSearch(q)} target="_blank" rel="noreferrer" className="dm-btn-ghost h-9 px-3.5 text-[13px]">
+        TikTok <ExternalLink size={12} />
+      </a>
+      <a href={instagramSearch(q)} target="_blank" rel="noreferrer" className="dm-btn-ghost h-9 px-3.5 text-[13px]">
+        Instagram <ExternalLink size={12} />
+      </a>
+    </div>
+  );
+}

@@ -5,12 +5,14 @@ import Link from "next/link";
 import { Eye, Search, X } from "lucide-react";
 import { cx } from "@/components/ui";
 import { VideoPlayer } from "@/components/video";
-import { Seg, Tag, VideoGrid, fmt } from "@/components/ugc/ui";
-import { ALL_VIDEOS, CATEGORIES, PERIODS, SNAPSHOT_DATE, clipOf, fitsCampaign, perDay, postedWithin, type UgcVideo } from "@/lib/ugc";
+import { FormatCard } from "@/components/ugc/campaign";
+import { LiveSearch, Seg, VideoGrid, fmt } from "@/components/ugc/ui";
+import { formatById } from "@/lib/dare";
+import { ALL_VIDEOS, BRANDS, SNAPSHOT_DATE, clipOf, periodStats, perDay, postedWithin, type UgcVideo } from "@/lib/ugc";
 
 const TABS = [
   { value: "trending", label: "Trending" },
-  { value: "foryou", label: "For you" },
+  { value: "top", label: "Most views" },
   { value: "new", label: "New" },
 ] as const;
 type Tab = (typeof TABS)[number]["value"];
@@ -32,45 +34,46 @@ const SORTS = [
 ] as const;
 type Sort = (typeof SORTS)[number]["value"];
 
-const TAB_SORT: Record<Tab, Sort> = { trending: "rate", foryou: "views", new: "date" };
-const nice = (c: string) => c.replace(/-/g, " ").replace(/^\w/, (m) => m.toUpperCase());
+const TAB_SORT: Record<Tab, Sort> = { trending: "rate", top: "views", new: "date" };
+const ALL_TIME = periodStats(0);
 
 function Hero() {
-  const week = PERIODS[0];
-  const top = week.formats[0];
-  const weekTop = [...ALL_VIDEOS].filter((v) => postedWithin(v, 7) && v.format === top.name).sort((a, b) => b.views - a.views);
-  const lead = weekTop[0];
+  const month = periodStats(30);
+  const top = month.dareFormats[0];
+  const lead = top?.top;
   return (
     <section className="mb-10 grid items-center gap-8 md:grid-cols-[1fr_auto] md:gap-12">
       <div>
-        <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.1em] text-dm-muted">UGC research · updated {new Date(SNAPSHOT_DATE + "T12:00").toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}</div>
-        <h1 className="max-w-xl text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[52px]">See what's going viral. Film your version today.</h1>
+        <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.1em] text-dm-muted">
+          Dare formats · updated {new Date(SNAPSHOT_DATE + "T12:00").toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
+        </div>
+        <h1 className="max-w-xl text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[52px]">Find what's going viral. Copy it for Dare.</h1>
         <p className="mt-4 max-w-lg text-[16px] leading-relaxed text-dm-muted">
-          Viral UGC videos that play right here, the numbers behind each one, a script to copy, and your 7 videos a day.
+          Only Dare's formats and the OpenArt-style AI money videos they're based on. Every video plays here, with its numbers and a step-by-step way to copy it.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
-          <Link href="/ugc/plan" className="dm-btn-primary">
-            Today's 7 videos
+          <Link href="/ugc/viral" className="dm-btn-primary">
+            What's viral right now
           </Link>
-          <Link href="/ugc/viral" className="dm-btn-ghost">
-            What's viral this week
+          <Link href="/ugc/plan" className="dm-btn-ghost">
+            Today's 7 videos
           </Link>
         </div>
         <p className="mt-6 text-[13px] text-dm-muted">
-          <b className="font-semibold text-dm-ink">{ALL_VIDEOS.length}</b> videos you can play · <b className="font-semibold text-dm-ink">{fmt(PERIODS[3].videos)}</b> tracked this year ·{" "}
-          <b className="font-semibold text-dm-ink">{week.videos}</b> posted this week
+          <b className="font-semibold text-dm-ink">{ALL_VIDEOS.length}</b> videos you can play · <b className="font-semibold text-dm-ink">{fmt(ALL_TIME.views)}</b> views between them ·{" "}
+          <b className="font-semibold text-dm-ink">{ALL_TIME.dareFormats.length}</b> Dare formats
         </p>
       </div>
 
       {lead && (
         <div className="mx-auto w-full max-w-[330px] md:w-[330px]">
           <div className="mb-3 flex items-baseline justify-between gap-3">
-            <div>
-              <div className="text-[12px] text-dm-muted">#1 format this week</div>
-              <div className="text-[18px] font-semibold tracking-[-0.01em]">{top.name}</div>
+            <div className="min-w-0">
+              <div className="text-[12px] text-dm-muted">#1 Dare format this month</div>
+              <div className="truncate text-[18px] font-semibold tracking-[-0.01em]">{top.name}</div>
             </div>
-            <div className="text-right text-[12px] leading-tight text-dm-muted">
-              <b className="block text-[16px] font-semibold text-dm-ink">{top.total}</b>views
+            <div className="shrink-0 text-right text-[12px] leading-tight text-dm-muted">
+              <b className="block text-[16px] font-semibold text-dm-ink">{fmt(top.total)}</b>views
             </div>
           </div>
           <div className="relative px-6 pb-2 pt-3">
@@ -93,9 +96,9 @@ function Hero() {
             </div>
           </div>
           <p className="mt-2 text-center text-[12px] text-dm-muted">
-            {top.videos} videos this week · median {top.median}
+            {top.videos} video{top.videos === 1 ? "" : "s"} in the last 30 days
             <Link href={`/ugc/video/${lead.id}`} className="mt-0.5 block font-medium text-dm-ink hover:underline">
-              See why the #1 video works →
+              See its analytics and copy it →
             </Link>
           </p>
         </div>
@@ -106,20 +109,25 @@ function Hero() {
 
 export default function DiscoverPage() {
   const [tab, setTab] = useState<Tab>("trending");
-  const [range, setRange] = useState<Range>("30");
+  const [range, setRange] = useState<Range>("90");
   const [sort, setSort] = useState<Sort>("rate");
   const [q, setQ] = useState("");
-  const [cat, setCat] = useState("");
+  const [dare, setDare] = useState("");
+  const [brand, setBrand] = useState("");
   const [platform, setPlatform] = useState("");
-  const [format, setFormat] = useState("");
   const feed = useRef<HTMLDivElement>(null);
 
-  // links from Going viral open the feed on one format: /ugc/?format=Screen%20demo
+  // links from other pages open the feed on one Dare format or app: /ugc/?dare=<format id> or ?brand=OpenArt
   useEffect(() => {
-    const f = new URLSearchParams(window.location.search).get("format");
-    if (f) {
-      setFormat(f);
+    const p = new URLSearchParams(window.location.search);
+    const d = p.get("dare");
+    const b = p.get("brand");
+    if (d || b) {
+      if (d) setDare(d);
+      if (b) setBrand(b);
       setRange("0");
+      setTab("top");
+      setSort("views");
       setTimeout(() => feed.current?.scrollIntoView({ block: "start" }), 60);
     }
   }, []);
@@ -129,38 +137,40 @@ export default function DiscoverPage() {
     const list = ALL_VIDEOS.filter(
       (v) =>
         postedWithin(v, Number(range)) &&
-        (tab !== "foryou" || fitsCampaign(v)) &&
-        (!cat || v.category === cat) &&
+        (!dare || v.copyAs === dare) &&
+        (!brand || v.brand === brand) &&
         (!platform || v.platform === platform) &&
-        (!format || v.format === format) &&
-        words.every((w) => `${v.hook} ${v.brand} ${v.creator} ${v.format}`.toLowerCase().includes(w)),
+        words.every((w) => `${v.hook} ${v.brand} ${v.creator} ${v.format} ${formatById(v.copyAs ?? "")?.title ?? ""}`.toLowerCase().includes(w)),
     );
     const key: Record<Sort, (v: UgcVideo) => number> = { views: (v) => v.views, rate: perDay, date: (v) => +new Date(v.posted), er: (v) => v.er };
     return list.sort((a, b) => key[sort](b) - key[sort](a));
-  }, [tab, range, sort, q, cat, platform, format]);
+  }, [range, sort, q, dare, brand, platform]);
 
-  const pickFormat = (f: string) => {
-    setFormat(f);
+  const pickDare = (id: string) => {
+    setDare(id === dare ? "" : id);
     setRange("0");
     feed.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const chosen = dare ? formatById(dare) : undefined;
+  const liveQuery = q.trim() || (chosen ? `${chosen.title} ai` : brand ? `${brand} side hustle` : "openart side hustle");
 
   return (
     <div>
       <Hero />
 
       <div className="mb-8">
-        <div className="mb-2 text-[12px] text-dm-muted">Top formats this week, by views</div>
+        <div className="mb-2 text-[12px] text-dm-muted">Dare formats, ranked by the views of the videos that copy them. Tap one to see them.</div>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
-          {PERIODS[0].formats.map((f, i) => (
+          {ALL_TIME.dareFormats.map((f, i) => (
             <button
               key={f.name}
-              onClick={() => pickFormat(f.name)}
-              className={cx("flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] transition", format === f.name ? "border-dm-ink bg-dm-accent text-dm-accent-fg" : "border-dm-line bg-dm-surface hover:border-dm-ink/40")}
+              onClick={() => pickDare(f.id ?? "")}
+              aria-pressed={dare === f.id}
+              className={cx("flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] transition", dare === f.id ? "border-dm-ink bg-dm-accent text-dm-accent-fg" : "border-dm-line bg-dm-surface hover:border-dm-ink/40")}
             >
-              <span className={cx("tabular-nums", format === f.name ? "opacity-70" : "text-dm-muted")}>#{i + 1}</span>
+              <span className={cx("tabular-nums", dare === f.id ? "opacity-70" : "text-dm-muted")}>#{i + 1}</span>
               <span className="font-medium">{f.name}</span>
-              <span className={cx("tabular-nums", format === f.name ? "opacity-70" : "text-dm-muted")}>{f.total}</span>
+              <span className={cx("tabular-nums", dare === f.id ? "opacity-70" : "text-dm-muted")}>{fmt(f.total)}</span>
             </button>
           ))}
         </div>
@@ -180,25 +190,31 @@ export default function DiscoverPage() {
           <Seg label="Posted in the last" options={RANGES} value={range} onChange={setRange} />
         </div>
 
-        <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
+        <div className="mb-4 grid gap-2 lg:grid-cols-[1fr_auto_auto_auto_auto]">
           <label className="relative block">
             <span className="sr-only">Search</span>
             <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-dm-muted" />
-            <input className="dm-field pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search hooks, brands, creators" />
+            <input className="dm-field pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search hooks, apps, creators, e.g. porsche, colouring, $1" />
           </label>
-          <div className="grid grid-cols-3 gap-2 sm:contents">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:contents">
+            <select aria-label="Dare format" className="dm-field" value={dare} onChange={(e) => setDare(e.target.value)}>
+              <option value="">All Dare formats</option>
+              {ALL_TIME.dareFormats.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+            <select aria-label="App" className="dm-field" value={brand} onChange={(e) => setBrand(e.target.value)}>
+              <option value="">All apps</option>
+              {[...BRANDS, "Dare"].map((b) => (
+                <option key={b}>{b}</option>
+              ))}
+            </select>
             <select aria-label="Sort" className="dm-field" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
               {SORTS.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
-                </option>
-              ))}
-            </select>
-            <select aria-label="Category" className="dm-field" value={cat} onChange={(e) => setCat(e.target.value)}>
-              <option value="">All niches</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {nice(c)}
                 </option>
               ))}
             </select>
@@ -212,19 +228,36 @@ export default function DiscoverPage() {
 
         <div className="mb-4 flex flex-wrap items-center gap-2 text-[13px] text-dm-muted">
           <span>
-            <b className="font-semibold text-dm-ink">{items.length}</b> videos
-            {tab === "foryou" && " that fit your campaign"}
-            {tab === "trending" && ", fastest-growing first"}
+            <b className="font-semibold text-dm-ink">{items.length}</b> videos{sort === "rate" ? ", fastest-growing first" : ""}
           </span>
-          {format && (
-            <button onClick={() => setFormat("")} className="inline-flex items-center gap-1 rounded-full bg-dm-accent px-2.5 py-0.5 text-[12px] font-medium text-dm-accent-fg">
-              {format} <X size={12} />
+          {chosen && (
+            <button onClick={() => setDare("")} className="inline-flex items-center gap-1 rounded-full bg-dm-accent px-2.5 py-0.5 text-[12px] font-medium text-dm-accent-fg">
+              {chosen.title} <X size={12} />
             </button>
           )}
-          {tab === "foryou" && <Tag>AI tools + your campaign's formats</Tag>}
+          {brand && (
+            <button onClick={() => setBrand("")} className="inline-flex items-center gap-1 rounded-full bg-dm-accent px-2.5 py-0.5 text-[12px] font-medium text-dm-accent-fg">
+              {brand} <X size={12} />
+            </button>
+          )}
         </div>
 
-        <VideoGrid key={`${tab}${range}${sort}${q}${cat}${platform}${format}`} items={items} rate={sort === "rate"} />
+        {chosen && (
+          <div className="mb-5">
+            <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.06em] text-dm-muted">Dare's own example for this format</div>
+            <FormatCard f={chosen} />
+          </div>
+        )}
+
+        <VideoGrid key={`${tab}${range}${sort}${q}${dare}${brand}${platform}`} items={items} rate={sort === "rate"} />
+
+        <div className="dm-panel mt-6 flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="text-[14px]">
+            <b>Want videos posted in the last few hours?</b>
+            <span className="block text-[13px] text-dm-muted">The library updates from DarkUGC. For brand-new ones, run “{liveQuery}” on the apps.</span>
+          </div>
+          <LiveSearch q={liveQuery} label="Search live" />
+        </div>
       </div>
     </div>
   );

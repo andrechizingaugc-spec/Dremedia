@@ -5,14 +5,14 @@ import Link from "next/link";
 import { VideoPlayer } from "@/components/video";
 import { FormatCard } from "@/components/ugc/campaign";
 import { PageHead } from "@/components/ugc/site";
-import { CopyBtn, LINK, Panel, Seg, Tag, fmt } from "@/components/ugc/ui";
+import { CopyBtn, Panel, Seg, Tag, fmt } from "@/components/ugc/ui";
 import { DARE_FORMATS, type Effort } from "@/lib/dare";
-import { ALL_VIDEOS, PERIODS, PLAYBOOKS, VIDEOS, clipOf, n } from "@/lib/ugc";
+import { ALL_VIDEOS, PLAYBOOKS, VIDEOS, clipOf, formatMedian, toDare } from "@/lib/ugc";
 
 const VIEWS = [
+  { value: "campaign", label: "Dare formats" },
   { value: "proven", label: "Proven scripts" },
-  { value: "campaign", label: "Campaign formats" },
-  { value: "formats", label: "Every format" },
+  { value: "formats", label: "Video styles" },
 ] as const;
 type View = (typeof VIEWS)[number]["value"];
 
@@ -52,12 +52,12 @@ function Proven() {
                   <Tag>{v.format}</Tag>
                 </div>
                 <p className="mt-2 text-[15px] font-semibold leading-snug">“{v.hook}”</p>
-                <div className="mt-3 rounded-xl bg-dm-surface2 px-3 py-2.5 text-[13px] leading-relaxed">{d.template}</div>
+                <div className="mt-3 rounded-xl bg-dm-surface2 px-3 py-2.5 text-[13px] leading-relaxed">{toDare(d.template, v.brand)}</div>
                 <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-dm-muted">{d.why}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <CopyBtn text={d.template} label="Copy template" />
+                  <CopyBtn text={toDare(d.template, v.brand)} label="Copy Dare script" />
                   <Link href={`/ugc/video/${v.id}`} className="text-[13px] font-medium hover:underline">
-                    Full breakdown →
+                    Analytics & copy it →
                   </Link>
                 </div>
               </div>
@@ -70,7 +70,7 @@ function Proven() {
 }
 
 function Campaign() {
-  const [effort, setEffort] = useState<"all" | Effort>("easy");
+  const [effort, setEffort] = useState<"all" | Effort>("all");
   const [quiet, setQuiet] = useState(false);
   const list = DARE_FORMATS.filter((f) => (effort === "all" || f.effort === effort) && (!quiet || f.talking === false));
   return (
@@ -92,28 +92,27 @@ function Campaign() {
 }
 
 function Formats() {
-  const year = PERIODS[3].formats;
-  const names = Object.keys(PLAYBOOKS).sort((a, b) => n(year.find((f) => f.name === b)?.median ?? "0") - n(year.find((f) => f.name === a)?.median ?? "0"));
+  const names = Object.keys(PLAYBOOKS)
+    .filter((name) => ALL_VIDEOS.some((v) => v.format === name))
+    .sort((a, b) => formatMedian(b) - formatMedian(a));
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {names.map((name) => {
         const p = PLAYBOOKS[name];
-        const y = year.find((f) => f.name === name);
+        const med = formatMedian(name);
         const count = ALL_VIDEOS.filter((v) => v.format === name).length;
         return (
           <Panel key={name} className="flex flex-col p-4">
             <h3 className="text-[16px] font-semibold">{name}</h3>
             <p className="mt-1 text-[13px] leading-relaxed text-dm-muted">{p.what}</p>
-            {y && (
-              <div className="mt-3 flex gap-4 text-[12px] text-dm-muted">
-                <span>
-                  <b className="text-[15px] font-semibold text-dm-ink">{y.median}</b> median
-                </span>
-                <span>
-                  <b className="text-[15px] font-semibold text-dm-ink">{y.videos.toLocaleString()}</b> videos this year
-                </span>
-              </div>
-            )}
+            <div className="mt-3 flex gap-4 text-[12px] text-dm-muted">
+              <span>
+                <b className="text-[15px] font-semibold text-dm-ink">{fmt(med)}</b> median views
+              </span>
+              <span>
+                <b className="text-[15px] font-semibold text-dm-ink">{count}</b> videos in the library
+              </span>
+            </div>
             <ol className="mt-3 list-decimal space-y-1 pl-5 text-[13px] leading-relaxed">
               {p.steps.map((s) => (
                 <li key={s}>{s}</li>
@@ -122,11 +121,7 @@ function Formats() {
             <div className="mt-3 rounded-xl bg-dm-surface2 px-3 py-2.5 text-[13px] leading-relaxed">{p.template}</div>
             <div className="mt-auto flex items-center gap-3 pt-3">
               <CopyBtn text={`${name}\n${p.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\nTemplate: ${p.template}`} label="Copy" />
-              {count > 0 && (
-                <Link href={`/ugc/?format=${encodeURIComponent(name)}`} className={`text-[13px] ${LINK}`}>
-                  Watch {count} →
-                </Link>
-              )}
+
             </div>
           </Panel>
         );
@@ -136,7 +131,7 @@ function Formats() {
 }
 
 export default function ScriptsPage() {
-  const [view, setView] = useState<View>("proven");
+  const [view, setView] = useState<View>("campaign");
   useEffect(() => {
     const h = window.location.hash.slice(1);
     if (h === "campaign" || h === "formats" || h === "proven") setView(h);
@@ -145,8 +140,8 @@ export default function ScriptsPage() {
     <div>
       <PageHead
         eyebrow="Scripts"
-        title="Scripts that already went viral"
-        sub="Fill-in-the-blank templates from viral videos, your campaign's formats with shot lists, and a playbook for every UGC format. Copy one, film it, post it."
+        title="Dare scripts"
+        sub="Every Dare format with its example video, brief and shot list, scripts from the viral videos they copy (already switched to Dare), and how each video style is built."
       />
       <Seg
         label="Show"
