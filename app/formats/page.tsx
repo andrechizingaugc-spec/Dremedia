@@ -5,6 +5,7 @@ import { Bot, ExternalLink, Plus, Trash2 } from "lucide-react";
 import { PLATFORMS, platformName, uid, type FormatIdea, type Platform } from "@/lib/mock";
 import { findBrand, timeAgo, useData, useLabel } from "@/lib/store";
 import { BrandTile, Button, Card, Field, LinkButton, Modal, PlatformIcon, Tabs, cx } from "@/components/ui";
+import { VideoPlayer, parseClip } from "@/components/video";
 
 const tabs = ["All", "New", "Want to try", "Filmed"] as const;
 const tabStatus: Record<(typeof tabs)[number], FormatIdea["status"] | null> = { All: null, New: "new", "Want to try": "try", Filmed: "filmed" };
@@ -151,12 +152,21 @@ export default function FormatsPage() {
               </div>
             )}
             {f.examples.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-1.5">
-                {f.examples.map((e, i) => (
-                  <a key={e.url + i} href={e.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 rounded-md bg-brand-wash px-1.5 py-0.5 text-xs text-brand-text">
-                    example {i + 1} {e.views && `· ${e.views}`} <ExternalLink size={11} />
-                  </a>
-                ))}
+              <div className="mb-2 grid grid-cols-2 gap-2">
+                {f.examples.map((e, i) => {
+                  const clip = parseClip(e.url);
+                  // TikTok, Instagram and YouTube links play right here; anything else stays a link
+                  return clip ? (
+                    <div key={e.url + i}>
+                      <VideoPlayer clip={clip} title={`${f.name} example ${i + 1}`} />
+                      {e.views && <div className="text-[11px] text-muted">{e.views} views</div>}
+                    </div>
+                  ) : (
+                    <a key={e.url + i} href={e.url} target="_blank" rel="noreferrer" className="flex h-fit items-center gap-1 self-start rounded-md bg-brand-wash px-1.5 py-0.5 text-xs text-brand-text">
+                      example {i + 1} {e.views && `· ${e.views}`} <ExternalLink size={11} />
+                    </a>
+                  );
+                })}
               </div>
             )}
             <div className="mt-auto flex items-center gap-2 pt-2">
