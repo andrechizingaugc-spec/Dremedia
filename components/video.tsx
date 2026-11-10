@@ -74,13 +74,28 @@ export function openUrl(c: Clip, creator?: string) {
 }
 
 export const clipKey = (c: Clip) => `${c.kind}:${c.id}`;
-const platformLabel: Record<Clip["kind"], string> = { stream: "Dare", tiktok: "TikTok", instagram: "Instagram", youtube: "YouTube" };
+const platformLabel: Record<Clip["kind"], string> = { stream: "Campaign", tiktok: "TikTok", instagram: "Instagram", youtube: "YouTube" };
 
 /**
  * A 9:16 player. It only loads once it's near the screen, so a page full of
  * videos stays fast. Instagram's player has a header and footer, so it's taller.
  */
-export function VideoPlayer({ clip, title, creator, className, showOpen = true }: { clip: Clip; title?: string; creator?: string; className?: string; showOpen?: boolean }) {
+export function VideoPlayer({
+  clip,
+  title,
+  creator,
+  className,
+  showOpen = true,
+  linkClassName = "text-muted hover:text-ink",
+}: {
+  clip: Clip;
+  title?: string;
+  creator?: string;
+  className?: string;
+  showOpen?: boolean;
+  /** colours for the "Not playing?" link under the player */
+  linkClassName?: string;
+}) {
   const box = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
 
@@ -113,7 +128,7 @@ export function VideoPlayer({ clip, title, creator, className, showOpen = true }
         )}
       </div>
       {showOpen && (
-        <a href={openUrl(clip, creator)} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted hover:text-ink">
+        <a href={openUrl(clip, creator)} target="_blank" rel="noreferrer" className={cx("mt-1 inline-flex items-center gap-1 text-[11px]", linkClassName)}>
           {clip.kind === "stream" ? "Open video" : `Not playing? Open on ${platformLabel[clip.kind]}`} <ExternalLink size={10} />
         </a>
       )}
