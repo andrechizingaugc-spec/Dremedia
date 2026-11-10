@@ -109,27 +109,39 @@ Good to know:
   each account in its own Chrome profile, so its reports land in that profile's
   copy of the dashboard; if Warm-up doesn't move, paste its daily line there.
 
-## Dare 210 (its own website)
+## The Dremedia UGC site (its own website)
 
-**https://andrechizingaugc-spec.github.io/Dremedia/dare/** is a standalone
-website for the Dare campaign on Bounty: 7 videos a day for 30 days using
-Dare's easiest formats. It has its own header and pages (no dashboard sidebar),
-and every video plays right on the page: TikTok, Instagram, YouTube and Dare's
-own example videos.
+**https://andrechizingaugc-spec.github.io/Dremedia/ugc/** is a standalone
+website in the style of DarkUGC, under the Dremedia name and logo. It finds the
+UGC that's going viral, shows why each video works, and runs the 7-videos-a-day
+campaign plan. Every video plays right on the page (TikTok, Instagram, YouTube
+and the campaign's own example videos).
+
+Colours come from the logo (charcoal, white and silver). The switch in the top
+corner works like the iPhone's Appearance setting: **Automatic** follows the
+phone or computer's day/night setting, **Light** and **Dark** stay put. The
+choice is saved in the browser and applied before the page paints, so it never
+flashes the wrong colours.
 
 | Page | What's on it |
 | --- | --- |
-| **Today** (`/dare/`) | The day's 7 videos. Each card plays Dare's example and a viral version side by side, with the hook, the step-by-step script, the Dare format to submit under and a tick box. Once ticked, log the views and the post link (your post then plays on the card). Day 1 has Dare's 3 mandatory assignments. |
-| **Formats** (`/dare/formats/`) | All 23 formats on Dare's Bounty campaign with Dare's example videos, briefs, scripts and shot-by-shot notes. Filter to easy or no-talking. |
-| **Library** (`/dare/library/`) | DarkUGC-style: Dare's examples, thecal.mp3's reposts and top competitor videos, with views, search, format-type filters, sorting and stars. |
-| **Analytics** (`/dare/analytics/`) | Your posts per day, views, estimated pay ($25 base after 500 views + $1.50 per 1K, max $500 a video), best formats and top videos; what's getting views across Dare's competitors; and thecal.mp3's 48 reels. Every chart has a table view. |
-| **My videos** (`/dare/mine/`) | Paste any TikTok, Instagram, YouTube Short or DarkUGC link and it plays there, with a note. |
+| **Discover** (`/ugc/`) | Hero with this week's #1 format, a ranked row of this week's top formats, and the library: Trending (views per day), For you (videos that fit the campaign) and New tabs; 7 days / 30 days / 90 days / this year / all time; sort by views per day, views, newest or engagement; search; niche and platform filters; bookmark, download and open on every card. |
+| **Going viral** (`/ugc/viral/`) | This week, this month, the last 90 days or this year: top videos, ranked formats, hook types, brands and creators with totals, medians and change against the period before, the fastest-growing videos, and what it means for your next video. |
+| **Video pages** (`/ugc/video/<id>/`) | Analytics for one video (views, likes, engagement, views per day, × its format's median, × the creator's typical views, DarkUGC rank, growth) and its script: hook, structure scene by scene, fill-in-the-blank template, why it works, production notes, remix ideas, the campaign format to film it as, and more like it. |
+| **Scripts** (`/ugc/scripts/`) | Proven scripts from viral videos (filter by hook type), the campaign's 23 formats with example videos, briefs and shot lists, and a playbook for every UGC format. |
+| **Plan** (`/ugc/plan/`) | The day's 7 videos: the campaign example and a viral version side by side, hook, step-by-step script, format to submit under, a tick box, then views and post link. Day 1 has the 3 mandatory assignments. |
+| **Analytics** (`/ugc/analytics/`) | Your posts, views and estimated pay ($25 base after 500 views + $1.50 per 1K, max $500 a video), best scripts and top videos; what's working across the library; thecal.mp3's 48 reels. Every chart has a table view. |
+| **Download** (`/ugc/download/`) | Paste an Instagram link and FastDL opens with it filled in and starts the download. TikTok links get the Save video steps. |
+| **Saved** (`/ugc/saved/`) | Bookmarked videos, plus any TikTok, Instagram, YouTube Short or DarkUGC link you paste in. |
 
-Ticks, logged views, stars and your videos are saved with the rest of your
-dashboard (and in backups). The site asks search engines not to index it.
-The formats, plan and library live in `lib/dare.ts`; the pages in `app/dare/`;
-the player that turns a link into a playable video is `components/video.tsx`
-(the **Formats** page uses it too); the charts are `components/dare/charts.tsx`.
+The old `/dare/` links forward to the matching new page. Ticks, logged views,
+bookmarks and your videos are saved with the rest of your dashboard (and in
+backups). The site asks search engines not to index it.
+
+**Refreshing the viral data.** DarkUGC has no public feed, so the site reads a
+snapshot in `lib/ugc.ts` (videos, per-video breakdowns and the week / month /
+90-day / year trends). To refresh it, pull the latest from DarkUGC, update that
+file and check each new video plays as an embed before adding it.
 
 ## What's still look-only
 
@@ -148,5 +160,7 @@ generated emails. Each note says what it needs.
 - `components/shell.tsx`: sidebar, search (⌘K / Ctrl+K), page names
 - `components/brand-editor.tsx`: the add/edit brand form used everywhere
 - `components/video.tsx`: plays TikTok, Instagram, YouTube and Bounty (Cloudflare Stream) videos from a pasted link
-- `lib/dare.ts`: the Dare formats, the 7-a-day plan, the video library and thecal.mp3's reels for the Dare 210 site
-- `app/dare/`, `components/dare/`: the Dare 210 website (pages, its header/nav, cards, charts)
+- `lib/dare.ts`: the campaign's formats, the 7-a-day plan and thecal.mp3's reels
+- `lib/ugc.ts`: the DarkUGC snapshot: viral videos, breakdowns, trends by period and a playbook per format
+- `app/ugc/`, `components/ugc/`: the Dremedia UGC site (pages, header and nav, day/night theme, video cards, charts, plan cards)
+- `lib/theme-script.ts`: sets the site's saved day/night choice before the page paints

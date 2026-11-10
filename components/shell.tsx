@@ -46,7 +46,7 @@ const icons: Record<string, { icon: LucideIcon; tint?: string }> = {
   "/inbox": { icon: Inbox },
   "/formats": { icon: LayoutTemplate, tint: "#D97706" },
   "/repurpose": { icon: Recycle, tint: "#0D9488" },
-  "/dare": { icon: Rocket, tint: "#E11D48" },
+  "/ugc": { icon: Rocket, tint: "#18181B" },
   "/report": { icon: ClipboardPaste, tint: "#4F46E5" },
   "/settings": { icon: Settings },
   "/ideation": { icon: Lightbulb, tint: "#CA8A04" },
@@ -271,8 +271,8 @@ function Frame({ children }: { children: ReactNode }) {
   const current = nav.all.find((i) => isActive(path, i.href)) ?? { href: path, label: data.profile.workspace, icon: Home };
   const CurrentIcon = current.icon;
 
-  // the Dare 210 pages are a website of their own: no sidebar, their own titles
-  const standalone = path.startsWith("/dare");
+  // the Dremedia site (/ugc, and the old /dare links into it) has its own header and titles
+  const standalone = path.startsWith("/ugc") || path.startsWith("/dare");
 
   useEffect(() => {
     if (standalone) return;

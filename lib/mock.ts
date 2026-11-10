@@ -266,7 +266,7 @@ export const NAV: NavKey[] = [
   { key: "/scheduler", label: "Scheduler", group: "create" },
   { key: "/variations", label: "Variations", group: "create" },
   { key: "/repurpose", label: "Repurpose", group: "create" },
-  { key: "/dare", label: "Dare 210", group: "create" },
+  { key: "/ugc", label: "UGC research", group: "create" },
   { key: "#tools", label: "Tools", group: "heading" },
   { key: "/accounts", label: "Accounts", group: "tools" },
   { key: "/transcribe", label: "Transcribe", group: "tools" },
