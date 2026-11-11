@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { VideoPlayer } from "@/components/video";
 import { FormatCard } from "@/components/ugc/campaign";
-import { PageHead } from "@/components/ugc/site";
 import { CopyBtn, Panel, Seg, Tag, fmt } from "@/components/ugc/ui";
-import { DARE_FORMATS, type Effort } from "@/lib/dare";
-import { ALL_VIDEOS, PLAYBOOKS, VIDEOS, clipOf, formatMedian, toDare } from "@/lib/ugc";
+import type { Effort } from "@/lib/dare";
+import { ALL_VIDEOS, PLAYBOOKS, VIDEOS, clipOf, formatMedian, toCampaign } from "@/lib/ugc";
+import { ALL_FORMATS, campaignByKey, formatsFor } from "@/lib/campaigns";
+import { PageHead, useCampaign } from "@/components/ugc/site";
 
 const VIEWS = [
-  { value: "campaign", label: "Dare formats" },
+  { value: "campaign", label: "Campaign formats" },
   { value: "proven", label: "Proven scripts" },
   { value: "formats", label: "Video styles" },
 ] as const;
@@ -24,7 +25,8 @@ const EFFORTS = [
 ] as const;
 
 function Proven() {
-  const vids = VIDEOS.filter((v) => v.detail).sort((a, b) => b.views - a.views);
+  const { campaign } = useCampaign();
+  const vids = VIDEOS.filter((v) => v.detail && (campaign === "all" || v.campaign === campaign)).sort((a, b) => b.views - a.views);
   const types = Array.from(new Set(vids.map((v) => v.detail!.hookType)));
   const [type, setType] = useState("");
   const shown = vids.filter((v) => !type || v.detail!.hookType === type);
@@ -52,10 +54,10 @@ function Proven() {
                   <Tag>{v.format}</Tag>
                 </div>
                 <p className="mt-2 text-[15px] font-semibold leading-snug">“{v.hook}”</p>
-                <div className="mt-3 rounded-xl bg-dm-surface2 px-3 py-2.5 text-[13px] leading-relaxed">{toDare(d.template, v.brand)}</div>
+                <div className="mt-3 rounded-xl bg-dm-surface2 px-3 py-2.5 text-[13px] leading-relaxed">{toCampaign(d.template, v.brand, v.campaign)}</div>
                 <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-dm-muted">{d.why}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <CopyBtn text={toDare(d.template, v.brand)} label="Copy Dare script" />
+                  <CopyBtn text={toCampaign(d.template, v.brand, v.campaign)} label="Copy Dare script" />
                   <Link href={`/ugc/video/${v.id}`} className="text-[13px] font-medium hover:underline">
                     Analytics & copy it →
                   </Link>
@@ -70,9 +72,11 @@ function Proven() {
 }
 
 function Campaign() {
+  const { campaign } = useCampaign();
   const [effort, setEffort] = useState<"all" | Effort>("all");
   const [quiet, setQuiet] = useState(false);
-  const list = DARE_FORMATS.filter((f) => (effort === "all" || f.effort === effort) && (!quiet || f.talking === false));
+  const pool = campaign === "all" ? ALL_FORMATS : formatsFor(campaign);
+  const list = pool.filter((f) => (effort === "all" || f.effort === effort) && (!quiet || f.talking === false));
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -84,7 +88,10 @@ function Campaign() {
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
         {list.map((f) => (
-          <FormatCard key={f.id} f={f} />
+          <div key={f.id}>
+            {campaign === "all" && <div className="mb-1.5 text-[12px] font-medium uppercase tracking-[0.06em] text-dm-muted">{campaignByKey(f.campaign).name}</div>}
+            <FormatCard f={f} />
+          </div>
         ))}
       </div>
     </div>
@@ -92,15 +99,17 @@ function Campaign() {
 }
 
 function Formats() {
+  const { campaign } = useCampaign();
+  const pool = ALL_VIDEOS.filter((v) => campaign === "all" || v.campaign === campaign);
   const names = Object.keys(PLAYBOOKS)
-    .filter((name) => ALL_VIDEOS.some((v) => v.format === name))
+    .filter((name) => pool.some((v) => v.format === name))
     .sort((a, b) => formatMedian(b) - formatMedian(a));
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {names.map((name) => {
         const p = PLAYBOOKS[name];
         const med = formatMedian(name);
-        const count = ALL_VIDEOS.filter((v) => v.format === name).length;
+        const count = pool.filter((v) => v.format === name).length;
         return (
           <Panel key={name} className="flex flex-col p-4">
             <h3 className="text-[16px] font-semibold">{name}</h3>
@@ -140,8 +149,8 @@ export default function ScriptsPage() {
     <div>
       <PageHead
         eyebrow="Scripts"
-        title="Dare scripts"
-        sub="Every Dare format with its example video, brief and shot list, scripts from the viral videos they copy (already switched to Dare), and how each video style is built."
+        title="Scripts"
+        sub="Every format for your campaigns with an example video, brief and shot list, scripts from viral videos (already switched to your app), and how each video style is built. Switch campaign at the top."
       />
       <Seg
         label="Show"

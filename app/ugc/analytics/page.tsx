@@ -6,9 +6,10 @@ import { money } from "@/components/ui";
 import { VideoPlayer, parseClip } from "@/components/video";
 import { BarList, Columns, type Datum } from "@/components/ugc/charts";
 import { usePlan, usePosted } from "@/components/ugc/plan";
-import { PageHead } from "@/components/ugc/site";
+import { PageHead, useCampaign } from "@/components/ugc/site";
 import { LINK, Panel, Stat, Tag, fmt } from "@/components/ugc/ui";
-import { DARE_UNLOCK, PER_DAY, PLAN_DAYS, THECAL_ALL, cardById, formatById, median, payFor } from "@/lib/dare";
+import { DARE_UNLOCK, PER_DAY, PLAN_DAYS, THECAL_ALL, cardById, median, payFor } from "@/lib/dare";
+import { anyFormat } from "@/lib/campaigns";
 import { VIDEOS } from "@/lib/ugc";
 
 const DAY = 86_400_000;
@@ -101,7 +102,8 @@ function YourResults() {
 // ---------------------------------------------------------------- the market
 
 function Market() {
-  const vids = VIDEOS;
+  const { campaign } = useCampaign();
+  const vids = VIDEOS.filter((v) => campaign === "all" || v.campaign === campaign);
   const total = vids.reduce((s, v) => s + v.views, 0);
 
   const groups = (key: (v: (typeof vids)[number]) => string) => {
@@ -154,7 +156,7 @@ function Market() {
                     </Link>
                   </td>
                   <td className="py-2 pr-3 text-dm-muted">{v.brand}</td>
-                  <td className="py-2">{v.copyAs ? <Tag strong>{formatById(v.copyAs)?.title}</Tag> : <span className="text-dm-muted">{v.format}</span>}</td>
+                  <td className="py-2">{v.copyAs ? <Tag strong>{anyFormat(v.copyAs)?.title}</Tag> : <span className="text-dm-muted">{v.format}</span>}</td>
                 </tr>
               ))}
             </tbody>

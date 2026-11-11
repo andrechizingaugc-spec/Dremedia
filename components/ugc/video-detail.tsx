@@ -4,8 +4,9 @@ import Link from "next/link";
 import { ArrowLeft, Download, ExternalLink } from "lucide-react";
 import { cx } from "@/components/ui";
 import { VideoPlayer, openUrl } from "@/components/video";
-import { BOUNTY_FORMAT, formatById } from "@/lib/dare";
-import { ALL_VIDEOS, VIDEOS, ageDays, anyVideoById, clipOf, formatMedian, libraryRank, n, perDay, playbookFor, toDare, xMedian, type UgcVideo } from "@/lib/ugc";
+import { BOUNTY_FORMAT } from "@/lib/dare";
+import { anyFormat, campaignByKey } from "@/lib/campaigns";
+import { ALL_VIDEOS, VIDEOS, ageDays, anyVideoById, clipOf, formatMedian, libraryRank, n, perDay, playbookFor, toCampaign, xMedian, type UgcVideo } from "@/lib/ugc";
 import { FormatCard } from "./campaign";
 import { CopyBtn, LINK, LiveSearch, Panel, SaveBtn, SectionTitle, Stat, Tag, VideoGrid, darkugcPage, downloadUrl, fmt, shortDate } from "./ui";
 
@@ -59,18 +60,19 @@ export function VideoDetail({ id }: { id: string }) {
 
   const d = v.detail;
   const pb = playbookFor(v.format);
-  const campaign = v.copyAs ? formatById(v.copyAs) : undefined;
+  const campaign = anyFormat(v.copyAs);
+  const camp = campaignByKey(v.campaign);
   const dl = downloadUrl(v);
   const rank = libraryRank(v);
   const xm = xMedian(v);
   const fm = formatMedian(v.format);
   const creatorTypical = d && d.creatorTypical !== "–" ? n(d.creatorTypical) : 0;
   const related = ALL_VIDEOS.filter((x) => x.id !== v.id && x.copyAs === v.copyAs).sort((a, b) => b.views - a.views);
-  const dareHook = toDare(v.hook, v.brand);
-  const dareBody = d ? toDare(d.template, v.brand) : campaign?.steps?.length ? campaign.steps.join("\n") : toDare(pb.template, v.brand);
-  const caption = `${dareHook} Comment "link" and I'll send it over. #dare #aitools #sidehustle #makemoneyonline #aivideo`;
+  const dareHook = toCampaign(v.hook, v.brand, v.campaign);
+  const dareBody = d ? toCampaign(d.template, v.brand, v.campaign) : campaign?.steps?.length ? campaign.steps.join("\n") : toCampaign(pb.template, v.brand, v.campaign);
+  const caption = `${dareHook} ${camp.cta} ${camp.hashtags}`;
   const dareScript = `HOOK: ${dareHook}\n\n${dareBody}${campaign ? `\n\nSubmit under: ${campaign.title}` : ""}\n\nCAPTION: ${caption}`;
-  const similar = `${v.brand === "Dare" ? "dare app" : v.brand} ${v.hook.split(/[.,!?(]/)[0].split(" ").slice(0, 4).join(" ")}`.trim();
+  const similar = `${v.brand === "Dare" ? "dare app" : v.brand === "Polifly" ? "polymarket" : v.brand} ${v.hook.split(/[.,!?(]/)[0].split(" ").slice(0, 4).join(" ")}`.trim();
   const template = d?.template || pb.template;
   const fullScript = [`Hook: ${v.hook}`, d ? `\nStructure:\n${d.scenes.map((s, i) => `${i + 1}. ${s}`).join("\n")}` : `\nSteps:\n${pb.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`, `\nTemplate: ${template}`].join("\n");
 
@@ -87,7 +89,7 @@ export function VideoDetail({ id }: { id: string }) {
             <a href={openUrl(clipOf(v), v.creator)} target="_blank" rel="noreferrer" className="dm-btn-primary h-10 whitespace-nowrap px-3 text-[13px]">
               Watch on {v.platform === "TikTok" ? "TikTok" : "IG"} <ExternalLink size={12} />
             </a>
-            {v.brand !== "Dare" ? (
+            {v.brand !== "Dare" && v.creator !== "maxwellwinss" ? (
               <a href={darkugcPage(v.id)} target="_blank" rel="noreferrer" className="dm-btn-ghost h-10 whitespace-nowrap px-3 text-[13px]">
                 DarkUGC page <ExternalLink size={12} />
               </a>
@@ -118,7 +120,7 @@ export function VideoDetail({ id }: { id: string }) {
             <Tag strong>{v.format}</Tag>
             <Tag>{nice(v.category)}</Tag>
             {d && <Tag>{d.hookType} hook</Tag>}
-            {campaign && <Tag strong>Dare: {campaign.title}</Tag>}
+            {campaign && <Tag strong>{camp.name}: {campaign.title}</Tag>}
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
@@ -144,14 +146,14 @@ export function VideoDetail({ id }: { id: string }) {
           </Panel>
 
           <section className="mt-8">
-            <SectionTitle sub="Five steps from this video to your own post" right={<CopyBtn text={dareScript} label="Copy Dare script" />}>
-              Copy it for Dare and go viral
+            <SectionTitle sub="Five steps from this video to your own post" right={<CopyBtn text={dareScript} label={`Copy ${camp.name} script`} />}>
+              Copy it for {camp.name} and go viral
             </SectionTitle>
             <ol className="space-y-3">
               <Step n={1} title={`Watch it on ${v.platform} twice`}>
                 Notice the first 2 seconds (“{v.hook}”), how fast it moves{v.dur ? ` (${v.dur}s long)` : ""}, where the money or result is shown, and the call to action at the end. The hook is what made it go viral, so keep its shape.
               </Step>
-              <Step n={2} title="Your Dare script">
+              <Step n={2} title={`Your ${camp.name} script`}>
                 <div className="mt-1.5 rounded-xl bg-dm-surface2 px-3.5 py-3 text-[14px] leading-relaxed">
                   <div className="text-[12px] font-medium uppercase tracking-[0.06em] text-dm-muted">Hook</div>
                   <p className="mt-0.5 font-semibold">“{dareHook}”</p>
@@ -162,22 +164,22 @@ export function VideoDetail({ id }: { id: string }) {
               <Step n={3} title="Film it">
                 {campaign ? (
                   <>
-                    Follow Dare's own example for <b>{campaign.title}</b> below shot by shot ({campaign.effort}
-                    {campaign.talking === false ? ", no talking" : campaign.talking ? ", talking to camera" : ""}). Screen-record Dare doing each step on your phone.
+                    Follow the <b>{campaign.title}</b> format below shot by shot ({campaign.effort}
+                    {campaign.talking === false ? ", no talking" : campaign.talking ? ", talking to camera" : ""}). Show {camp.name} on screen for each step.
                   </>
                 ) : (
-                  <>Film it the way this video does, with Dare on screen for each step.</>
+                  <>Film it the way this video does, with {camp.name} on screen for each step.</>
                 )}{" "}
                 Captions in white with a thin black outline, no emojis, no dark boxes. Show only real numbers.
               </Step>
-              <Step n={4} title="Post it on TikTok and Instagram">
+              <Step n={4} title={`Post it on TikTok and Instagram (${camp.posting})`}>
                 <div className="mt-1.5 rounded-xl bg-dm-surface2 px-3.5 py-2.5 text-[13px] leading-relaxed">{caption}</div>
                 <div className="mt-2">
                   <CopyBtn text={caption} label="Copy caption" />
                 </div>
               </Step>
-              <Step n={5} title="Submit it on Bounty and track it">
-                {campaign ? (
+              <Step n={5} title={camp.bounty ? "Submit it on Bounty and track it" : "Log it and make more"}>
+                {camp.bounty && campaign ? (
                   <>
                     Submit under <b>{campaign.title}</b> (not “Create Your Own”), then tick it off on{" "}
                     <Link href="/ugc/plan" className="font-medium underline">
@@ -186,9 +188,16 @@ export function VideoDetail({ id }: { id: string }) {
                     and log its views. It pays once it passes 500 views.
                   </>
                 ) : (
-                  <>Submit it on Bounty, then log it on Plan.</>
+                  <>
+                    Submit the post link on the {camp.name} campaign, then make the next one from the same base clip with a new hook and sound.{" "}
+                    {v.campaign === "polifly" && (
+                      <Link href="/ugc/plan?campaign=polifly" className="font-medium underline">
+                        See the 12 Polifly videos
+                      </Link>
+                    )}
+                  </>
                 )}
-                {campaign && (
+                {camp.bounty && campaign && (
                   <a href={BOUNTY_FORMAT(campaign.id)} target="_blank" rel="noreferrer" className="dm-btn-ghost ml-0 mt-2 flex h-9 w-fit px-3.5 text-[13px]">
                     Submit on Bounty <ExternalLink size={12} />
                   </a>
@@ -199,7 +208,9 @@ export function VideoDetail({ id }: { id: string }) {
 
           {campaign && (
             <section className="mt-8">
-              <SectionTitle sub="Dare's example video, brief and shot list for this format">Dare's example: {campaign.title}</SectionTitle>
+              <SectionTitle sub="Example video, brief and shot list for this format">
+                {camp.bounty ? "Dare's example" : `${camp.name} format`}: {campaign.title}
+              </SectionTitle>
               <FormatCard f={campaign} />
             </section>
           )}
@@ -266,7 +277,7 @@ export function VideoDetail({ id }: { id: string }) {
 
       {related.length > 0 && (
         <section className="mt-12">
-          <SectionTitle sub="Other videos you can copy for the same Dare format, most views first">More like this</SectionTitle>
+          <SectionTitle sub={`Other videos you can copy for the same ${camp.name} format, most views first`}>More like this</SectionTitle>
           <VideoGrid items={related} step={4} />
         </section>
       )}

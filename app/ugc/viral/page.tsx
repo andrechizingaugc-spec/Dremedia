@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { cx } from "@/components/ui";
-import { PageHead } from "@/components/ugc/site";
+import { PageHead, useCampaign } from "@/components/ugc/site";
+import { campaignByKey } from "@/lib/campaigns";
 import { LiveSearch, Panel, Seg, SectionTitle, Stat, VideoGrid, fmt } from "@/components/ugc/ui";
 import { PERIODS, perDay, periodStats, type Group, type PeriodKey } from "@/lib/ugc";
 
@@ -83,7 +84,9 @@ function RankTable({ title, sub, rows, link, compare }: { title: string; sub: st
 export default function ViralPage() {
   const [key, setKey] = useState<PeriodKey>("month");
   const period = PERIODS.find((x) => x.key === key)!;
-  const s = periodStats(period.days);
+  const { campaign } = useCampaign();
+  const s = periodStats(period.days, campaign);
+  const live = campaign === "all" ? "openart side hustle" : campaignByKey(campaign).searches[0];
   const compare = period.days > 0;
   const topFormat = s.dareFormats[0];
   const bestMedian = [...s.dareFormats].filter((f) => f.videos >= 2).sort((a, b) => b.median - a.median)[0];
@@ -91,31 +94,35 @@ export default function ViralPage() {
 
   return (
     <div className="space-y-8">
-      <PageHead eyebrow="Trends" title="Going viral" sub="Dare's formats and the OpenArt-style videos they copy: what's getting views this week, this month, the last 90 days, this year or of all time.">
+      <PageHead
+        eyebrow={campaign === "all" ? "Dare · Cluely · Polifly" : campaignByKey(campaign).name}
+        title="Going viral"
+        sub="What's getting views for your campaigns and the similar ones they copy: this week, this month, the last 90 days, this year or of all time. Switch campaign at the top."
+      >
         <Seg label="Period" options={OPTIONS} value={key} onChange={setKey} />
       </PageHead>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Videos posted" value={s.videos} sub={compare ? <Change now={s.videos} before={s.prevVideos} show /> : "in the library"} />
         <Stat label="Views" value={fmt(s.views)} sub="on those videos" />
-        <Stat label="Top Dare format" value={<span className="text-[18px]">{topFormat?.name ?? "–"}</span>} sub={topFormat ? `${fmt(topFormat.total)} views on ${topFormat.videos} videos` : ""} />
+        <Stat label="Top format" value={<span className="text-[18px]">{topFormat?.name ?? "–"}</span>} sub={topFormat ? `${fmt(topFormat.total)} views on ${topFormat.videos} videos` : ""} />
         <Stat label="Top app" value={<span className="text-[18px]">{s.brands[0]?.name ?? "–"}</span>} sub={s.brands[0] ? `${fmt(s.brands[0].total)} views` : ""} />
       </div>
 
       {s.videos < 4 && compare && (
         <Panel className="p-4 text-[14px]">
           Only {s.videos} new video{s.videos === 1 ? "" : "s"} in the library for this window. Try a longer period, or search the newest ones live.
-          <LiveSearch q="openart side hustle" label="Search live" className="mt-3" />
+          <LiveSearch q={live} label="Search live" className="mt-3" />
         </Panel>
       )}
 
       <section>
         <SectionTitle sub="Most views first. They play right here; tap one for its analytics and how to copy it.">Top videos · {period.label.toLowerCase()}</SectionTitle>
-        <VideoGrid key={key} items={s.top} step={8} ranked />
+        <VideoGrid key={key + campaign} items={s.top} step={8} ranked />
       </section>
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <RankTable title="Dare formats" sub="By the views of the videos that copy each one. Tap one to watch them." rows={s.dareFormats} link={(g) => `/ugc/?dare=${g.id}`} compare={compare} />
+        <RankTable title="Formats" sub="By the views of the videos that use each one. Tap one to watch them." rows={s.dareFormats} link={(g) => `/ugc/?dare=${g.id}`} compare={compare} />
         <Panel className="p-4">
           <h3 className="mb-2 font-semibold">What to film next</h3>
           <ul className="list-disc space-y-1.5 pl-5 text-[14px] leading-relaxed">
@@ -147,8 +154,10 @@ export default function ViralPage() {
         </Panel>
       </div>
 
+      {campaign === "all" && <RankTable title="Campaigns" sub="Your top 3, by the views of their videos and the similar ones" rows={s.campaigns} link={(g) => `/ugc/?campaign=${g.id}`} compare={compare} />}
+
       <div className="grid gap-4 lg:grid-cols-2">
-        <RankTable title="Apps" sub="Which AI apps' videos are getting the views" rows={s.brands} link={(g) => `/ugc/?brand=${encodeURIComponent(g.name)}`} compare={compare} />
+        <RankTable title="Apps" sub="Your campaign's app and the similar ones" rows={s.brands} link={(g) => `/ugc/?brand=${encodeURIComponent(g.name)}`} compare={compare} />
         <RankTable title="Video styles" sub="How the videos are shot" rows={s.families} compare={compare} />
       </div>
 

@@ -2,7 +2,8 @@
 // copied from DarkUGC (darkugc.com) on Nov 10, 2026. Views are as DarkUGC last
 // recorded them. Refresh this file to update the site (see README).
 
-import { LIBRARY, formatById } from "./dare";
+import { LIBRARY } from "./dare";
+import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
 export const SNAPSHOT_DATE = "2026-11-10";
 
@@ -47,7 +48,9 @@ export type UgcVideo = {
   category: string;
   hook: string;
   dur: number;
-  /** the campaign format (Bounty id) to film it as */
+  /** which of the top 3 campaigns it's for */
+  campaign: CampaignKey;
+  /** the campaign format to film it as */
   copyAs?: string;
   detail?: Detail;
 };
@@ -80,9 +83,10 @@ const F = {
   twoWeeks: "3LiRejDGdD2NYXhDvY0P4GXqVYX",
 };
 
-// Only Dare formats and the OpenArt-style AI money videos they copy. Every video was checked
+// Only Andre's top 3 campaigns (Dare, Cluely, Polifly) and the similar campaigns their formats come from. Every video was checked
 // to play as an embed on Nov 10. Left out because they don't
 // play inside other sites (removed, or the creator turned embedding off):
+// tt-7665066119752977678, tt-7576139837690957111, tt-7618605465294900494,
 // ig-DcDFqwFh2SP, tt-7701855649935658262, tt-7692511838684106017, tt-7687685525435665665, tt-7687284035197914399, tt-7695083323709771040, ig-DbN6cEhuWn9, ig-DeTEKp1NHLl,
 // tt-7652877383795625247, tt-7654402510861405453, tt-7676089691975732502, tt-7686531408206056717, ig-DfS3bz2J7_t, ig-DdFKV7oSmQY
 const ROWS: Row[] = [
@@ -194,6 +198,70 @@ const ROWS: Row[] = [
   ["tt-7652519299520744734", "BeFreed", "learningwliam", "4.9M", "346K", 7.2, "2026-06-18", "Tips & lessons", "education", "S-tier hobbies for blue lovers", 0, F.tier],
   ["ig-DZEiY8aJOiz", "Dupe.com", "findsbyzachary", "2.7M", "38K", 1.4, "2026-06-02", "Reacts to the app", "shopping", "This girl better go into hiding, she just exposed the whole industry", 0, F.course],
   ["ig-DdTK3nbRYxH", "Jobsuit", "amit.bhatiaaa", "2M", "40K", 2, "2026-09-15", "Reacts to the app", "business", "Girl, I'm sorry, but this girl deleted her video", 0, F.deleting],
+];
+
+// ---- Cluely: its own viral videos, then the same "secret AI helper" format from similar apps
+const CLUELY_ROWS: Row[] = [
+  ["ig-DLscC4ZJwps", "Cluely", "worksmartwithyeesha", "12M", "393K", 3.4, "2025-07-04", "Secret AI helper", "productivity", "Would you rather have prime Neymar or prime Hazard on your team?", 21, "cl-call"],
+  ["ig-DLksIp-J7-Q", "Cluely", "worksmartwithyeesha", "7.8M", "375K", 4.8, "2025-07-01", "Secret AI helper", "productivity", "I don't think this is working anymore", 30, "cl-call"],
+  ["tt-7518823129456643350", "Cluely", "worksmartwithyeesha", "6.1M", "845K", 15.5, "2025-06-22", "Secret AI helper", "productivity", "Lol I can't believe this is working (football quiz on FaceTime)", 26, "cl-call"],
+  ["tt-7555657147543997726", "Cluely", "hacklifewithhenry", "3.9M", "416K", 14.7, "2025-09-29", "Tips & lessons", "productivity", "FAFSA tips nobody tells you", 39, "cl-tips"],
+  ["tt-7558889846203288854", "Cluely", "michelle__zhang", "3.5M", "166K", 5.1, "2025-10-08", "Secret AI helper", "productivity", "Valedictorian skit", 26, "cl-interview"],
+  ["tt-7522163190046788886", "Cluely", "worksmartwithyeesha", "3M", "235K", 8.8, "2025-07-01", "Secret AI helper", "productivity", "Idk if this is still working anymore…", 30, "cl-call"],
+  ["ig-DLnPtjHx7HY", "Cluely", "worksmartwithyeesha", "2.8M", "143K", 5.2, "2025-07-02", "Secret AI helper", "productivity", "Erm… help guys", 29, "cl-call"],
+  ["tt-7558559271114280214", "Cluely", "michelle__zhang", "2.4M", "241K", 12.3, "2025-10-07", "Secret AI helper", "productivity", "High school skit", 24, "cl-interview"],
+  ["tt-7561072226846395651", "Cluely", "michelle__zhang", "2.3M", "124K", 6.1, "2025-10-14", "Secret AI helper", "productivity", "Asked about a K-pop book on the spot", 18, "cl-call"],
+  ["ig-DR0nHtskY4d", "Cluely", "henryhackslife", "2.3M", "210K", 9.4, "2025-12-04", "Explainer + screen", "productivity", "Lmk if I'm tripping or not", 33, "cl-warning"],
+  ["ig-DLp45DBJ19x", "Cluely", "worksmartwithyeesha", "2.2M", "107K", 5, "2025-07-03", "Secret AI helper", "productivity", "Tf is Patty and why is he a baddie?", 19, "cl-call"],
+  ["tt-7527075774176709910", "Cluely", "worksmartwithyeesha", "2M", "116K", 6.3, "2025-07-14", "Secret AI helper", "productivity", "Hazard duh???", 21, "cl-call"],
+  ["ig-DMBBu-gNQJ9", "Cluely", "worksmartwithyeesha", "1.8M", "157K", 9, "2025-07-12", "Secret AI helper", "productivity", "help", 26, "cl-call"],
+  ["tt-7558955035711900950", "Cluely", "michelle__zhang", "1.5M", "97K", 7.7, "2025-10-08", "Secret AI helper", "productivity", "High school skit, part 2", 36, "cl-interview"],
+  ["tt-7566703322669796638", "Cluely", "tbos_guide", "1.4M", "228K", 21.1, "2025-10-29", "Secret AI helper", "productivity", "Ngl I cooked (job interview)", 28, "cl-interview"],
+  ["tt-7532125977149738270", "Cluely", "deelifehacks", "1.1M", "131K", 14, "2025-07-28", "Secret AI helper", "productivity", "Didn't want stinky gamer anyway", 12, "cl-call"],
+  ["tt-7527487146366635278", "Cluely", "hasnain.mov", "698K", "41K", 7.1, "2025-07-16", "Storytime & rant", "productivity", "His intern army will not be pleased with this", 60, "cl-warning"],
+  ["tt-7582389955847146783", "Cluely", "hacklifewithhenry", "680K", "72K", 12.2, "2025-12-11", "Explainer + screen", "productivity", "Lmk if this is a nerdy take", 32, "cl-warning"],
+  ["tt-7555320019685592351", "Cluely", "noideajoey", "521K", "30K", 8.4, "2025-09-29", "Explainer + screen", "productivity", "This is a warning", 43, "cl-warning"],
+  ["ig-DRDSWL2ghT7", "Cluely", "cheatingwithkiru", "431K", "22K", 5.1, "2025-11-14", "Tips & lessons", "productivity", "Who wants a part 2", 42, "cl-tips"],
+  ["tt-7571668012575526175", "Cluely", "noideajoey", "412K", "46K", 14.9, "2025-11-12", "Explainer + screen", "productivity", "You guys asked for part 2", 31, "cl-warning"],
+  ["ig-DRZllMnAvRt", "Cluely", "cheatingwithkiru", "399K", "22K", 5.5, "2025-11-23", "Tips & lessons", "productivity", "Thank me later", 42, "cl-tips"],
+  ["tt-7571136194277362966", "Cluely", "michelle__zhang", "374K", "13K", 3.9, "2025-11-10", "Secret AI helper", "productivity", "Uni dance trend", 22, "cl-interview"],
+  ["ig-DRSN4RLDDzL", "Cluely", "lifehackswharry", "372K", "11K", 2.9, "2025-11-20", "Tips & lessons", "productivity", "This is how to save SO much money in uni", 32, "cl-tips"],
+  ["tt-7559733019356040466", "Cluely", "fraserhackslife", "358K", "30K", 12.3, "2025-10-10", "Secret AI helper", "productivity", "I ain't getting employed anytime soon", 13, "cl-interview"],
+  ["tt-7525883792851176726", "Cluely", "worksmartwithyeesha", "356K", "29K", 9.2, "2025-07-11", "Secret AI helper", "productivity", "Mbappe L", 29, "cl-call"],
+  ["tt-7584237828045933854", "Cluely", "hacklifewithhenry", "346K", "41K", 14.2, "2025-12-15", "Explainer + screen", "productivity", "Lmk if this is a nerdy take (math)", 33, "cl-warning"],
+  ["tt-7554104012195269918", "Cluely", "noideajoey", "346K", "27K", 10.9, "2025-09-25", "Explainer + screen", "productivity", "This new watermark is going to get a lot of people caught", 34, "cl-warning"],
+  ["ig-DXer4lUEzcz", "Parakeet AI", "careerwithrithi", "52M", "595K", 1.1, "2026-04-23", "Secret AI helper", "productivity", "AI job interview is crazy", 0, "cl-interview"],
+  ["tt-7634408333440503047", "LockedIn AI", "lockin_with_jhon", "30M", "620K", 2.3, "2026-04-30", "Secret AI helper", "productivity", "Just don't get caught", 29, "cl-interview"],
+  ["ig-DaxjB4BhBqp", "Parakeet AI", "dilipai.guide", "21M", "192K", 0.9, "2026-07-14", "Secret AI helper", "productivity", "Interview answers lol", 0, "cl-interview"],
+  ["tt-7573895119506590994", "LockedIn AI", "thandolockedin", "20M", "1.5M", 8.6, "2025-11-18", "Secret AI helper", "productivity", "Did she just miss the opportunity on the spot?", 12, "cl-interview"],
+  ["tt-7557863837987245343", "Summary AI", "wfhgabriela", "15M", "949K", 6.7, "2025-10-05", "Secret AI helper", "productivity", "POV: you're accused of using AI in an interview. Okay, let's both share screens.", 35, "cl-interview"],
+  ["tt-7653396782847642901", "LockedIn AI", "steph_austria8", "12M", "192K", 1.6, "2026-06-20", "Secret AI helper", "productivity", "The interviewer had no idea", 0, "cl-interview"],
+  ["tt-7649721935538081044", "LockedIn AI", "steph_austria8", "11M", "326K", 2.8, "2026-06-10", "Secret AI helper", "productivity", "Interviewer had no clue", 0, "cl-interview"],
+  ["ig-Ddu0PFlA8uI", "Parakeet AI", "nat.hiringhacks", "5.1M", "53K", 1, "2026-09-26", "Secret AI helper", "productivity", "This hack is a life changer", 0, "cl-interview"],
+  ["tt-7689518976241585415", "LockedIn AI", "tech.by.zeil", "1.9M", "81K", 4.9, "2026-09-25", "Secret AI helper", "productivity", "Job interviews in 2026 are actually insane", 31, "cl-interview"],
+  ["ig-DfP1h4By84A", "Parakeet AI", "arjun_interview.prep", "1.5M", "13K", 0.9, "2026-11-02", "Secret AI helper", "productivity", "Bro went from unemployed to employed", 28, "cl-interview"],
+  ["tt-7700229368190078216", "LockedIn AI", "lockin_with_jonna", "1.1M", "35K", 3.7, "2026-10-24", "Secret AI helper", "productivity", "They know I'm faking it so bad", 33, "cl-interview"],
+  ["ig-DeEWzzOu5pi", "Parakeet AI", "carlycareers", "594K", "157", 0, "2026-10-04", "Secret AI helper", "productivity", "No, just using my job tool", 0, "cl-interview"],
+  ["ig-Deym9ZBuwm_", "Parakeet AI", "carlycareers", "482K", "149", 0, "2026-10-22", "Secret AI helper", "productivity", "No, I'm using my interview tool", 15, "cl-interview"],
+  ["tt-7698017009648405781", "LockedIn AI", "careerwithfiza", "451K", "2.6K", 0.6, "2026-10-18", "Secret AI helper", "productivity", "The craziest AI interview hack", 29, "cl-interview"],
+  ["tt-7695113059093777685", "LockedIn AI", "lockin.with.khayam", "370K", "6K", 1.8, "2026-10-10", "Secret AI helper", "productivity", "Bro got bossed by an AI", 19, "cl-interview"],
+];
+
+// ---- Polifly: Maxwell Benson (@maxwellwinss), then the same prediction-market formats from Kalshi
+const POLIFLY_ROWS: Row[] = [
+  ["ig-DZDovhwOrJH", "Polifly", "maxwellwinss", "1.3M", "26.6K", 2.1, "2026-06-15", "Explainer + screen", "finance", "Algeria is cooked / isn't this free money", 17, "pf-pick"],
+  ["ig-DZ3KHdoOnoR", "Polifly", "maxwellwinss", "768K", "0", 0, "2026-06-22", "Explainer + screen", "finance", "France vs Iraq / this is free money", 0, "pf-pick"],
+  ["ig-Dflq9m9pdEZ", "Polifly", "maxwellwinss", "2.4K", "0", 0, "2026-11-10", "Reacts to the app", "finance", "3 websites the FBI gatekept from you (repost)", 0, "pf-websites"],
+  ["ig-DfiRbZYJ-l_", "Polifly", "maxwellwinss", "2.1K", "0", 0, "2026-11-09", "Reacts to the app", "finance", "3 websites the FBI gatekept from you (repost, \"yo please\")", 0, "pf-websites"],
+  ["tt-7654568537519869197", "Kalshi", "jonerfatcat", "55M", "159K", 0.3, "2026-06-23", "Explainer + screen", "finance", "Ronaldo's funeral vs Uzbekistan", 42, "pf-breakdown"],
+  ["tt-7692520314470731038", "Kalshi", "amir8nouri", "53M", "159K", 0.3, "2026-10-03", "Explainer + screen", "finance", "Drake Maye is going to turn up this weekend in Buffalo", 19, "pf-breakdown"],
+  ["tt-7689259792774352142", "Kalshi", "itsbrandotv_", "30M", "56K", 0.2, "2026-09-25", "Explainer + screen", "finance", "Green Bay Packers versus the Falcons", 85, "pf-breakdown"],
+  ["tt-7693292408066297101", "Kalshi", "sugenious_", "25M", "40K", 0.2, "2026-10-05", "Explainer + screen", "finance", "Who's going home? (dance show odds)", 58, "pf-breakdown"],
+  ["tt-7658121190757780749", "Kalshi", "jonerfatcat", "24M", "76K", 0.3, "2026-07-03", "Explainer + screen", "finance", "Will Cabo Verde survive Messi?", 45, "pf-breakdown"],
+  ["tt-7650552274363632926", "Kalshi", "takeapoint", "20M", "93K", 0.5, "2026-06-12", "Interview & podcast", "finance", "Left or right? (UFC fight odds)", 68, "pf-breakdown"],
+  ["tt-7689990366874914079", "Kalshi", "amir8nouri", "20M", "76K", 0.4, "2026-09-26", "Reacts to the app", "finance", "0 chance Drake Maye goes from MVP candidate to bumming out", 35, "pf-pick"],
+  ["tt-7695838401303465229", "Kalshi", "outjuggin0078", "862K", "106K", 14.3, "2026-10-12", "Storytime & rant", "finance", "Kalshi is your ticket out", 24, "pf-math"],
+  ["tt-7656317501197815054", "Kalshi", "beckett2jiggy", "105K", "14K", 15.2, "2026-06-28", "Text + daily moment", "finance", "Yeah y'all got it", 8, "pf-pick"],
 ];
 
 // full breakdowns from DarkUGC's video analysis
@@ -321,11 +389,16 @@ function guessFormat(hook: string, format: string) {
 export const VIDEOS: UgcVideo[] = (() => {
   const seen = new Set<string>();
   const out: UgcVideo[] = [];
-  for (const [id, brand, creator, views, likes, er, posted, format, category, hook, dur, copyAs] of ROWS) {
-    if (seen.has(id)) continue;
-    seen.add(id);
-    out.push({ id, platform: id.startsWith("tt-") ? "TikTok" : "Instagram", brand, creator, views: n(views), likes: n(likes), er, posted, format, category, hook, dur: dur || 0, copyAs: copyAs || guessFormat(hook, format), detail: D[id] });
-  }
+  const add = (rows: Row[], campaign: CampaignKey) => {
+    for (const [id, brand, creator, views, likes, er, posted, format, category, hook, dur, copyAs] of rows) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      out.push({ id, platform: id.startsWith("tt-") ? "TikTok" : "Instagram", brand, creator, views: n(views), likes: n(likes), er, posted, format, category, hook, dur: dur || 0, campaign, copyAs: copyAs || (campaign === "dare" ? guessFormat(hook, format) : undefined), detail: D[id] });
+    }
+  };
+  add(ROWS, "dare");
+  add(CLUELY_ROWS, "cluely");
+  add(POLIFLY_ROWS, "polifly");
   return out;
 })();
 
@@ -362,6 +435,7 @@ export const THECAL_VIDEOS: UgcVideo[] = LIBRARY.filter((v) => v.source === "the
   posted: v.posted,
   format: "Screen demo",
   category: "creative-tools",
+  campaign: "dare" as const,
   hook: v.hook === "a repost of the same edit" || v.hook === "a typical repost" ? "Claude + Shorts = $X/day (repost of his one edit)" : v.hook,
   dur: 14,
   copyAs: F.claude,
@@ -521,7 +595,9 @@ export type Group = { name: string; id?: string; videos: number; prev: number; t
 /** posted in the window that ends where this one starts (for "vs before") */
 const postedBefore = (v: UgcVideo, days: number) => days > 0 && !postedWithin(v, days) && postedWithin(v, days * 2);
 
-export const dareTitle = (v: UgcVideo) => (v.copyAs ? formatById(v.copyAs)?.title ?? "Dare format" : "Dare format");
+export const formatTitle = (v: UgcVideo) => anyFormat(v.copyAs)?.title ?? campaignByKey(v.campaign).name + " format";
+/** kept for older imports */
+export const dareTitle = formatTitle;
 
 function groupBy(now: UgcVideo[], before: UgcVideo[], key: (v: UgcVideo) => string, id?: (v: UgcVideo) => string): Group[] {
   const m = new Map<string, UgcVideo[]>();
@@ -542,16 +618,18 @@ function groupBy(now: UgcVideo[], before: UgcVideo[], key: (v: UgcVideo) => stri
     .sort((a, b) => b.total - a.total);
 }
 
-export function periodStats(days: number) {
-  const now = ALL_VIDEOS.filter((v) => postedWithin(v, days));
-  const before = ALL_VIDEOS.filter((v) => postedBefore(v, days));
+export function periodStats(days: number, campaign?: CampaignKey | "all") {
+  const pool = !campaign || campaign === "all" ? ALL_VIDEOS : ALL_VIDEOS.filter((v) => v.campaign === campaign);
+  const now = pool.filter((v) => postedWithin(v, days));
+  const before = pool.filter((v) => postedBefore(v, days));
   return {
     videos: now.length,
     prevVideos: before.length,
     views: now.reduce((s, v) => s + v.views, 0),
     top: [...now].sort((a, b) => b.views - a.views),
     fastest: [...now].sort((a, b) => perDay(b) - perDay(a)),
-    dareFormats: groupBy(now, before, dareTitle, (v) => v.copyAs ?? ""),
+    dareFormats: groupBy(now, before, formatTitle, (v) => v.copyAs ?? ""),
+    campaigns: groupBy(now, before, (v) => campaignByKey(v.campaign).name, (v) => v.campaign),
     brands: groupBy(now, before, (v) => v.brand),
     creators: groupBy(now, before, (v) => v.creator),
     families: groupBy(now, before, (v) => v.format),
@@ -560,11 +638,20 @@ export function periodStats(days: number) {
 
 // ---------------------------------------------------------------- turn a video into a Dare script
 
-/** swap the other app's name and the template blanks for Dare */
-export function toDare(text: string, brand: string) {
+const OTHER_APPS: Record<CampaignKey, string[]> = {
+  dare: ["OpenArt", "openart.ai/direct", "Higgsfield", "Krea", "Viewmax", "Creao", "Lovable", "Composio"],
+  cluely: ["LockedIn AI", "LockedIn", "Parakeet AI", "Parakeet", "Summary AI"],
+  polifly: ["Kalshi"],
+};
+
+/** swap the other app's name and the template blanks for the campaign's app */
+export function toCampaign(text: string, brand: string, campaign: CampaignKey) {
+  const app = campaignByKey(campaign).name;
   let t = text;
-  for (const name of [brand, brand.split(" ")[0], "OpenArt", "openart.ai/direct", "Higgsfield", "Krea", "Viewmax", "Creao", "Lovable", "Composio"]) {
-    if (name.length > 2) t = t.replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), "Dare");
+  for (const name of [brand, brand.split(" ")[0], ...OTHER_APPS[campaign]]) {
+    if (name.length > 2 && name !== app) t = t.replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), app);
   }
-  return t.replace(/\[(app name|app|tool|ai tool|brand url|brand|ai video tool|plugin)\]/gi, "Dare").replace(/Dare(\s+Dare)+/g, "Dare");
+  const blanks = new RegExp("\\[(app name|app|tool|ai tool|brand url|brand|ai video tool|plugin)\\]", "gi");
+  return t.replace(blanks, app).replace(new RegExp(`${app}(\\s+${app})+`, "g"), app);
 }
+export const toDare = (text: string, brand: string) => toCampaign(text, brand, "dare");

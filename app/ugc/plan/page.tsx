@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cx, money } from "@/components/ui";
 import { PlanCardView, usePlan, usePosted } from "@/components/ugc/plan";
-import { PageHead } from "@/components/ugc/site";
-import { Panel, Stat } from "@/components/ugc/ui";
+import { PageHead, useCampaign } from "@/components/ugc/site";
+import { PoliflyPlan } from "@/components/ugc/polifly";
+import { FormatCard } from "@/components/ugc/campaign";
+import { formatsFor } from "@/lib/campaigns";
+import { Panel, Seg, Stat } from "@/components/ugc/ui";
 import { DARE_BASE_PAY, EXTRAS, PER_DAY, PLAN_DAYS, dayCards, payFor } from "@/lib/dare";
 
 const DAY = 86_400_000;
@@ -23,7 +26,48 @@ function todayIndex(start: string) {
   return Math.min(PLAN_DAYS - 1, Math.max(0, Math.round((t - parseDay(start).getTime()) / DAY)));
 }
 
+const PLANS = [
+  { value: "dare", label: "Dare · 7 a day" },
+  { value: "polifly", label: "Polifly · 12 videos" },
+  { value: "cluely", label: "Cluely" },
+] as const;
+type PlanKey = (typeof PLANS)[number]["value"];
+
 export default function PlanPage() {
+  const { campaign } = useCampaign();
+  const [which, setWhich] = useState<PlanKey>("dare");
+  useEffect(() => {
+    if (campaign !== "all") setWhich(campaign);
+  }, [campaign]);
+  return (
+    <div>
+      <PageHead
+        eyebrow="Plan"
+        title={which === "dare" ? "Today's 7 videos" : which === "polifly" ? "12 Polifly videos" : "Cluely videos"}
+        sub={
+          which === "dare"
+            ? "Dare's easiest formats, copied shot by shot from its own examples and from thecal.mp3. Watch the example, film it, tick it off, log the views."
+            : which === "polifly"
+              ? "Built from ollysung's posting system and Maxwell Benson's Polifly videos. Film the base clips once, then post as many versions as you like."
+              : "The 4 formats behind Cluely's most viral videos and the apps like it. Each one has the video it copies and a shot list."
+        }
+      >
+        <Seg label="Plan" options={PLANS} value={which} onChange={setWhich} />
+      </PageHead>
+      {which === "dare" && <DarePlan />}
+      {which === "polifly" && <PoliflyPlan />}
+      {which === "cluely" && (
+        <div className="grid gap-4 xl:grid-cols-2">
+          {formatsFor("cluely").map((f) => (
+            <FormatCard key={f.id} f={f} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DarePlan() {
   const { plan, key, setStart } = usePlan();
   const [day, setDay] = useState(() => todayIndex(plan.start));
   const [showExtras, setShowExtras] = useState(false);
@@ -34,7 +78,6 @@ export default function PlanPage() {
 
   return (
     <div>
-      <PageHead eyebrow="Plan" title="Today's 7 videos" sub="Your campaign's easiest formats, copied shot by shot from its own examples and from thecal.mp3. Watch the example, film it, tick it off, log the views." />
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="dm-panel p-4">
