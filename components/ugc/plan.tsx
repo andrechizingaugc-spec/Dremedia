@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Check, ExternalLink } from "lucide-react";
 import { useData } from "@/lib/store";
 import { cx, money } from "@/components/ui";
@@ -122,6 +123,14 @@ export function PlanCardView({ c, d, slot }: { c: PlanCard; d: number; slot: num
           <p className="rounded-xl bg-dm-surface2 px-3.5 py-2.5 text-[13px] leading-relaxed">
             <span className="text-dm-muted">Setup: </span>
             {c.setup}
+            {c.id === "m3" && (
+              <>
+                {" "}
+                <Link href={`/spin/?car=${encodeURIComponent(v.swap)}`} target="_blank" className="font-medium text-dm-ink underline underline-offset-2">
+                  Open the spinner wheel
+                </Link>
+              </>
+            )}
           </p>
 
           {done && (

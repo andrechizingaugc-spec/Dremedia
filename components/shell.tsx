@@ -271,8 +271,9 @@ function Frame({ children }: { children: ReactNode }) {
   const current = nav.all.find((i) => isActive(path, i.href)) ?? { href: path, label: data.profile.workspace, icon: Home };
   const CurrentIcon = current.icon;
 
-  // the Dremedia site (/ugc, and the old /dare links into it) has its own header and titles
-  const standalone = path.startsWith("/ugc") || path.startsWith("/dare");
+  // the Dremedia site (/ugc, and the old /dare links into it) has its own header and titles;
+  // /spin is a full-screen filming prop
+  const standalone = path.startsWith("/ugc") || path.startsWith("/dare") || path.startsWith("/spin");
 
   useEffect(() => {
     if (standalone) return;
