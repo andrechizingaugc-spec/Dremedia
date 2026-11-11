@@ -4,7 +4,10 @@ import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { cx } from "@/components/ui";
 import { VideoPlayer } from "@/components/video";
-import { BOUNTY_FORMAT, type DareFormat } from "@/lib/dare";
+import { BOUNTY_FORMAT } from "@/lib/dare";
+import type { CampaignFormat } from "@/lib/campaigns";
+
+type DareFormat = CampaignFormat;
 import { CopyBtn, LINK, Tag } from "./ui";
 
 const effortLook = { easy: "bg-dm-good/15 text-dm-good", medium: "bg-dm-warn/15 text-dm-warn", hard: "bg-dm-bad/15 text-dm-bad" } as const;
@@ -23,6 +26,12 @@ export function FormatTags({ f }: { f: DareFormat }) {
 /** the campaign's own example video(s) for a format, with a switcher when there are two */
 export function FormatExamples({ f, className }: { f: DareFormat; className?: string }) {
   const [i, setI] = useState(0);
+  if (!f.streams.length && f.exampleVideo)
+    return (
+      <div className={className}>
+        <VideoPlayer clip={{ kind: f.exampleVideo.startsWith("tt-") ? "tiktok" : "instagram", id: f.exampleVideo.slice(3) }} title={`Example: ${f.title}`} showOpen={false} />
+      </div>
+    );
   if (!f.streams.length)
     return <div className={cx("flex aspect-[9/16] items-center justify-center rounded-xl border border-dashed border-dm-line p-4 text-center text-[12px] text-dm-muted", className)}>No example video for this one. Follow the brief.</div>;
   return (
@@ -67,9 +76,11 @@ export function FormatCard({ f, compact }: { f: DareFormat; compact?: boolean })
         )}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <CopyBtn text={formatScript(f)} label="Copy script" />
-          <a href={BOUNTY_FORMAT(f.id)} target="_blank" rel="noreferrer" className={cx("inline-flex items-center gap-1 px-2 text-[13px]", LINK)}>
-            Submit on Bounty <ExternalLink size={12} />
-          </a>
+          {f.campaign === "dare" && (
+            <a href={BOUNTY_FORMAT(f.id)} target="_blank" rel="noreferrer" className={cx("inline-flex items-center gap-1 px-2 text-[13px]", LINK)}>
+              Submit on Bounty <ExternalLink size={12} />
+            </a>
+          )}
         </div>
       </div>
     </article>

@@ -6,7 +6,8 @@ import { Bookmark, Check, Copy, Download, ExternalLink, Eye, Heart } from "lucid
 import { useData } from "@/lib/store";
 import { cx } from "@/components/ui";
 import { VideoPlayer, openUrl } from "@/components/video";
-import { clipOf, dareTitle, perDay, type UgcVideo } from "@/lib/ugc";
+import { clipOf, formatTitle, perDay, type UgcVideo } from "@/lib/ugc";
+import { campaignByKey } from "@/lib/campaigns";
 
 /** 1.6M, 879K, 12.4K, 950 */
 export const fmt = (n: number) => (n >= 1e9 ? +(n / 1e9).toFixed(1) + "B" : n >= 1e6 ? +(n / 1e6).toFixed(1) + "M" : n >= 1e4 ? Math.round(n / 1e3) + "K" : n >= 1e3 ? +(n / 1e3).toFixed(1) + "K" : String(Math.round(n)));
@@ -153,7 +154,7 @@ export function VideoCard({ v, rank, showRate }: { v: UgcVideo; rank?: number; s
         </div>
         <p className="mt-1.5 line-clamp-2 text-[14px] leading-snug">{v.hook}</p>
         <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2.5">
-          <Tag strong>Dare: {dareTitle(v)}</Tag>
+          <Tag strong>{campaignByKey(v.campaign).name}: {formatTitle(v)}</Tag>
         </div>
         <div className="mt-2.5 flex items-center gap-2 border-t border-dm-line pt-2.5 text-[13px]">
           <Link href={`/ugc/video/${v.id}`} className="min-w-0 truncate font-medium hover:underline">

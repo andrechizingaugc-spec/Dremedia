@@ -113,9 +113,16 @@ Good to know:
 
 **https://andrechizingaugc-spec.github.io/Dremedia/ugc/** is a standalone
 website in the style of DarkUGC, under the Dremedia name and logo. It only shows
-Dare's formats and the OpenArt-style AI money videos they copy (OpenArt,
-Higgsfield, Krea, Viewmax, Creao, Composio, Lovable and similar), each tagged
-with the Dare format to film it as, and runs the 7-videos-a-day plan. Every video plays right on the page (TikTok, Instagram, YouTube
+Andre's top 3 campaigns and the similar campaigns their formats come from:
+
+- **Dare**: the OpenArt-style AI money videos (OpenArt, Higgsfield, Krea, Viewmax, Creao, Composio, Lovable and similar) and thecal.mp3's reposts.
+- **Cluely**: Cluely's own viral videos and the same "secret AI helper" format from LockedIn AI, Parakeet AI and Summary AI.
+- **Polifly** (polifly.io, a Polymarket AI analyzer): Maxwell Benson's (@maxwellwinss) videos and the prediction-market formats from Kalshi.
+
+The campaign switch under the header filters every page. Each video is tagged with
+the campaign format to film it as (`lib/campaigns.ts` holds the formats, Dare's
+from Bounty and the others from their most viral videos). Plan has Dare's 7 a day,
+12 Polifly videos built on ollysung's posting system, and the Cluely formats. Every video plays right on the page (TikTok, Instagram, YouTube
 and the campaign's own example videos).
 
 Colours come from the logo (charcoal, white and silver). The switch in the top

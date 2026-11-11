@@ -7,8 +7,9 @@ import { cx } from "@/components/ui";
 import { VideoPlayer } from "@/components/video";
 import { FormatCard } from "@/components/ugc/campaign";
 import { LiveSearch, Seg, VideoGrid, fmt } from "@/components/ugc/ui";
-import { formatById } from "@/lib/dare";
-import { ALL_VIDEOS, BRANDS, SNAPSHOT_DATE, clipOf, periodStats, perDay, postedWithin, type UgcVideo } from "@/lib/ugc";
+import { anyFormat as formatById, campaignByKey } from "@/lib/campaigns";
+import { useCampaign } from "@/components/ugc/site";
+import { ALL_VIDEOS, SNAPSHOT_DATE, clipOf, periodStats, perDay, postedWithin, type UgcVideo } from "@/lib/ugc";
 
 const TABS = [
   { value: "trending", label: "Trending" },
@@ -35,33 +36,38 @@ const SORTS = [
 type Sort = (typeof SORTS)[number]["value"];
 
 const TAB_SORT: Record<Tab, Sort> = { trending: "rate", top: "views", new: "date" };
-const ALL_TIME = periodStats(0);
 
 function Hero() {
-  const month = periodStats(30);
-  const top = month.dareFormats[0];
+  const { campaign } = useCampaign();
+  const name = campaign === "all" ? "your top 3 campaigns" : campaignByKey(campaign).name;
+  const ALL_TIME = periodStats(0, campaign);
+  const month = periodStats(30, campaign);
+  const top = (month.dareFormats[0] ? month : periodStats(90, campaign)).dareFormats[0] ?? ALL_TIME.dareFormats[0];
   const lead = top?.top;
   return (
     <section className="mb-10 grid items-center gap-8 md:grid-cols-[1fr_auto] md:gap-12">
       <div>
         <div className="mb-3 text-[12px] font-medium uppercase tracking-[0.1em] text-dm-muted">
-          Dare formats · updated {new Date(SNAPSHOT_DATE + "T12:00").toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
+          {campaign === "all" ? "Dare · Cluely · Polifly" : name} · updated {new Date(SNAPSHOT_DATE + "T12:00").toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
         </div>
-        <h1 className="max-w-xl text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[52px]">Find what's going viral. Copy it for Dare.</h1>
+        <h1 className="max-w-xl text-[36px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[52px]">Find what's going viral. Copy it for {campaign === "all" ? "your campaigns" : name}.</h1>
         <p className="mt-4 max-w-lg text-[16px] leading-relaxed text-dm-muted">
-          Only Dare's formats and the OpenArt-style AI money videos they're based on. Every video plays here, with its numbers and a step-by-step way to copy it.
+          {campaign === "all"
+            ? "Only your top 3 campaigns: Dare, Cluely and Polifly, plus the similar campaigns their formats come from."
+            : campaignByKey(campaign).what}{" "}
+          Every video plays here, with its numbers and a step-by-step way to copy it.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           <Link href="/ugc/viral" className="dm-btn-primary">
             What's viral right now
           </Link>
           <Link href="/ugc/plan" className="dm-btn-ghost">
-            Today's 7 videos
+            {campaign === "polifly" ? "12 Polifly videos" : campaign === "cluely" ? "Cluely formats" : "Today's 7 videos"}
           </Link>
         </div>
         <p className="mt-6 text-[13px] text-dm-muted">
-          <b className="font-semibold text-dm-ink">{ALL_VIDEOS.length}</b> videos you can play · <b className="font-semibold text-dm-ink">{fmt(ALL_TIME.views)}</b> views between them ·{" "}
-          <b className="font-semibold text-dm-ink">{ALL_TIME.dareFormats.length}</b> Dare formats
+          <b className="font-semibold text-dm-ink">{ALL_TIME.videos}</b> videos you can play · <b className="font-semibold text-dm-ink">{fmt(ALL_TIME.views)}</b> views between them ·{" "}
+          <b className="font-semibold text-dm-ink">{ALL_TIME.dareFormats.length}</b> formats
         </p>
       </div>
 
@@ -69,7 +75,7 @@ function Hero() {
         <div className="mx-auto w-full max-w-[330px] md:w-[330px]">
           <div className="mb-3 flex items-baseline justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-[12px] text-dm-muted">#1 Dare format this month</div>
+              <div className="text-[12px] text-dm-muted">#1 format right now</div>
               <div className="truncate text-[18px] font-semibold tracking-[-0.01em]">{top.name}</div>
             </div>
             <div className="shrink-0 text-right text-[12px] leading-tight text-dm-muted">
@@ -96,7 +102,7 @@ function Hero() {
             </div>
           </div>
           <p className="mt-2 text-center text-[12px] text-dm-muted">
-            {top.videos} video{top.videos === 1 ? "" : "s"} in the last 30 days
+            {top.videos} video{top.videos === 1 ? "" : "s"} · {campaignByKey(lead.campaign).name}
             <Link href={`/ugc/video/${lead.id}`} className="mt-0.5 block font-medium text-dm-ink hover:underline">
               See its analytics and copy it →
             </Link>
@@ -108,6 +114,9 @@ function Hero() {
 }
 
 export default function DiscoverPage() {
+  const { campaign } = useCampaign();
+  const ALL_TIME = periodStats(0, campaign);
+  const BRANDS = Array.from(new Set(ALL_VIDEOS.filter((v) => campaign === "all" || v.campaign === campaign).map((v) => v.brand))).sort();
   const [tab, setTab] = useState<Tab>("trending");
   const [range, setRange] = useState<Range>("90");
   const [sort, setSort] = useState<Sort>("rate");
@@ -137,6 +146,7 @@ export default function DiscoverPage() {
     const list = ALL_VIDEOS.filter(
       (v) =>
         postedWithin(v, Number(range)) &&
+        (campaign === "all" || v.campaign === campaign) &&
         (!dare || v.copyAs === dare) &&
         (!brand || v.brand === brand) &&
         (!platform || v.platform === platform) &&
@@ -144,7 +154,7 @@ export default function DiscoverPage() {
     );
     const key: Record<Sort, (v: UgcVideo) => number> = { views: (v) => v.views, rate: perDay, date: (v) => +new Date(v.posted), er: (v) => v.er };
     return list.sort((a, b) => key[sort](b) - key[sort](a));
-  }, [range, sort, q, dare, brand, platform]);
+  }, [range, sort, q, dare, brand, platform, campaign]);
 
   const pickDare = (id: string) => {
     setDare(id === dare ? "" : id);
@@ -152,14 +162,21 @@ export default function DiscoverPage() {
     feed.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const chosen = dare ? formatById(dare) : undefined;
-  const liveQuery = q.trim() || (chosen ? `${chosen.title} ai` : brand ? `${brand} side hustle` : "openart side hustle");
+  // a new campaign clears filters that belong to another one
+  useEffect(() => {
+    if (campaign === "all") return;
+    if (dare && formatById(dare)?.campaign !== campaign) setDare("");
+    if (brand && !ALL_VIDEOS.some((v) => v.brand === brand && v.campaign === campaign)) setBrand("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaign]);
+  const liveQuery = q.trim() || (brand ? brand : campaign === "all" ? "openart side hustle" : campaignByKey(campaign).searches[0]);
 
   return (
     <div>
       <Hero />
 
       <div className="mb-8">
-        <div className="mb-2 text-[12px] text-dm-muted">Dare formats, ranked by the views of the videos that copy them. Tap one to see them.</div>
+        <div className="mb-2 text-[12px] text-dm-muted">Formats, ranked by the views of the videos that use them. Tap one to see them.</div>
         <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0">
           {ALL_TIME.dareFormats.map((f, i) => (
             <button
@@ -194,11 +211,11 @@ export default function DiscoverPage() {
           <label className="relative block">
             <span className="sr-only">Search</span>
             <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-dm-muted" />
-            <input className="dm-field pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search hooks, apps, creators, e.g. porsche, colouring, $1" />
+            <input className="dm-field pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search hooks, apps, creators, e.g. porsche, interview, ronaldo" />
           </label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:contents">
-            <select aria-label="Dare format" className="dm-field" value={dare} onChange={(e) => setDare(e.target.value)}>
-              <option value="">All Dare formats</option>
+            <select aria-label="Format" className="dm-field" value={dare} onChange={(e) => setDare(e.target.value)}>
+              <option value="">All formats</option>
               {ALL_TIME.dareFormats.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -207,7 +224,7 @@ export default function DiscoverPage() {
             </select>
             <select aria-label="App" className="dm-field" value={brand} onChange={(e) => setBrand(e.target.value)}>
               <option value="">All apps</option>
-              {[...BRANDS, "Dare"].map((b) => (
+              {BRANDS.map((b) => (
                 <option key={b}>{b}</option>
               ))}
             </select>
@@ -244,12 +261,12 @@ export default function DiscoverPage() {
 
         {chosen && (
           <div className="mb-5">
-            <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.06em] text-dm-muted">Dare's own example for this format</div>
+            <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.06em] text-dm-muted">{chosen.campaign === "dare" ? "Dare's own example for this format" : `How to film it for ${campaignByKey(chosen.campaign).name}`}</div>
             <FormatCard f={chosen} />
           </div>
         )}
 
-        <VideoGrid key={`${tab}${range}${sort}${q}${dare}${brand}${platform}`} items={items} rate={sort === "rate"} />
+        <VideoGrid key={`${campaign}${tab}${range}${sort}${q}${dare}${brand}${platform}`} items={items} rate={sort === "rate"} />
 
         <div className="dm-panel mt-6 flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
           <div className="text-[14px]">

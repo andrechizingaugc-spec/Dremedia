@@ -4,7 +4,8 @@ import { Check, ExternalLink } from "lucide-react";
 import { useData } from "@/lib/store";
 import { cx, money } from "@/components/ui";
 import { VideoPlayer, parseClip } from "@/components/video";
-import { BOUNTY_FORMAT, EXTRAS, PER_DAY, PLAN_DAYS, dayCards, formatById, payFor, variant, type PlanCard } from "@/lib/dare";
+import { BOUNTY_FORMAT, EXTRAS, PER_DAY, PLAN_DAYS, dayCards, payFor, variant, type PlanCard } from "@/lib/dare";
+import { anyFormat } from "@/lib/campaigns";
 import { FormatExamples } from "./campaign";
 import { CopyBtn, LINK, Tag } from "./ui";
 
@@ -52,7 +53,7 @@ export function PlanCardView({ c, d, slot }: { c: PlanCard; d: number; slot: num
   const k = key(d, c.id);
   const done = !!plan.done[k];
   const result = plan.results?.[k] ?? { views: 0, url: "" };
-  const f = formatById(c.formatId)!;
+  const f = anyFormat(c.formatId)!;
   const v = variant(c, d);
   const mand = !!c.mand && d === 0;
   const myClip = result.url ? parseClip(result.url) : null;
