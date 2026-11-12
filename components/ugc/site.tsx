@@ -21,6 +21,8 @@ export const PAGES = [
   { href: "/ugc/scripts", label: "Scripts", title: "Scripts" },
   { href: "/ugc/plan", label: "Plan", title: "Today's 7 videos" },
   { href: "/ugc/analytics", label: "Analytics", title: "Analytics" },
+  { href: "/ugc/editor", label: "Editor", title: "Video editor" },
+  { href: "/ugc/agents", label: "Agents", title: "Agents" },
   { href: "/ugc/download", label: "Download", title: "Video downloader" },
   { href: "/ugc/saved", label: "Saved", title: "Saved videos" },
 ];
@@ -144,7 +146,7 @@ export function UgcSite({ children }: { children: ReactNode }) {
               <ThemeToggle className="md:order-3" />
               <nav
                 aria-label="Pages"
-                className="no-scrollbar -mx-4 mt-2 flex w-[calc(100%+2rem)] gap-1 overflow-x-auto px-4 pb-2.5 md:order-2 md:mx-0 md:mt-0 md:w-auto md:justify-center md:rounded-full md:border md:border-dm-line md:bg-dm-surface md:p-1"
+                className="no-scrollbar -mx-4 mt-2 flex w-[calc(100%+2rem)] gap-1 overflow-x-auto px-4 pb-2.5 md:order-2 md:mx-0 md:mt-0 md:w-auto md:min-w-0 md:rounded-full md:border md:border-dm-line md:bg-dm-surface md:p-1"
               >
                 {PAGES.map((p) => {
                   const on = isOn(path, p.href);

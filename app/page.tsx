@@ -1,5 +1,6 @@
 "use client";
 
+import { EarningsCard } from "@/components/ugc/earnings";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, CalendarClock, CalendarPlus, ExternalLink, Info, Pencil, Video } from "lucide-react";
@@ -224,6 +225,8 @@ export default function DashboardPage() {
       )}
 
       <TodayRow />
+
+      <EarningsCard tone="app" className="mb-4" />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_250px]">
         <Card className="p-4 md:p-5">

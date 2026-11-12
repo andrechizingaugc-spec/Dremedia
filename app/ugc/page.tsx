@@ -9,6 +9,7 @@ import { FormatCard } from "@/components/ugc/campaign";
 import { LiveSearch, Seg, VideoGrid, fmt } from "@/components/ugc/ui";
 import { anyFormat as formatById, campaignByKey } from "@/lib/campaigns";
 import { useCampaign } from "@/components/ugc/site";
+import { EarningsCard } from "@/components/ugc/earnings";
 import { ALL_VIDEOS, SNAPSHOT_DATE, clipOf, periodStats, perDay, postedWithin, type UgcVideo } from "@/lib/ugc";
 
 const TABS = [
@@ -174,6 +175,8 @@ export default function DiscoverPage() {
   return (
     <div>
       <Hero />
+
+      <EarningsCard className="mb-8" />
 
       <div className="mb-8">
         <div className="mb-2 text-[12px] text-dm-muted">Formats, ranked by the views of the videos that use them. Tap one to see them.</div>
