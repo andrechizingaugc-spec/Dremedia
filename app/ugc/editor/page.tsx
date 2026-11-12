@@ -14,7 +14,11 @@ import { PageHead } from "@/components/ugc/site";
 import { CopyBtn, Panel, Seg } from "@/components/ugc/ui";
 import { agentById, agentSite } from "@/lib/agents";
 import { useEarnings } from "@/components/ugc/earnings";
-import { FPS, MIN_CLIP, SHAPES, SIZES, SPEEDS, TEXT_SIZE, TEXT_Y, applyPlan, clamp, clock, describeProject, drawFrame, newLayer, newProject, outLength, problems, round2, type Project, type TextLayer } from "@/lib/editor";
+import { useCampaign } from "@/components/ugc/site";
+import { VideoPlayer } from "@/components/video";
+import { campaignByKey } from "@/lib/campaigns";
+import { ALL_VIDEOS, anyVideoById, clipOf, toCampaign } from "@/lib/ugc";
+import { FPS, MIN_CLIP, SHAPES, SIZES, SPEEDS, TEXT_SIZE, TEXT_Y, applyPlan, applyReference, runPrompt, clamp, clock, describeProject, drawFrame, newLayer, newProject, outLength, problems, round2, type Project, type Reference, type TextLayer } from "@/lib/editor";
 
 // MP4 first: every app takes it. WebM only if this browser can't write MP4.
 // A plain "video/mp4" is only trusted where WebM doesn't exist (Safari), because elsewhere it can mean an MP4 with
@@ -109,6 +113,18 @@ export default function EditorPage() {
   const [results, setResults] = useState<Result[]>([]);
   const [type, setType] = useState("");
   const [earnings] = useEarnings();
+  const { campaign } = useCampaign();
+  const [refId, setRefId] = useState("");
+  const [refQ, setRefQ] = useState("");
+  const [refMsg, setRefMsg] = useState<string[] | null>(null);
+  const [promptText, setPromptText] = useState("");
+  const [promptMsg, setPromptMsg] = useState<{ did: string[]; missed: string[] } | null>(null);
+
+  // a video page can send its video here as the reference: /ugc/editor/?ref=<id>
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("ref");
+    if (id && anyVideoById(id)) setRefId(id);
+  }, []);
 
   // the drawing loop and the recorder read these, so they always see the newest edit
   const pRef = useRef(p);
@@ -399,6 +415,41 @@ export default function EditorPage() {
     return `${agentById("editor").prompt(ctx)}\n\nThe clip and its edit right now:\n${describeProject(p, duration, src?.name ?? "")}\n\nWhat happens in the clip, second by second: [write it here, or paste the transcript with times]\nWhat I want: [for example: cut the dead air, hook on screen for 3 seconds, 3 hook versions]`;
   }, [p, duration, src, earnings.monthly, earnings.goal]);
 
+  // ---- copying a reference video, and plain-words instructions
+
+  const refVideo = refId ? anyVideoById(refId) : undefined;
+  const reference: Reference | undefined = useMemo(() => {
+    if (!refVideo) return undefined;
+    const camp = campaignByKey(refVideo.campaign);
+    return { hook: toCampaign(refVideo.hook, refVideo.brand, refVideo.campaign), seconds: refVideo.dur || 0, cta: camp.cta };
+  }, [refVideo]);
+  const refMatches = useMemo(() => {
+    const raw = refQ.trim();
+    if (!raw) return [];
+    // a pasted link finds its video: a page on this site, a TikTok or an Instagram link
+    const linked = raw.match(/(?:video\/|ref=)((?:tt|ig)-[\w-]+)/)?.[1] ?? (raw.match(/tiktok\.com\/.*?video\/(\d+)/) ? "tt-" + raw.match(/video\/(\d+)/)![1] : raw.match(/instagram\.com\/(?:reels?|p)\/([\w-]+)/) ? "ig-" + raw.match(/instagram\.com\/(?:reels?|p)\/([\w-]+)/)![1] : "");
+    if (linked) return ALL_VIDEOS.filter((v) => v.id === linked);
+    const words = raw.toLowerCase().split(/\s+/);
+    return ALL_VIDEOS.filter((v) => (campaign === "all" || v.campaign === campaign) && words.every((w) => `${v.hook} ${v.creator} ${v.brand} ${v.format}`.toLowerCase().includes(w)))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 6);
+  }, [refQ, campaign]);
+  const copyReference = () => {
+    if (!reference || !duration) return;
+    const r = applyReference(p, duration, reference);
+    setP(r.project);
+    seek(r.project.start);
+    setRefMsg([`Copied onto your clip: the hook “${reference.hook}” for the first 3 seconds${reference.cta ? ", the call to action at the end" : ""}. Play it to check.`, ...r.notes]);
+  };
+  const doPrompt = () => {
+    const cta = reference?.cta ?? (campaign === "all" ? "" : campaignByKey(campaign).cta);
+    const r = runPrompt(promptText, p, { duration, now, cta, reference });
+    setP(r.project);
+    if (r.hooks) setHooksText(r.hooks.join("\n"));
+    if (r.project.start !== p.start) seek(r.project.start);
+    setPromptMsg({ did: r.did, missed: r.missed });
+  };
+
   const pctOf = (t: number) => (duration ? (t / duration) * 100 : 0);
 
   return (
@@ -406,7 +457,7 @@ export default function EditorPage() {
       <PageHead
         eyebrow="Tools"
         title="Video editor"
-        sub="Trim, crop to 9:16, put the hook on screen and save one video per hook. It runs on your device: your video isn't uploaded anywhere and the original file is never changed."
+        sub="Copy a reference video or type what you want in plain words. Trim, crop to 9:16, put the hook on screen and save one video per hook. It runs on your device: your video isn't uploaded anywhere and the original file is never changed."
       />
 
       {!type && typeof window !== "undefined" && (
@@ -494,6 +545,10 @@ export default function EditorPage() {
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[12px] text-dm-muted">
                 <span className="truncate">{src.name}</span>
+                <label className="flex items-center gap-1.5">
+                  go to
+                  <input type="number" aria-label="Go to second" className="w-16 rounded-lg border border-dm-line bg-dm-surface px-2 py-1 tabular-nums text-dm-ink" min={0} max={round2(duration)} step={0.1} value={round2(now)} disabled={busy} onChange={(e) => e.target.value !== "" && seek(Number(e.target.value))} />s
+                </label>
                 <span className="flex items-center gap-3">
                   {p.shape === "9:16" && (
                     <label className="flex items-center gap-1.5">
@@ -510,9 +565,99 @@ export default function EditorPage() {
         </div>
 
         {/* ---------------------------------------------------- controls */}
+        <div className="min-w-0 space-y-4">
+          <Panel className="p-4">
+            <H n={1}>Copy a reference video</H>
+            <p className="mb-2 text-[13px] text-dm-muted">Pick the viral video you&apos;re copying. The editor puts its hook (with the app swapped for yours), its length and your call to action onto your clip.</p>
+            <input className="dm-field" aria-label="Find a reference video" placeholder="Search a hook, creator or app, or paste the video's link" value={refQ} onChange={(e) => setRefQ(e.target.value)} />
+            {refQ.trim() && (
+              <div className="mt-2 space-y-1" data-testid="ref-matches">
+                {refMatches.length === 0 && <p className="text-[13px] text-dm-muted">No video in the library matches. Try fewer words, or open it from Discover and use “Cut mine like this”.</p>}
+                {refMatches.map((v) => (
+                  <button key={v.id} className="flex w-full items-center justify-between gap-3 rounded-xl border border-dm-line px-3 py-2 text-left text-[13px] hover:bg-dm-surface2" onClick={() => (setRefId(v.id), setRefQ(""), setRefMsg(null))}>
+                    <span className="min-w-0 truncate">
+                      <b className="font-medium">{v.hook}</b> <span className="text-dm-muted">@{v.creator}</span>
+                    </span>
+                    <span className="shrink-0 tabular-nums text-dm-muted">{v.views >= 1e6 ? (v.views / 1e6).toFixed(1) + "M" : Math.round(v.views / 1e3) + "K"}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {refVideo && reference && (
+              <div className="mt-3 grid gap-3 sm:grid-cols-[130px_1fr]" data-testid="reference">
+                <VideoPlayer clip={clipOf(refVideo)} title={refVideo.hook} creator={refVideo.creator} showOpen={false} />
+                <div className="min-w-0 text-[13px]">
+                  <div className="text-dm-muted">
+                    @{refVideo.creator} · {refVideo.brand} · {refVideo.dur ? refVideo.dur + "s" : "length unknown"} · for {campaignByKey(refVideo.campaign).name}
+                  </div>
+                  <div className="mt-1 font-medium">Hook for your version: “{reference.hook}”</div>
+                  {refVideo.detail?.scenes?.length ? (
+                    <ol className="mt-2 list-decimal space-y-0.5 pl-4 text-dm-muted">
+                      {refVideo.detail.scenes.map((sc, i) => (
+                        <li key={i}>{toCampaign(sc, refVideo.brand, refVideo.campaign)}</li>
+                      ))}
+                    </ol>
+                  ) : null}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button className="dm-btn-primary h-9 px-3.5 text-[13px]" disabled={!src || !duration || busy} onClick={copyReference} data-testid="copy-ref">
+                      Copy it onto my clip
+                    </button>
+                    <Link href={`/ugc/video/${refVideo.id}`} className="text-[12px] text-dm-muted underline">
+                      Its full breakdown
+                    </Link>
+                    <button className="text-[12px] text-dm-muted underline" onClick={() => (setRefId(""), setRefMsg(null))}>
+                      Remove
+                    </button>
+                  </div>
+                  {!src && <p className="mt-1.5 text-[12px] text-dm-muted">Choose your clip first.</p>}
+                </div>
+              </div>
+            )}
+            {refMsg && (
+              <ul className="mt-2 space-y-1 text-[13px]" data-testid="ref-msg">
+                {refMsg.map((l, i) => (
+                  <li key={i} className={cx(i > 0 && "text-dm-warn")}>
+                    {l}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-2 text-[12px] text-dm-muted">It copies what the library knows about the video (hook, length, structure). It can&apos;t see inside the video itself, so match the shots by eye with the steps above.</p>
+          </Panel>
+
         <fieldset disabled={!src || !duration || busy} className={cx("min-w-0 space-y-4", (!src || !duration) && "opacity-50")}>
           <Panel className="p-4">
-            <H n={1} right={<span className="text-[12px] tabular-nums text-dm-muted">saves as {clock(outLength(p))}</span>}>
+            <H n={2}>Tell the editor what to do</H>
+            <textarea
+              className="dm-field min-h-[84px]"
+              aria-label="Instructions for the editor"
+              placeholder={"one step per line, e.g.\ncut the first 2 seconds\nhook: nobody told me this about ai\ntext \"comment link\" at 12 for 3 bottom\nversions: i made $523 in a day | delete this before it's gone"}
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
+            />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button className="dm-btn-primary h-9 px-3.5 text-[13px]" disabled={!promptText.trim()} onClick={doPrompt} data-testid="do-prompt">
+                Do it
+              </button>
+              <span className="text-[12px] text-dm-muted">Knows: trim, cut first/last, make it N seconds, hook, text, cta, versions, mute, volume, speed, shape, fit, zoom, copy the reference, reset.</span>
+            </div>
+            {promptMsg && (
+              <ul className="mt-2 space-y-1 text-[13px]" data-testid="prompt-msg">
+                {promptMsg.did.map((l, i) => (
+                  <li key={"d" + i} className="flex items-start gap-1.5">
+                    <Check size={14} className="mt-0.5 shrink-0 text-dm-good" /> {l}
+                  </li>
+                ))}
+                {promptMsg.missed.map((l, i) => (
+                  <li key={"m" + i} className="flex items-start gap-1.5 text-dm-bad">
+                    <X size={14} className="mt-0.5 shrink-0" /> {l}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+          <Panel className="p-4">
+            <H n={3} right={<span className="text-[12px] tabular-nums text-dm-muted">saves as {clock(outLength(p))}</span>}>
               Trim
             </H>
             <div className="grid grid-cols-2 gap-3">
@@ -532,7 +677,7 @@ export default function EditorPage() {
           </Panel>
 
           <Panel className="p-4">
-            <H n={2}>Frame</H>
+            <H n={4}>Frame</H>
             <div className="flex flex-wrap gap-2">
               <select aria-label="Shape" className="dm-field w-auto" value={p.shape} onChange={(e) => set({ shape: e.target.value as Project["shape"] })}>
                 {SHAPES.map((s) => (
@@ -569,7 +714,7 @@ export default function EditorPage() {
 
           <Panel className="p-4">
             <H
-              n={3}
+              n={5}
               right={
                 <button
                   className="dm-btn-ghost h-9 px-3.5 text-[13px]"
@@ -646,7 +791,7 @@ export default function EditorPage() {
           </Panel>
 
           <Panel className="p-4">
-            <H n={4}>Sound and speed</H>
+            <H n={6}>Sound and speed</H>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
                 <span className="dm-label">Volume: {p.volume === 0 ? "muted" : Math.round(p.volume * 100) + "%"}</span>
@@ -668,16 +813,16 @@ export default function EditorPage() {
           </Panel>
 
           <Panel className="p-4">
-            <H n={5} right={<span className="text-[12px] text-dm-muted">{versions} video{versions === 1 ? "" : "s"} will be saved</span>}>
+            <H n={7} right={<span className="text-[12px] text-dm-muted">{versions} video{versions === 1 ? "" : "s"} will be saved</span>}>
               Hook versions
             </H>
             <p className="mb-2 text-[13px] text-dm-muted">One clip, several posts. Each line here saves one more video with that line in place of the hook. Everything else stays the same.</p>
             <textarea className="dm-field min-h-[84px]" aria-label="More hooks, one per line" placeholder={"one hook per line, e.g.\nnobody told me this about ai\ni made $523 in a day with this"} value={hooksText} onChange={(e) => setHooksText(e.target.value)} />
-            {hooks.length > 0 && !p.texts.length && <p className="mt-1.5 text-[12px] text-dm-warn">Add a hook text first (step 3). The versions swap its words.</p>}
+            {hooks.length > 0 && !p.texts.length && <p className="mt-1.5 text-[12px] text-dm-warn">Add a hook text first (step 5). The versions swap its words.</p>}
           </Panel>
 
           <Panel className="p-4">
-            <H n={6} right={<CopyBtn text={forClaude} label="Copy for Claude" />}>
+            <H n={8} right={<CopyBtn text={forClaude} label="Copy for Claude" />}>
               Edit plan from Claude
             </H>
             <p className="mb-2 text-[13px] text-dm-muted">
@@ -707,6 +852,7 @@ export default function EditorPage() {
             )}
           </Panel>
         </fieldset>
+        </div>
       </div>
 
       {/* ---------------------------------------------------- checks and save */}

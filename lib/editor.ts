@@ -293,3 +293,204 @@ export function describeProject(p: Project, duration: number, name: string) {
     2,
   );
 }
+
+// ---------------------------------------------------------------- copying a reference video
+
+export type Reference = { hook: string; seconds: number; cta: string };
+
+/**
+ * Lay a reference video's edit over the clip: its hook on screen for the first
+ * 3 seconds, its length, and the campaign's call to action at the end.
+ */
+export function applyReference(p: Project, duration: number, ref: Reference): { project: Project; notes: string[] } {
+  const notes: string[] = [];
+  const q: Project = { ...p, texts: [] };
+  const have = q.end - q.start;
+  if (ref.seconds > 0 && have > ref.seconds + 0.5) {
+    q.end = round2(q.start + ref.seconds);
+    notes.push(`Cut to ${ref.seconds}s, the reference's length, starting at ${clock(q.start)}. If your best part is later, move the start.`);
+  } else if (ref.seconds > 0 && have < ref.seconds - 2) {
+    notes.push(`Your clip is ${have.toFixed(1)}s and the reference is ${ref.seconds}s. Nothing was stretched; film a longer take if you need its full length.`);
+  }
+  const len = q.end - q.start;
+  const hookFor = Math.min(3, len);
+  q.texts.push({ id: layerId(), text: ref.hook, from: q.start, to: round2(q.start + hookFor), y: TEXT_Y.top, size: ref.hook.length > 60 ? TEXT_SIZE.small : TEXT_SIZE.medium, style: "outline" });
+  const ctaFor = Math.min(3, len - hookFor);
+  if (ref.cta && ctaFor >= 1) q.texts.push({ id: layerId(), text: ref.cta, from: round2(q.end - ctaFor), to: q.end, y: TEXT_Y.bottom, size: TEXT_SIZE.medium, style: "outline" });
+  if (p.texts.length) notes.push("The text you had was replaced by the reference's hook and call to action.");
+  return { project: q, notes };
+}
+
+// ---------------------------------------------------------------- plain-words instructions
+
+export type PromptResult = { project: Project; hooks: string[] | null; did: string[]; missed: string[] };
+export type PromptCtx = { duration: number; now: number; cta: string; reference?: Reference };
+
+const TIME = "(\\d+:\\d{1,2}(?:\\.\\d+)?|\\d+(?:\\.\\d+)?)\\s*(?:seconds?|secs?|s\\b)?";
+const toSec = (s: string) => {
+  const m = s.match(/^(\d+):(\d{1,2}(?:\.\d+)?)$/);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : Number(s);
+};
+const re = (src: string) => new RegExp(src.replace(/T/g, TIME), "i");
+
+/**
+ * Carry out instructions typed in plain words, one step per line or sentence:
+ * "cut the first 2 seconds", "hook: nobody told me this", "text "comment link"
+ * at 12 for 3 bottom box", "mute", "1.25x", "square", "versions: a | b".
+ * Every step is reported; anything it can't read is listed and changes nothing.
+ */
+export function runPrompt(input: string, start: Project, ctx: PromptCtx): PromptResult {
+  // keep quoted words whole while splitting into steps
+  const quotes: string[] = [];
+  const held = input.replace(/"([^"]*)"|“([^”]*)”/g, (_, a, b) => `\u0001${quotes.push(a ?? b) - 1}\u0001`);
+  // words that were only quotes lose them; quotes inside a longer line stay
+  const back = (s: string) => {
+    const t = s.trim();
+    const whole = t.match(/^\u0001(\d+)\u0001$/);
+    return whole ? quotes[Number(whole[1])].trim() : t.replace(/\u0001(\d+)\u0001/g, (_, i) => `"${quotes[Number(i)]}"`).trim();
+  };
+  const steps: string[] = [];
+  for (const line of held.split(/\n|;|\bthen\b|\.\s+(?=[a-z])/i)) {
+    const l = line.trim().replace(/^[-•*\d.)\s]+(?=[a-z\u0001])/i, "").replace(/\.$/, "");
+    if (!l) continue;
+    // a line that carries words to show keeps its commas
+    if (/^(the\s+)?(hooks?|versions?|hook versions|more hooks|text|caption|cta|call to action)\b/i.test(l) || /^(add|put)\b/i.test(l)) steps.push(l);
+    else steps.push(...l.split(/,|\band\b/i).map((x) => x.trim()).filter(Boolean));
+  }
+
+  let p: Project = { ...start, texts: start.texts.map((t) => ({ ...t })) };
+  let hooks: string[] | null = null;
+  const did: string[] = [];
+  const missed: string[] = [];
+  const D = ctx.duration;
+
+  for (const raw of steps) {
+    const o = back(raw);
+    const s = raw.toLowerCase();
+    const before = p;
+    let m: RegExpMatchArray | null;
+    const setTrim = (a: number, b: number, what: string) => {
+      const st = round2(clamp(a, 0, D));
+      const en = round2(clamp(b, 0, D));
+      if (en - st < MIN_CLIP) return missed.push(`"${o}": that would keep under ${MIN_CLIP} second (${st}s to ${en}s). Not done.`);
+      p = { ...p, start: st, end: en };
+      did.push(`${what}: now ${clock(st)} to ${clock(en)}.`);
+    };
+
+    if (/^(reset|start over|undo everything)/.test(s)) {
+      p = newProject(D);
+      hooks = [];
+      did.push("Started the edit over.");
+    } else if (/\b(copy|like|match|same as)\b.*\b(reference|ref)\b/.test(s)) {
+      if (!ctx.reference) missed.push(`"${o}": pick a reference video first (step 1).`);
+      else {
+        const r = applyReference(p, D, ctx.reference);
+        p = r.project;
+        did.push("Copied the reference: its hook, length and call to action.", ...r.notes);
+      }
+    } else if (/\b(remove|clear|delete|no)\b\s+(all\s+)?(the\s+)?(texts?|captions?)\b/.test(s)) {
+      p = { ...p, texts: [] };
+      did.push("Removed all text.");
+    } else if ((m = raw.match(/^(?:hooks|versions?|hook versions|more hooks)\s*[:=]\s*(.+)$/i))) {
+      hooks = back(m[1])
+        .split(/\s*\|\s*|\s+\/\s+/)
+        .map((h) => h.trim())
+        .filter(Boolean);
+      did.push(`${hooks.length} more hook version${hooks.length === 1 ? "" : "s"}: one extra video each.`);
+    } else if ((m = raw.match(/^(?:the\s+)?hook(?:\s+text)?\s*(?:[:=]|\bis\b|\bsays\b)?\s*(.+)$/i)) && back(m[1])) {
+      const text = back(m[1]);
+      if (p.texts.length) p = { ...p, texts: p.texts.map((t, i) => (i === 0 ? { ...t, text } : t)) };
+      else p = { ...p, texts: [{ id: layerId(), text, from: p.start, to: round2(Math.min(p.end, p.start + 3)), y: TEXT_Y.top, size: TEXT_SIZE.medium, style: "outline" }] };
+      did.push(`Hook on screen: "${text}".`);
+    } else if (/^(?:add\s+|put\s+)?(?:the\s+|a\s+)?(cta|call to action)\b/.test(s)) {
+      const own = back(raw.replace(/^.*?(cta|call to action)\s*[:=]?\s*/i, ""));
+      const text = own || ctx.cta;
+      if (!text) missed.push(`"${o}": pick a campaign (top of the page) or write the words after "cta:".`);
+      else if (p.texts.some((t) => t.text === text)) did.push("The call to action is already on screen. Left as it is.");
+      else {
+        const len = Math.min(3, (p.end - p.start) / 2);
+        p = { ...p, texts: [...p.texts, { id: layerId(), text, from: round2(p.end - len), to: p.end, y: TEXT_Y.bottom, size: TEXT_SIZE.medium, style: "outline" }] };
+        did.push(`Call to action for the last ${len.toFixed(1)}s: "${text}".`);
+      }
+    } else if ((m = raw.match(/^(?:add\s+|put\s+)?(?:a\s+|the\s+)?(?:text|caption|line)\s*[:=]?\s*(.+)$/i))) {
+      // the words are the quoted part, or everything before "at / from / for"
+      const body = m[1];
+      const quoted = body.match(/\u0001(\d+)\u0001/);
+      const text = quoted ? quotes[Number(quoted[1])] : back(body.split(/\s+(?=(?:at|from|for)\s+\d)/i)[0]);
+      const rest = (quoted ? body.replace(quoted[0], "") : body.slice(body.split(/\s+(?=(?:at|from|for)\s+\d)/i)[0].length)).toLowerCase();
+      const at = rest.match(re("(?:at|from)\\s+T"));
+      const to = rest.match(re("(?:to|until|-)\\s*T"));
+      const dur = rest.match(re("for\\s+T"));
+      const from = round2(clamp(at ? toSec(at[1]) : ctx.now, p.start, Math.max(p.start, p.end - 0.5)));
+      const until = round2(clamp(to ? toSec(to[1]) : from + (dur ? toSec(dur[1]) : 3), from + 0.5, p.end));
+      if (!text) missed.push(`"${o}": I couldn't find the words to show. Put them in "quotes".`);
+      else {
+        const y = /\btop\b/.test(rest) ? TEXT_Y.top : /\b(middle|center|centre)\b/.test(rest) ? TEXT_Y.middle : /\bbottom\b/.test(rest) ? TEXT_Y.bottom : p.texts.length ? TEXT_Y.bottom : TEXT_Y.top;
+        const size = /\b(small|smaller)\b/.test(rest) ? TEXT_SIZE.small : /\b(large|big|bigger)\b/.test(rest) ? TEXT_SIZE.large : TEXT_SIZE.medium;
+        p = { ...p, texts: [...p.texts, { id: layerId(), text, from, to: until, y, size, style: /\bbox\b/.test(rest) ? "box" : "outline" }] };
+        did.push(`Text "${text}" from ${clock(from)} to ${clock(until)}.`);
+      }
+    } else if ((m = s.match(re("(?:trim|cut|keep|clip|use)\\D*?T\\s*(?:to|-|–|until)\\s*T")))) setTrim(toSec(m[1]), toSec(m[2]), "Trimmed");
+    else if ((m = s.match(re("(?:cut|remove|trim|drop|skip|lose)\\s+(?:off\\s+)?the\\s+first\\s+T")))) setTrim(p.start + toSec(m[1]), p.end, `Cut the first ${m[1]}s`);
+    else if ((m = s.match(re("(?:cut|remove|trim|drop|skip|lose)\\s+(?:off\\s+)?the\\s+last\\s+T")))) setTrim(p.start, p.end - toSec(m[1]), `Cut the last ${m[1]}s`);
+    else if ((m = s.match(re("(?:keep|use)\\s+(?:only\\s+)?the\\s+first\\s+T")))) setTrim(p.start, p.start + toSec(m[1]), `Kept the first ${m[1]}s`);
+    else if ((m = s.match(re("(?:keep|use)\\s+(?:only\\s+)?the\\s+last\\s+T")))) setTrim(p.end - toSec(m[1]), p.end, `Kept the last ${m[1]}s`);
+    else if ((m = s.match(re("starts?\\s+(?:at|from)\\s+T")))) setTrim(toSec(m[1]), p.end, "Moved the start");
+    else if ((m = s.match(re("(?:ends?|stops?)\\s+(?:at|on)\\s+T")))) setTrim(p.start, toSec(m[1]), "Moved the end");
+    else if ((m = s.match(re("(?:make it|shorten(?: it)? to|cut(?: it)? (?:down )?to|length|max(?:imum)?)\\s*(?:of\\s*)?T")))) setTrim(p.start, p.start + toSec(m[1]) * p.speed, `Made it ${m[1]}s long`);
+    else if (/\b(unmute|sound on|audio on)\b/.test(s)) {
+      p = { ...p, volume: 1 };
+      did.push("Sound on, full volume.");
+    } else if (/\b(mute|no sound|no audio|silent|sound off)\b/.test(s)) {
+      p = { ...p, volume: 0 };
+      did.push("Muted.");
+    } else if ((m = s.match(/volume\D*(\d+(?:\.\d+)?)/))) {
+      const v = clamp(Number(m[1]) > 1 ? Number(m[1]) / 100 : Number(m[1]), 0, 1);
+      p = { ...p, volume: v };
+      did.push(`Volume ${Math.round(v * 100)}%.`);
+    } else if (/\bnormal speed\b/.test(s)) {
+      p = { ...p, speed: 1 };
+      did.push("Normal speed.");
+    } else if ((m = s.match(/(\d+(?:\.\d+)?)\s*x\b/)) || (m = s.match(/speed\D*(\d+(?:\.\d+)?)/))) {
+      const v = clamp(Number(m[1]), 0.5, 2);
+      p = { ...p, speed: v };
+      did.push(`Speed ${v}x${v !== Number(m[1]) ? ` (${m[1]}x isn't possible)` : ""}.`);
+    } else if (/\b(faster|speed (it )?up)\b/.test(s)) {
+      p = { ...p, speed: 1.25 };
+      did.push("Speed 1.25x.");
+    } else if (/\b(slower|slow (it )?down)\b/.test(s)) {
+      p = { ...p, speed: 0.75 };
+      did.push("Speed 0.75x.");
+    } else if ((m = s.match(/9:16|vertical|tiktok|reels?|portrait|1:1|square|4:5|16:9|wide|landscape|youtube/))) {
+      const k = m[0];
+      const shape: Shape = /1:1|square/.test(k) ? "1:1" : k === "4:5" ? "4:5" : /16:9|wide|landscape|youtube/.test(k) ? "16:9" : "9:16";
+      p = { ...p, shape };
+      did.push(`Shape ${shape}.`);
+    } else if (/\b(show all|show the whole|fit|no crop|don'?t crop)\b/.test(s)) {
+      p = { ...p, fit: "fit" };
+      did.push("Showing the whole video (no crop).");
+    } else if (/\b(fill|crop)\b/.test(s)) {
+      p = { ...p, fit: "fill" };
+      did.push("Cropped to fill the frame.");
+    } else if ((m = s.match(/zoom\D*(\d+(?:\.\d+)?)/))) {
+      const z = clamp(Number(m[1]) > 3 ? Number(m[1]) / 100 : Number(m[1]), 1, 2.5);
+      p = { ...p, zoom: z };
+      did.push(`Zoom ${z}.`);
+    } else if (/\bzoom in\b/.test(s)) {
+      p = { ...p, zoom: round2(clamp(p.zoom + 0.2, 1, 2.5)) };
+      did.push(`Zoomed in to ${p.zoom}.`);
+    } else if (/\bzoom out\b/.test(s)) {
+      p = { ...p, zoom: 1 };
+      did.push("Zoomed back out.");
+    } else missed.push(`"${o}": I don't know how to do this. Nothing was changed for it.`);
+
+    // text can't sit outside the kept part after a trim
+    if (p !== before && (p.start !== before.start || p.end !== before.end)) {
+      const kept = p.texts.filter((t) => t.to > p.start && t.from < p.end);
+      if (kept.length !== p.texts.length) did.push(`Removed ${p.texts.length - kept.length} text${p.texts.length - kept.length === 1 ? "" : "s"} that fell outside the trim.`);
+      p = { ...p, texts: kept.map((t) => ({ ...t, from: Math.max(t.from, p.start), to: Math.min(t.to, p.end) })) };
+    }
+  }
+  if (!steps.length) missed.push("Type what you want, one step per line.");
+  return { project: p, hooks, did, missed };
+}
