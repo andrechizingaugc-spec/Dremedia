@@ -174,8 +174,11 @@ export function VideoDetail({ id }: { id: string }) {
               </Step>
               <Step n={4} title={`Post it on TikTok and Instagram (${camp.posting})`}>
                 <div className="mt-1.5 rounded-xl bg-dm-surface2 px-3.5 py-2.5 text-[13px] leading-relaxed">{caption}</div>
-                <div className="mt-2">
+                <div className="mt-2 flex flex-wrap gap-2">
                   <CopyBtn text={caption} label="Copy caption" />
+                  <Link href={`/ugc/editor?ref=${v.id}`} className="dm-btn-ghost h-9 px-3.5 text-[13px]">
+                    Cut mine like this in the editor
+                  </Link>
                 </div>
               </Step>
               <Step n={5} title={camp.bounty ? "Submit it on Bounty and track it" : "Log it and make more"}>
