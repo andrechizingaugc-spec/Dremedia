@@ -5,7 +5,7 @@
 import { LIBRARY } from "./dare";
 import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
-export const SNAPSHOT_DATE = "2026-11-10";
+export const SNAPSHOT_DATE = "2026-11-12";
 
 /** "1.6M" -> 1600000 */
 export function n(s: string | number): number {
@@ -245,6 +245,10 @@ const CLUELY_ROWS: Row[] = [
   ["ig-Deym9ZBuwm_", "Parakeet AI", "carlycareers", "482K", "149", 0, "2026-10-22", "Secret AI helper", "productivity", "No, I'm using my interview tool", 15, "cl-interview"],
   ["tt-7698017009648405781", "LockedIn AI", "careerwithfiza", "451K", "2.6K", 0.6, "2026-10-18", "Secret AI helper", "productivity", "The craziest AI interview hack", 29, "cl-interview"],
   ["tt-7695113059093777685", "LockedIn AI", "lockin.with.khayam", "370K", "6K", 1.8, "2026-10-10", "Secret AI helper", "productivity", "Bro got bossed by an AI", 19, "cl-interview"],
+  ["ig-DfhDUwvteeZ", "Parakeet AI", "arjun_interview.prep", "110K", "1.1K", 1, "2026-11-09", "Secret AI helper", "productivity", "Unemployed era might be ending", 28, "cl-interview"],
+  ["ig-DfaKrEbt7fI", "Parakeet AI", "arjun_interview.prep", "76K", "313", 0.4, "2026-11-06", "Secret AI helper", "productivity", "This generation forgot how to work", 28, "cl-interview"],
+  ["ig-DfhMMmLuCk7", "Parakeet AI", "careerwith_manjeeta2", "58K", "3", 0, "2026-11-09", "Secret AI helper", "productivity", "Developer life in 2026", 25, "cl-interview"],
+  ["ig-Dff7XBtgYfk", "Parakeet AI", "nat.hiringhacks", "51K", "287", 0.6, "2026-11-08", "Secret AI helper", "productivity", "AI is in charge, that simple", 29, "cl-interview"],
 ];
 
 // ---- Polifly: Maxwell Benson (@maxwellwinss), then the same prediction-market formats from Kalshi
@@ -262,6 +266,9 @@ const POLIFLY_ROWS: Row[] = [
   ["tt-7689990366874914079", "Kalshi", "amir8nouri", "20M", "76K", 0.4, "2026-09-26", "Reacts to the app", "finance", "0 chance Drake Maye goes from MVP candidate to bumming out", 35, "pf-pick"],
   ["tt-7695838401303465229", "Kalshi", "outjuggin0078", "862K", "106K", 14.3, "2026-10-12", "Storytime & rant", "finance", "Kalshi is your ticket out", 24, "pf-math"],
   ["tt-7656317501197815054", "Kalshi", "beckett2jiggy", "105K", "14K", 15.2, "2026-06-28", "Text + daily moment", "finance", "Yeah y'all got it", 8, "pf-pick"],
+  ["tt-7705536543435410718", "Kalshi", "takeapoint", "76K", "3.7K", 5.2, "2026-11-07", "Interview & podcast", "finance", "Johnny Walker KO'd Waldo (UFC Fight Night odds)", 25, "pf-breakdown"],
+  ["tt-7702949002983116062", "Kalshi", "takeapoint", "76K", "4K", 5.7, "2026-10-31", "Interview & podcast", "finance", "Is 40 crazy? (UFC lightweight odds)", 87, "pf-breakdown"],
+  ["tt-7705175115566239007", "Kalshi", "takeapoint", "51K", "2.5K", 5.3, "2026-11-06", "Interview & podcast", "finance", "Do you hate this list? (UFC Fight Night odds)", 72, "pf-breakdown"],
 ];
 
 // full breakdowns from DarkUGC's video analysis
