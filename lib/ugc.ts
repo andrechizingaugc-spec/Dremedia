@@ -5,7 +5,7 @@
 import { LIBRARY } from "./dare";
 import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
-export const SNAPSHOT_DATE = "2026-11-16";
+export const SNAPSHOT_DATE = "2026-11-17";
 
 /** "1.6M" -> 1600000 */
 export function n(s: string | number): number {
@@ -169,6 +169,7 @@ const ROWS: Row[] = [
   ["ig-Dcoeq9vBt2q", "Viblo", "ethanhustlez", "198K", "0", 1.8, "2026-08-29", "Explainer + screen", "creative-tools", "In real life, if you lock in on the content: GTA 6", 0, F.gta],
   ["ig-Db9i1wtsGfG", "Polsia", "braison_polsia", "1.7M", "57K", 3.4, "2026-08-13", "Reacts to the app", "business", "New method just leaked", 0, F.reaction],
   ["ig-DfDE4NsDxKZ", "Polsia", "braison_polsia", "65K", "988", 1.5, "2026-10-28", "Tips & lessons", "business", "Watching AI models from the future do my work for me", 47, F.astra],
+  ["ig-DfqDsOWvHiC", "Gamma", "presentedbyriley", "53K", "313", 0.6, "2026-11-12", "Text + daily moment", "creative-tools", "Me staring at the Gen Z coworker who turns every meeting recap into a Gamma deck and runs a side hustle after work", 6, F.reaction],
   // ---- AI money methods with code and automations
   ["ig-DaRM2_7CiNa", "Composio", "mubs.io", "6.8M", "277K", 4.1, "2026-07-01", "Explainer + screen", "developer-tools", "Is it possible to become a millionaire by begging millionaires for $1?", 0, F.thousand],
   ["tt-7681110285658213652", "Composio", "alessio.hackss", "4.4M", "218K", 5, "2026-09-03", "Storytime & rant", "developer-tools", "I emailed over 5 million people and asked them each for $1", 0, F.thousand],
