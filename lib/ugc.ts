@@ -5,7 +5,7 @@
 import { LIBRARY } from "./dare";
 import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
-export const SNAPSHOT_DATE = "2026-11-17";
+export const SNAPSHOT_DATE = "2026-11-19";
 
 /** "1.6M" -> 1600000 */
 export function n(s: string | number): number {
@@ -243,11 +243,13 @@ const CLUELY_ROWS: Row[] = [
   ["ig-DfP1h4By84A", "Parakeet AI", "arjun_interview.prep", "1.5M", "13K", 0.9, "2026-11-02", "Secret AI helper", "productivity", "Bro went from unemployed to employed", 28, "cl-interview"],
   ["tt-7700229368190078216", "LockedIn AI", "lockin_with_jonna", "1.1M", "35K", 3.7, "2026-10-24", "Secret AI helper", "productivity", "They know I'm faking it so bad", 33, "cl-interview"],
   ["ig-DeEWzzOu5pi", "Parakeet AI", "carlycareers", "594K", "157", 0, "2026-10-04", "Secret AI helper", "productivity", "No, just using my job tool", 0, "cl-interview"],
+  ["ig-Df2zgZ7yaOU", "Parakeet AI", "arjun_interview.prep", "582K", "2.9K", 0.5, "2026-11-17", "Secret AI helper", "productivity", "This generation forgot how to work (repost)", 28, "cl-interview"],
   ["ig-Deym9ZBuwm_", "Parakeet AI", "carlycareers", "482K", "149", 0, "2026-10-22", "Secret AI helper", "productivity", "No, I'm using my interview tool", 15, "cl-interview"],
   ["tt-7698017009648405781", "LockedIn AI", "careerwithfiza", "451K", "2.6K", 0.6, "2026-10-18", "Secret AI helper", "productivity", "The craziest AI interview hack", 29, "cl-interview"],
   ["tt-7695113059093777685", "LockedIn AI", "lockin.with.khayam", "370K", "6K", 1.8, "2026-10-10", "Secret AI helper", "productivity", "Bro got bossed by an AI", 19, "cl-interview"],
   ["ig-DfhDUwvteeZ", "Parakeet AI", "arjun_interview.prep", "110K", "1.1K", 1, "2026-11-09", "Secret AI helper", "productivity", "Unemployed era might be ending", 28, "cl-interview"],
   ["ig-DfaKrEbt7fI", "Parakeet AI", "arjun_interview.prep", "76K", "313", 0.4, "2026-11-06", "Secret AI helper", "productivity", "This generation forgot how to work", 28, "cl-interview"],
+  ["ig-Df2x77SSSCZ", "Parakeet AI", "arjun_interview.prep", "71K", "285", 0.4, "2026-11-17", "Secret AI helper", "productivity", "This is how interviews are cracked in 2026", 30, "cl-interview"],
   ["ig-DfujL_fNDif", "Parakeet AI", "arjun_interview.prep", "63K", "441", 0.7, "2026-11-14", "Secret AI helper", "productivity", "HR won't believe this fresher", 29, "cl-interview"],
   ["ig-DfughGmNx7_", "Parakeet AI", "arjun_interview.prep", "62K", "203", 0.3, "2026-11-14", "Secret AI helper", "productivity", "HR is not ready for this generation", 23, "cl-interview"],
   ["ig-DfsA6CPti4X", "Parakeet AI", "arjun_interview.prep", "60K", "1K", 1.7, "2026-11-13", "Secret AI helper", "productivity", "HR thinks bro has 5 years of experience", 28, "cl-interview"],
