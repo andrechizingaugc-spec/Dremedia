@@ -5,7 +5,7 @@
 import { LIBRARY } from "./dare";
 import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
-export const SNAPSHOT_DATE = "2026-11-19";
+export const SNAPSHOT_DATE = "2026-11-21";
 
 /** "1.6M" -> 1600000 */
 export function n(s: string | number): number {
@@ -170,6 +170,7 @@ const ROWS: Row[] = [
   ["ig-Db9i1wtsGfG", "Polsia", "braison_polsia", "1.7M", "57K", 3.4, "2026-08-13", "Reacts to the app", "business", "New method just leaked", 0, F.reaction],
   ["ig-DfDE4NsDxKZ", "Polsia", "braison_polsia", "65K", "988", 1.5, "2026-10-28", "Tips & lessons", "business", "Watching AI models from the future do my work for me", 47, F.astra],
   ["ig-DfqDsOWvHiC", "Gamma", "presentedbyriley", "53K", "313", 0.6, "2026-11-12", "Text + daily moment", "creative-tools", "Me staring at the Gen Z coworker who turns every meeting recap into a Gamma deck and runs a side hustle after work", 6, F.reaction],
+  ["tt-7706718279586385165", "Gamma", "madspresent.s", "100K", "12K", 13.6, "2026-11-11", "Text + daily moment", "creative-tools", "How does one reach this level of aura (the Gen Z coworker with a Gamma deck for every meeting and a side hustle after work)", 6, F.reaction],
   // ---- AI money methods with code and automations
   ["ig-DaRM2_7CiNa", "Composio", "mubs.io", "6.8M", "277K", 4.1, "2026-07-01", "Explainer + screen", "developer-tools", "Is it possible to become a millionaire by begging millionaires for $1?", 0, F.thousand],
   ["tt-7681110285658213652", "Composio", "alessio.hackss", "4.4M", "218K", 5, "2026-09-03", "Storytime & rant", "developer-tools", "I emailed over 5 million people and asked them each for $1", 0, F.thousand],
@@ -249,6 +250,7 @@ const CLUELY_ROWS: Row[] = [
   ["tt-7695113059093777685", "LockedIn AI", "lockin.with.khayam", "370K", "6K", 1.8, "2026-10-10", "Secret AI helper", "productivity", "Bro got bossed by an AI", 19, "cl-interview"],
   ["ig-DfhDUwvteeZ", "Parakeet AI", "arjun_interview.prep", "110K", "1.1K", 1, "2026-11-09", "Secret AI helper", "productivity", "Unemployed era might be ending", 28, "cl-interview"],
   ["ig-DfaKrEbt7fI", "Parakeet AI", "arjun_interview.prep", "76K", "313", 0.4, "2026-11-06", "Secret AI helper", "productivity", "This generation forgot how to work", 28, "cl-interview"],
+  ["ig-Df-MWbFtoQp", "Parakeet AI", "arjun_interview.prep", "76K", "499", 0.7, "2026-11-20", "Secret AI helper", "productivity", "Hands up, hands down: the interviewer's cheating test", 28, "cl-interview"],
   ["ig-Df2x77SSSCZ", "Parakeet AI", "arjun_interview.prep", "71K", "285", 0.4, "2026-11-17", "Secret AI helper", "productivity", "This is how interviews are cracked in 2026", 30, "cl-interview"],
   ["ig-DfujL_fNDif", "Parakeet AI", "arjun_interview.prep", "63K", "441", 0.7, "2026-11-14", "Secret AI helper", "productivity", "HR won't believe this fresher", 29, "cl-interview"],
   ["ig-DfughGmNx7_", "Parakeet AI", "arjun_interview.prep", "62K", "203", 0.3, "2026-11-14", "Secret AI helper", "productivity", "HR is not ready for this generation", 23, "cl-interview"],
