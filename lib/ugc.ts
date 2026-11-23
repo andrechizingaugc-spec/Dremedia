@@ -5,7 +5,7 @@
 import { LIBRARY } from "./dare";
 import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
-export const SNAPSHOT_DATE = "2026-11-21";
+export const SNAPSHOT_DATE = "2026-11-23";
 
 /** "1.6M" -> 1600000 */
 export function n(s: string | number): number {
@@ -258,6 +258,7 @@ const CLUELY_ROWS: Row[] = [
   ["ig-DfhMMmLuCk7", "Parakeet AI", "careerwith_manjeeta2", "58K", "3", 0, "2026-11-09", "Secret AI helper", "productivity", "Developer life in 2026", 25, "cl-interview"],
   ["ig-DfxLcHDvG-n", "Parakeet AI", "arjun_interview.prep", "56K", "231", 0.4, "2026-11-15", "Secret AI helper", "productivity", "Imagine spending 4 years in college just to lose your job to AI", 28, "cl-interview"],
   ["ig-Dff7XBtgYfk", "Parakeet AI", "nat.hiringhacks", "51K", "287", 0.6, "2026-11-08", "Secret AI helper", "productivity", "AI is in charge, that simple", 29, "cl-interview"],
+  ["ig-DgC8fMwtBbU", "Parakeet AI", "arjun_interview.prep", "51K", "269", 0.5, "2026-11-22", "Secret AI helper", "productivity", "Our generation is living in 2099", 29, "cl-interview"],
 ];
 
 // ---- Polifly: Maxwell Benson (@maxwellwinss), then the same prediction-market formats from Kalshi
