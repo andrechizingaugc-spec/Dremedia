@@ -106,7 +106,7 @@ export default function CeoReview() {
                 <span className="min-w-0 flex-1"><span className="text-[12px] text-dm-muted">{nice(x.date)}</span><br /><b>{x.decision}</b>{x.why && <span className="text-dm-muted"> · {x.why}</span>}</span>
                 <Del label="Delete decision" onClick={() => update((d) => ({ ...d, decisions: d.decisions.filter((y) => y.id !== x.id) }))} />
               </li>
-            )) : <li className="py-3 text-[14px] text-dm-muted">No decisions logged yet. The first one: 6k target in USD or ZAR?</li>}
+            )) : <li className="py-3 text-[14px] text-dm-muted">No decisions logged yet. Log each big call here with the reason behind it.</li>}
           </ul>
         </Panel>
       </div>

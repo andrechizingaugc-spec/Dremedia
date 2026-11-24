@@ -49,6 +49,13 @@ export type Ceo = {
 
 export const START = "2026-11-25"; // day 1 of 90; day 90 is 22 Feb 2027
 
+/** the road to the monthly target: targets, not forecasts */
+export const MILESTONES = [
+  { usd: 6000, by: "2027-02-22", label: "Day 90" },
+  { usd: 10000, by: "2027-04-30", label: "End of April" },
+  { usd: 15000, by: "2027-06-30", label: "End of June" },
+];
+
 export const MISSION = "Build Dre Media into a profitable, scalable creative agency, then a portfolio of connected businesses and technology products that runs with minimal dependence on the founder's daily involvement. One ecosystem, not four businesses competing for the same hours.";
 export const PRIORITIES = [
   "Establish predictable cash flow",
@@ -108,7 +115,7 @@ export const PHASES = [
   {
     n: 3, name: "Systemisation and expansion", from: 63, to: 90, dates: "26 Jan – 22 Feb",
     work: ["Repeatable campaign delivery", "Delegate proven work", "Recruit the first justified team member", "Improve recurring revenue", "Validate social media management", "Research the creator technology platform", "Identify the first viable platform MVP"],
-    gate: ["Monthly target hit", "3 clients signed", "1 recurring retainer", "No client over 50% of revenue"],
+    gate: ["$6,000+ month: first milestone to $15,000", "3 clients signed", "1 recurring retainer", "No client over 50% of revenue"],
   },
 ];
 
@@ -327,7 +334,7 @@ const EVENT = "dremedia-ceo";
 
 export const INITIAL: Ceo = {
   v: 2,
-  settings: { target: 6000, targetCur: "USD", fx: 16.5, tax: 0.3, costs: 0, emergency: 0, cash: 0, baseline: 0, wealthZar: 0, equityZar: 0, millionZar: 1000000, emailsPerDay: 25 },
+  settings: { target: 15000, targetCur: "USD", fx: 16.5, tax: 0.3, costs: 0, emergency: 0, cash: 0, baseline: 0, wealthZar: 0, equityZar: 0, millionZar: 1000000, emailsPerDay: 30 },
   days: {},
   campaigns: [],
   logs: {},
