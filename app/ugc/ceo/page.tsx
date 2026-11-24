@@ -7,7 +7,7 @@ import { cx } from "@/components/ui";
 import { Panel, SectionTitle, Stat } from "@/components/ugc/ui";
 import { Bar, Board90, CeoHead, CeoNav, Loading, NumIn } from "@/components/ugc/ceo";
 import {
-  KIND, LESSONS, SCHEDULE, addDays, alerts, dayN, funnel, kindOf, monthName, monthStats, nice, num, pct, targetUsd, ugcStats, unpaid, usd, useCeo, useToday, weekStart, type Day,
+  KIND, LESSONS, MILESTONES, SCHEDULE, addDays, alerts, dayN, funnel, kindOf, monthName, monthStats, nice, num, pct, targetUsd, ugcStats, unpaid, usd, useCeo, useToday, weekStart, type Day,
 } from "@/lib/ceo";
 
 export default function CeoOverview() {
@@ -19,7 +19,8 @@ export default function CeoOverview() {
   const sel = picked || today;
   const s = data.settings, m = today.slice(0, 7);
   const st = monthStats(data, m);
-  const target = targetUsd(s) || 6000;
+  const target = targetUsd(s) || 15000;
+  const next = MILESTONES.find((x) => st.rev < x.usd);
   const u = unpaid(data, today);
   const ws = weekStart(today);
   const f = funnel(data, ws, today);
@@ -57,8 +58,16 @@ export default function CeoOverview() {
           <div className="mt-2 text-[15px]">
             of the {s.targetCur === "ZAR" ? `R${num(s.target).toLocaleString("en-US")} (${usd(target)})` : usd(target)} target · <b>{pct(st.rev / target)}</b>
           </div>
-          <div className="mt-4 h-3 overflow-hidden rounded-full bg-dm-surface2">
+          <div className="relative mt-4 h-3 rounded-full bg-dm-surface2">
             <div className="h-full rounded-full bg-dm-ink transition-[width] duration-700 motion-reduce:transition-none" style={{ width: Math.min(100, (st.rev / target) * 100) + "%" }} />
+            {MILESTONES.filter((x) => x.usd < target).map((x) => (
+              <span key={x.usd} className="absolute top-[-3px] h-[18px] w-[2px] bg-dm-muted" style={{ left: (x.usd / target) * 100 + "%" }} title={`${usd(x.usd)} by ${nice(x.by)}`} />
+            ))}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-dm-muted">
+            {MILESTONES.map((x) => (
+              <span key={x.usd} className={cx(next?.usd === x.usd && "font-semibold text-dm-ink")}>{usd(x.usd)}/mo by {nice(x.by)}</span>
+            ))}
           </div>
           <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             <Stat label="Received" value={usd(st.received)} sub="Landed this month" />
