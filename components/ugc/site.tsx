@@ -16,6 +16,7 @@ import { cx } from "@/components/ui";
 import { ThemeProvider, ThemeToggle } from "./theme";
 
 export const PAGES = [
+  { href: "/ugc/ceo", label: "CEO office", title: "CEO office" },
   { href: "/ugc", label: "Discover", title: "Discover viral UGC" },
   { href: "/ugc/viral", label: "Going viral", title: "Going viral" },
   { href: "/ugc/scripts", label: "Scripts", title: "Scripts" },
