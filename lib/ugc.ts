@@ -5,7 +5,7 @@
 import { LIBRARY } from "./dare";
 import { anyFormat, campaignByKey, type CampaignKey } from "./campaigns";
 
-export const SNAPSHOT_DATE = "2026-11-23";
+export const SNAPSHOT_DATE = "2026-11-27";
 
 /** "1.6M" -> 1600000 */
 export function n(s: string | number): number {
@@ -248,6 +248,7 @@ const CLUELY_ROWS: Row[] = [
   ["ig-Deym9ZBuwm_", "Parakeet AI", "carlycareers", "482K", "149", 0, "2026-10-22", "Secret AI helper", "productivity", "No, I'm using my interview tool", 15, "cl-interview"],
   ["tt-7698017009648405781", "LockedIn AI", "careerwithfiza", "451K", "2.6K", 0.6, "2026-10-18", "Secret AI helper", "productivity", "The craziest AI interview hack", 29, "cl-interview"],
   ["tt-7695113059093777685", "LockedIn AI", "lockin.with.khayam", "370K", "6K", 1.8, "2026-10-10", "Secret AI helper", "productivity", "Bro got bossed by an AI", 19, "cl-interview"],
+  ["ig-DgLADnJtm-9", "Parakeet AI", "arjun_interview.prep", "282K", "1.9K", 0.7, "2026-11-25", "Secret AI helper", "productivity", "Interviews are not easy these days", 28, "cl-interview"],
   ["ig-DfhDUwvteeZ", "Parakeet AI", "arjun_interview.prep", "110K", "1.1K", 1, "2026-11-09", "Secret AI helper", "productivity", "Unemployed era might be ending", 28, "cl-interview"],
   ["ig-DfaKrEbt7fI", "Parakeet AI", "arjun_interview.prep", "76K", "313", 0.4, "2026-11-06", "Secret AI helper", "productivity", "This generation forgot how to work", 28, "cl-interview"],
   ["ig-Df-MWbFtoQp", "Parakeet AI", "arjun_interview.prep", "76K", "499", 0.7, "2026-11-20", "Secret AI helper", "productivity", "Hands up, hands down: the interviewer's cheating test", 28, "cl-interview"],
